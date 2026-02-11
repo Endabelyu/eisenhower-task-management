@@ -2,24 +2,25 @@ import { useState } from 'react';
 import {
   DndContext,
   DragEndEvent,
-  DragOverEvent,
   closestCorners,
   PointerSensor,
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
-import { Plus } from 'lucide-react';
+import { Plus, CheckCircle2, AlertTriangle, ListTodo, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { QuadrantPanel } from '@/components/QuadrantPanel';
 import { QuickAddModal } from '@/components/QuickAddModal';
 import { useTaskContext } from '@/context/TaskContext';
 import { Quadrant } from '@/types/task';
+import { cn } from '@/lib/utils';
 
 const QUADRANTS: Quadrant[] = ['do', 'schedule', 'delegate', 'hold'];
 
 export default function Dashboard() {
-  const { getQuadrantTasks, moveToQuadrant, reorderInQuadrant } = useTaskContext();
+  const { getQuadrantTasks, moveToQuadrant, reorderInQuadrant, getStats } = useTaskContext();
   const [showAdd, setShowAdd] = useState(false);
+  const stats = getStats();
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
@@ -36,18 +37,15 @@ export default function Dashboard() {
     const taskId = active.id as string;
     const overId = over.id as string;
 
-    // Dropped on a quadrant directly
     if (QUADRANTS.includes(overId as Quadrant)) {
       moveToQuadrant(taskId, overId as Quadrant);
       return;
     }
 
-    // Dropped on another task — find its quadrant
     for (const q of QUADRANTS) {
       const ids = quadrantTasks[q].map(t => t.id);
       if (ids.includes(overId)) {
         moveToQuadrant(taskId, q);
-        // Reorder
         const newOrder = ids.filter(id => id !== taskId);
         const overIndex = newOrder.indexOf(overId);
         newOrder.splice(overIndex, 0, taskId);
@@ -57,46 +55,72 @@ export default function Dashboard() {
     }
   };
 
+  const summaryCards = [
+    { label: 'Total', value: stats.total, icon: ListTodo, className: 'text-foreground' },
+    { label: 'Completed', value: stats.completed, icon: CheckCircle2, className: 'text-status-completed' },
+    { label: 'Overdue', value: stats.overdue, icon: AlertTriangle, className: 'text-status-overdue' },
+    { label: 'Completion', value: `${stats.completionRate}%`, icon: Clock, className: 'text-status-in-progress' },
+  ];
+
   return (
     <div className="animate-fade-in">
+      {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="font-display text-2xl font-bold">Eisenhower Matrix</h1>
+          <h1 className="font-display text-2xl font-bold tracking-tight">Eisenhower Matrix</h1>
           <p className="text-sm text-muted-foreground">Prioritize what matters most</p>
         </div>
-        <Button onClick={() => setShowAdd(true)} className="gap-2">
+        <Button onClick={() => setShowAdd(true)} className="gap-2 shadow-sm">
           <Plus className="h-4 w-4" />
           Add Task
         </Button>
       </div>
 
+      {/* Summary strip */}
+      <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">
+        {summaryCards.map((card, i) => (
+          <div
+            key={card.label}
+            className="flex items-center gap-3 rounded-xl border bg-card p-4 shadow-sm animate-fade-in"
+            style={{ animationDelay: `${i * 50}ms` }}
+          >
+            <div className={cn('flex h-10 w-10 items-center justify-center rounded-lg bg-muted', card.className)}>
+              <card.icon className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-2xl font-display font-bold leading-none">{card.value}</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">{card.label}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
       {/* Axis labels */}
       <div className="mb-2 grid grid-cols-2 gap-4">
-        <div className="text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
-          Urgent
+        <div className="text-center text-[10px] font-semibold text-muted-foreground/60 uppercase tracking-[0.2em]">
+          ← Urgent →
         </div>
-        <div className="text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
-          Not Urgent
+        <div className="text-center text-[10px] font-semibold text-muted-foreground/60 uppercase tracking-[0.2em]">
+          ← Not Urgent →
         </div>
       </div>
 
+      {/* Matrix grid */}
       <DndContext
         sensors={sensors}
         collisionDetection={closestCorners}
         onDragEnd={handleDragEnd}
       >
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          {/* Row 1: Important */}
           <div className="relative">
-            <div className="absolute -left-6 top-1/2 -translate-y-1/2 -rotate-90 text-[10px] font-medium uppercase tracking-wider text-muted-foreground hidden lg:block">
+            <div className="absolute -left-7 top-1/2 -translate-y-1/2 -rotate-90 text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground/40 hidden lg:block">
               Important
             </div>
             <QuadrantPanel quadrant="do" tasks={quadrantTasks.do} />
           </div>
           <QuadrantPanel quadrant="schedule" tasks={quadrantTasks.schedule} />
-          {/* Row 2: Not Important */}
           <div className="relative">
-            <div className="absolute -left-6 top-1/2 -translate-y-1/2 -rotate-90 text-[10px] font-medium uppercase tracking-wider text-muted-foreground hidden lg:block whitespace-nowrap">
+            <div className="absolute -left-7 top-1/2 -translate-y-1/2 -rotate-90 text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground/40 hidden lg:block whitespace-nowrap">
               Not Important
             </div>
             <QuadrantPanel quadrant="delegate" tasks={quadrantTasks.delegate} />
