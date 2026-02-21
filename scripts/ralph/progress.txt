@@ -1,0 +1,29 @@
+# Ralph Progress Log
+Started: 2026-02-22
+Feature: Eisenhower Matrix - Complete Missing Features
+Parent Task: 1
+
+## Codebase Patterns
+- React + Vite + TypeScript + shadcn/ui + Tailwind CSS
+- State management: React Context + custom hooks (useTasks), persisted to localStorage
+- Routing: react-router-dom v6 with BrowserRouter
+- Drag-and-drop: @dnd-kit/core + @dnd-kit/sortable
+- UI components: shadcn/ui (Radix-based) in src/components/ui/
+- Task types: src/types/task.ts (Task, TaskWithMetrics, Quadrant, QUADRANT_CONFIG)
+- Context: src/context/TaskContext.tsx wraps useTasks hook
+- Pages follow pattern: max-w container, icon + heading, muted description
+- Dark mode: CSS variables in index.css (.dark class), tailwind darkMode: ["class"]
+- next-themes is installed but not yet used
+- recharts is installed but not yet used
+- sonner toast is rendered in App.tsx but never triggered
+- AlertDialog component available at src/components/ui/alert-dialog.tsx
+- Tests: vitest + @testing-library/react, setup in src/test/setup.ts
+---
+
+## 2026-02-22 - Fix performance: add useMemo to useTasks hook
+Task ID: 2
+- Added useMemo to tasksWithMetrics computation
+- Fixed order assignment bug (max order + 1 instead of length)
+- Memoized return object
+- Added parseInt radix parameter in EditTaskModal and QuickAddModal
+---

@@ -21,6 +21,10 @@ interface EditTaskModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
+/**
+ * EditTaskModal component - Modal dialog for editing an existing task.
+ * Syncs with TaskContext.updateTask to persist changes.
+ */
 export function EditTaskModal({ task, open, onOpenChange }: EditTaskModalProps) {
   const { updateTask } = useTaskContext();
   const [title, setTitle] = useState('');
@@ -56,7 +60,7 @@ export function EditTaskModal({ task, open, onOpenChange }: EditTaskModalProps) 
       urgent,
       important,
       dueDate: dueDate || undefined,
-      estimatedDuration: parseInt(duration) || 30,
+      estimatedDuration: parseInt(duration, 10) || 30,
       status,
     });
 

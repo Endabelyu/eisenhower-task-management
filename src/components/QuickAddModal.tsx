@@ -19,6 +19,10 @@ interface QuickAddModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
+/**
+ * QuickAddModal component - Modal dialog for quickly adding a new task.
+ * Allows users to set title, description, urgency, importance, and due date.
+ */
 export function QuickAddModal({ open, onOpenChange }: QuickAddModalProps) {
   const { addTask } = useTaskContext();
   const [title, setTitle] = useState('');
@@ -41,7 +45,7 @@ export function QuickAddModal({ open, onOpenChange }: QuickAddModalProps) {
       urgent,
       important,
       dueDate: dueDate || undefined,
-      estimatedDuration: parseInt(duration) || 30,
+      estimatedDuration: parseInt(duration, 10) || 30,
     });
 
     setTitle('');

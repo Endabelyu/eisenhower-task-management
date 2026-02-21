@@ -1,10 +1,18 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { Task, Quadrant, getQuadrant, getQuadrantFlags, TaskWithMetrics } from '@/types/task';
 
+/** Local storage key for persisting tasks */
 const STORAGE_KEY = 'eisenhower-tasks';
 
+/**
+ * Generates a unique identifier for a new task.
+ */
 const generateId = () => crypto.randomUUID();
 
+/**
+ * Loads tasks from local storage.
+ * @returns Array of tasks or empty array if none found or on error.
+ */
 const loadTasks = (): Task[] => {
   try {
     const data = localStorage.getItem(STORAGE_KEY);
@@ -14,10 +22,19 @@ const loadTasks = (): Task[] => {
   }
 };
 
+/**
+ * Persists tasks to local storage.
+ * @param tasks - Array of tasks to save.
+ */
 const saveTasks = (tasks: Task[]) => {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
 };
 
+/**
+ * Computes additional metrics for a task used in sorting and visualization.
+ * @param task - The raw task object.
+ * @returns Task object with calculated metrics.
+ */
 export const computeMetrics = (task: Task): TaskWithMetrics => {
   const now = new Date();
   let daysUntilDue: number | null = null;
@@ -36,6 +53,11 @@ export const computeMetrics = (task: Task): TaskWithMetrics => {
   return { ...task, daysUntilDue, urgencyScore, isOverdue };
 };
 
+/**
+ * Custom hook to manage the state and operations of tasks.
+ * Provides functions to add, update, delete, and reorder tasks, 
+ * as well as derived stats and filtered lists.
+ */
 export function useTasks() {
   const [tasks, setTasks] = useState<Task[]>(loadTasks);
 
@@ -43,6 +65,11 @@ export function useTasks() {
     saveTasks(tasks);
   }, [tasks]);
 
+  /**
+   * Adds a new task to the system.
+   * @param data - The task data from the user.
+   * @returns The newly created task object.
+   */
   const addTask = useCallback((data: {
     title: string;
     description?: string;
@@ -65,7 +92,7 @@ export function useTasks() {
       dueDate: data.dueDate,
       estimatedDuration: data.estimatedDuration || 30,
       status: 'pending',
-      order: quadrantTasks.length,
+      order: quadrantTasks.length > 0 ? Math.max(...quadrantTasks.map(t => t.order)) + 1 : 0,
       createdAt: now,
       updatedAt: now,
     };
@@ -74,6 +101,12 @@ export function useTasks() {
     return task;
   }, [tasks]);
 
+  /**
+   * Updates an existing task by ID.
+   * Automatically updates the quadrant if urgency or importance changes.
+   * @param id - Unique identifier of the task.
+   * @param updates - Partial object containing fields to update.
+   */
   const updateTask = useCallback((id: string, updates: Partial<Omit<Task, 'id' | 'createdAt'>>) => {
     setTasks(prev => prev.map(t => {
       if (t.id !== id) return t;
@@ -88,10 +121,19 @@ export function useTasks() {
     }));
   }, []);
 
+  /**
+   * Deletes a task by ID.
+   * @param id - Unique identifier of the task.
+   */
   const deleteTask = useCallback((id: string) => {
     setTasks(prev => prev.filter(t => t.id !== id));
   }, []);
 
+  /**
+   * Moves a task to a different quadrant explicitly.
+   * @param id - Unique identifier of the task.
+   * @param quadrant - Destination quadrant.
+   */
   const moveToQuadrant = useCallback((id: string, quadrant: Quadrant) => {
     const flags = getQuadrantFlags(quadrant);
     setTasks(prev => prev.map(t => {
@@ -100,6 +142,11 @@ export function useTasks() {
     }));
   }, []);
 
+  /**
+   * Reorders tasks within a specific quadrant.
+   * @param quadrant - The quadrant being reordered.
+   * @param orderedIds - Array of task IDs in their new order.
+   */
   const reorderInQuadrant = useCallback((quadrant: Quadrant, orderedIds: string[]) => {
     setTasks(prev => prev.map(t => {
       if (t.quadrant !== quadrant) return t;
@@ -109,14 +156,21 @@ export function useTasks() {
     }));
   }, []);
 
-  const tasksWithMetrics = tasks.map(computeMetrics);
+  const tasksWithMetrics = useMemo(() => tasks.map(computeMetrics), [tasks]);
 
+  /**
+   * Returns a filtered and sorted list of tasks for a given quadrant.
+   * @param quadrant - The quadrant to retrieve tasks for.
+   */
   const getQuadrantTasks = useCallback((quadrant: Quadrant) => {
     return tasksWithMetrics
       .filter(t => t.quadrant === quadrant && t.status !== 'completed')
       .sort((a, b) => a.order - b.order);
   }, [tasksWithMetrics]);
 
+  /**
+   * Returns the top tasks to focus on for the day (priority based).
+   */
   const getDailyFocus = useCallback(() => {
     return tasksWithMetrics
       .filter(t => t.quadrant === 'do' && t.status !== 'completed')
@@ -124,6 +178,9 @@ export function useTasks() {
       .slice(0, 5);
   }, [tasksWithMetrics]);
 
+  /**
+   * Calculates overall task statistics.
+   */
   const getStats = useCallback(() => {
     const total = tasks.length;
     const completed = tasks.filter(t => t.status === 'completed').length;
@@ -137,7 +194,7 @@ export function useTasks() {
     return { total, completed, overdue, completionRate: total ? Math.round((completed / total) * 100) : 0, byQuadrant };
   }, [tasks, tasksWithMetrics]);
 
-  return {
+  return useMemo(() => ({
     tasks: tasksWithMetrics,
     addTask,
     updateTask,
@@ -147,5 +204,5 @@ export function useTasks() {
     getQuadrantTasks,
     getDailyFocus,
     getStats,
-  };
+  }), [tasksWithMetrics, addTask, updateTask, deleteTask, moveToQuadrant, reorderInQuadrant, getQuadrantTasks, getDailyFocus, getStats]);
 }
