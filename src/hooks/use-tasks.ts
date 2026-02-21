@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
-import { Task, Quadrant, getQuadrant, getQuadrantFlags, TaskWithMetrics } from '@/types/task';
+import { toast } from 'sonner';
+import { Task, Quadrant, getQuadrant, getQuadrantFlags, TaskWithMetrics, QUADRANT_CONFIG } from '@/types/task';
 
 /** Local storage key for persisting tasks */
 const STORAGE_KEY = 'eisenhower-tasks';
@@ -98,6 +99,7 @@ export function useTasks() {
     };
 
     setTasks(prev => [...prev, task]);
+    toast.success(`Task added to ${QUADRANT_CONFIG[quadrant].label}`);
     return task;
   }, [tasks]);
 
@@ -119,6 +121,9 @@ export function useTasks() {
       }
       return updated;
     }));
+    if (updates.status === 'completed') {
+      toast.success('Task completed! 🎉');
+    }
   }, []);
 
   /**
@@ -126,7 +131,19 @@ export function useTasks() {
    * @param id - Unique identifier of the task.
    */
   const deleteTask = useCallback((id: string) => {
-    setTasks(prev => prev.filter(t => t.id !== id));
+    let deleted: Task | undefined;
+    setTasks(prev => {
+      deleted = prev.find(t => t.id === id);
+      return prev.filter(t => t.id !== id);
+    });
+    toast('Task deleted', {
+      action: {
+        label: 'Undo',
+        onClick: () => {
+          if (deleted) setTasks(prev => [...prev, deleted!]);
+        },
+      },
+    });
   }, []);
 
   /**
@@ -140,6 +157,7 @@ export function useTasks() {
       if (t.id !== id) return t;
       return { ...t, ...flags, quadrant, updatedAt: new Date().toISOString() };
     }));
+    toast(`Moved to ${QUADRANT_CONFIG[quadrant].label}`);
   }, []);
 
   /**

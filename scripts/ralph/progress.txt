@@ -49,3 +49,12 @@ Task ID: 4
 - Shows Moon/Sun icon and current theme label
 - Files changed: src/App.tsx, src/components/AppSidebar.tsx
 ---
+
+## 2026-02-22 - Add toast notifications on task actions
+Task ID: 5
+- Added sonner toast.success on addTask with quadrant label
+- Added toast.success on task completion with emoji
+- Added toast with Undo action on deleteTask (re-adds deleted task)
+- Added toast on moveToQuadrant with quadrant label
+- Files changed: src/hooks/use-tasks.ts
+---
