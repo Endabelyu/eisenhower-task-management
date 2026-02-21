@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTaskContext } from '@/context/TaskContext';
-import { QUADRANT_CONFIG, Quadrant } from '@/types/task';
+import { QUADRANT_CONFIG, Quadrant, TaskWithMetrics } from '@/types/task';
+import { EditTaskModal } from '@/components/EditTaskModal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Check, Trash2, Clock, AlertTriangle, Search, ListTodo } from 'lucide-react';
@@ -21,6 +22,7 @@ export default function TaskList() {
   const { tasks, updateTask, deleteTask } = useTaskContext();
   const [filter, setFilter] = useState<FilterValue>('all');
   const [search, setSearch] = useState('');
+  const [editingTask, setEditingTask] = useState<TaskWithMetrics | null>(null);
 
   const filtered = tasks.filter(t => {
     if (search && !t.title.toLowerCase().includes(search.toLowerCase())) return false;
@@ -71,10 +73,11 @@ export default function TaskList() {
             <div
               key={task.id}
               className={cn(
-                'group flex items-center gap-3 rounded-lg border bg-card p-4 transition-all',
+                'group flex items-center gap-3 rounded-lg border bg-card p-4 transition-all cursor-pointer hover:shadow-sm',
                 task.isOverdue && 'border-status-overdue/40',
                 task.status === 'completed' && 'opacity-60',
               )}
+              onClick={() => setEditingTask(task)}
             >
               <span className="text-base">{config.emoji}</span>
               <div className="flex-1 min-w-0">
@@ -97,11 +100,11 @@ export default function TaskList() {
               </div>
               <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 {task.status !== 'completed' && (
-                  <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => updateTask(task.id, { status: 'completed' })}>
+                  <Button size="icon" variant="ghost" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); updateTask(task.id, { status: 'completed' }); }}>
                     <Check className="h-4 w-4" />
                   </Button>
                 )}
-                <Button size="icon" variant="ghost" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => deleteTask(task.id)}>
+                <Button size="icon" variant="ghost" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={(e) => { e.stopPropagation(); deleteTask(task.id); }}>
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
@@ -114,6 +117,8 @@ export default function TaskList() {
           </div>
         )}
       </div>
+
+      <EditTaskModal task={editingTask} open={!!editingTask} onOpenChange={(open) => !open && setEditingTask(null)} />
     </div>
   );
 }

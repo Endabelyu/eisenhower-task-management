@@ -1,12 +1,15 @@
+import { useState } from 'react';
 import { Zap, Clock, AlertTriangle } from 'lucide-react';
 import { useTaskContext } from '@/context/TaskContext';
-import { QUADRANT_CONFIG } from '@/types/task';
+import { TaskWithMetrics } from '@/types/task';
+import { EditTaskModal } from '@/components/EditTaskModal';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 export default function DailyFocus() {
   const { getDailyFocus, updateTask } = useTaskContext();
   const focus = getDailyFocus();
+  const [editingTask, setEditingTask] = useState<TaskWithMetrics | null>(null);
 
   return (
     <div className="mx-auto max-w-2xl animate-fade-in">
@@ -34,10 +37,11 @@ export default function DailyFocus() {
             <div
               key={task.id}
               className={cn(
-                'flex items-start gap-4 rounded-xl border bg-card p-5 shadow-sm transition-all animate-fade-in',
+                'flex items-start gap-4 rounded-xl border bg-card p-5 shadow-sm transition-all animate-fade-in cursor-pointer hover:shadow-md',
                 task.isOverdue && 'border-status-overdue/40 ring-1 ring-status-overdue/10',
               )}
               style={{ animationDelay: `${i * 60}ms` }}
+              onClick={() => setEditingTask(task)}
             >
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-quadrant-do/10 font-display text-sm font-bold text-quadrant-do">
                 {i + 1}
@@ -61,7 +65,7 @@ export default function DailyFocus() {
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => updateTask(task.id, { status: 'completed' })}
+                onClick={(e) => { e.stopPropagation(); updateTask(task.id, { status: 'completed' }); }}
               >
                 Done
               </Button>
@@ -69,6 +73,8 @@ export default function DailyFocus() {
           ))}
         </div>
       )}
+
+      <EditTaskModal task={editingTask} open={!!editingTask} onOpenChange={(open) => !open && setEditingTask(null)} />
     </div>
   );
 }
