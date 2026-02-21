@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 interface TaskCardProps {
   task: TaskWithMetrics;
   compact?: boolean;
+  onEdit?: (task: TaskWithMetrics) => void;
 }
 
 const quadrantAccentBorder: Record<Quadrant, string> = {
@@ -25,7 +26,7 @@ const statusConfig = {
   hold: { label: 'On Hold', className: 'bg-muted text-muted-foreground' },
 };
 
-export function TaskCard({ task, compact }: TaskCardProps) {
+export function TaskCard({ task, compact, onEdit }: TaskCardProps) {
   const { updateTask, deleteTask } = useTaskContext();
   const {
     attributes,
@@ -78,7 +79,7 @@ export function TaskCard({ task, compact }: TaskCardProps) {
         {task.status === 'completed' && <Check className="h-3 w-3" />}
       </button>
 
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 cursor-pointer" onClick={() => onEdit?.(task)}>
         {/* Title row */}
         <div className="flex items-start justify-between gap-2">
           <p className={cn(

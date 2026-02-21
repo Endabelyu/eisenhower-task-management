@@ -11,6 +11,7 @@ import { Inbox } from 'lucide-react';
 interface QuadrantPanelProps {
   quadrant: Quadrant;
   tasks: TaskWithMetrics[];
+  onEditTask?: (task: TaskWithMetrics) => void;
 }
 
 const quadrantGradient: Record<Quadrant, string> = {
@@ -34,7 +35,7 @@ const quadrantCountBg: Record<Quadrant, string> = {
   hold: 'bg-muted text-muted-foreground',
 };
 
-export function QuadrantPanel({ quadrant, tasks }: QuadrantPanelProps) {
+export function QuadrantPanel({ quadrant, tasks, onEditTask }: QuadrantPanelProps) {
   const config = QUADRANT_CONFIG[quadrant];
   const { setNodeRef, isOver } = useDroppable({ id: quadrant });
   const overdueTasks = tasks.filter(t => t.isOverdue).length;
@@ -83,7 +84,7 @@ export function QuadrantPanel({ quadrant, tasks }: QuadrantPanelProps) {
         <SortableContext items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
           <div className="flex flex-col gap-2 mt-2">
             {tasks.map((task) => (
-              <TaskCard key={task.id} task={task} />
+              <TaskCard key={task.id} task={task} onEdit={onEditTask} />
             ))}
             {tasks.length === 0 && (
               <div className="flex flex-1 flex-col items-center justify-center rounded-xl border-2 border-dashed border-current/5 p-8 mt-2">

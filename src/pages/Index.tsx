@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { TaskWithMetrics } from '@/types/task';
 import {
   DndContext,
   DragEndEvent,
@@ -11,6 +12,7 @@ import { Plus, CheckCircle2, AlertTriangle, ListTodo, Clock } from 'lucide-react
 import { Button } from '@/components/ui/button';
 import { QuadrantPanel } from '@/components/QuadrantPanel';
 import { QuickAddModal } from '@/components/QuickAddModal';
+import { EditTaskModal } from '@/components/EditTaskModal';
 import { useTaskContext } from '@/context/TaskContext';
 import { Quadrant } from '@/types/task';
 import { cn } from '@/lib/utils';
@@ -20,6 +22,7 @@ const QUADRANTS: Quadrant[] = ['do', 'schedule', 'delegate', 'hold'];
 export default function Dashboard() {
   const { getQuadrantTasks, moveToQuadrant, reorderInQuadrant, getStats } = useTaskContext();
   const [showAdd, setShowAdd] = useState(false);
+  const [editingTask, setEditingTask] = useState<TaskWithMetrics | null>(null);
   const stats = getStats();
 
   const sensors = useSensors(
@@ -116,20 +119,21 @@ export default function Dashboard() {
             <div className="absolute -left-7 top-1/2 -translate-y-1/2 -rotate-90 text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground/40 hidden lg:block">
               Important
             </div>
-            <QuadrantPanel quadrant="do" tasks={quadrantTasks.do} />
+            <QuadrantPanel quadrant="do" tasks={quadrantTasks.do} onEditTask={setEditingTask} />
           </div>
-          <QuadrantPanel quadrant="schedule" tasks={quadrantTasks.schedule} />
+          <QuadrantPanel quadrant="schedule" tasks={quadrantTasks.schedule} onEditTask={setEditingTask} />
           <div className="relative">
             <div className="absolute -left-7 top-1/2 -translate-y-1/2 -rotate-90 text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground/40 hidden lg:block whitespace-nowrap">
               Not Important
             </div>
-            <QuadrantPanel quadrant="delegate" tasks={quadrantTasks.delegate} />
+            <QuadrantPanel quadrant="delegate" tasks={quadrantTasks.delegate} onEditTask={setEditingTask} />
           </div>
-          <QuadrantPanel quadrant="hold" tasks={quadrantTasks.hold} />
+          <QuadrantPanel quadrant="hold" tasks={quadrantTasks.hold} onEditTask={setEditingTask} />
         </div>
       </DndContext>
 
       <QuickAddModal open={showAdd} onOpenChange={setShowAdd} />
+      <EditTaskModal task={editingTask} open={!!editingTask} onOpenChange={(open) => !open && setEditingTask(null)} />
     </div>
   );
 }
