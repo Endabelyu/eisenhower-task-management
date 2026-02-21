@@ -4,6 +4,17 @@ import { GripVertical, Clock, Check, Trash2, AlertTriangle, Timer, CircleDot } f
 import { TaskWithMetrics, QUADRANT_CONFIG, Quadrant } from '@/types/task';
 import { useTaskContext } from '@/context/TaskContext';
 import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { cn } from '@/lib/utils';
 
 interface TaskCardProps {
@@ -146,15 +157,30 @@ export function TaskCard({ task, compact, onEdit }: TaskCardProps) {
 
       {/* Delete on hover */}
       <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
-        <Button
-          size="icon"
-          variant="ghost"
-          aria-label="Delete task"
-          className="h-6 w-6 text-muted-foreground/40 hover:text-destructive"
-          onClick={() => deleteTask(task.id)}
-        >
-          <Trash2 className="h-3 w-3" />
-        </Button>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              size="icon"
+              variant="ghost"
+              aria-label="Delete task"
+              className="h-6 w-6 text-muted-foreground/40 hover:text-destructive"
+            >
+              <Trash2 className="h-3 w-3" />
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete this task?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete "{task.title}"? This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={() => deleteTask(task.id)}>Delete</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );

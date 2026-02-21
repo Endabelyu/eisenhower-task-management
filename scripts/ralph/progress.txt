@@ -58,3 +58,12 @@ Task ID: 5
 - Added toast on moveToQuadrant with quadrant label
 - Files changed: src/hooks/use-tasks.ts
 ---
+
+## 2026-02-22 - Add delete confirmation dialog
+Task ID: 6
+- Wrapped delete button in AlertDialog in TaskCard.tsx
+- Wrapped delete button in AlertDialog in TaskList.tsx
+- Both show task title in confirmation message
+- stopPropagation on trigger/content to prevent row click-through
+- Files changed: src/components/TaskCard.tsx, src/pages/TaskList.tsx
+---
