@@ -18,6 +18,11 @@ const FILTERS = [
 
 type FilterValue = typeof FILTERS[number]['value'];
 
+/**
+ * TaskList Page.
+ * Displays a searchable and filterable list of all tasks.
+ * Includes status overview and quick actions.
+ */
 export default function TaskList() {
   const { tasks, updateTask, deleteTask } = useTaskContext();
   const [filter, setFilter] = useState<FilterValue>('all');
@@ -72,12 +77,15 @@ export default function TaskList() {
           return (
             <div
               key={task.id}
+              role="button"
+              tabIndex={0}
               className={cn(
                 'group flex items-center gap-3 rounded-lg border bg-card p-4 transition-all cursor-pointer hover:shadow-sm',
                 task.isOverdue && 'border-status-overdue/40',
                 task.status === 'completed' && 'opacity-60',
               )}
               onClick={() => setEditingTask(task)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setEditingTask(task); } }}
             >
               <span className="text-base">{config.emoji}</span>
               <div className="flex-1 min-w-0">
@@ -98,13 +106,13 @@ export default function TaskList() {
                   <span>{task.estimatedDuration}m</span>
                 </div>
               </div>
-              <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="flex gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
                 {task.status !== 'completed' && (
-                  <Button size="icon" variant="ghost" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); updateTask(task.id, { status: 'completed' }); }}>
+                  <Button size="icon" variant="ghost" aria-label="Complete task" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); updateTask(task.id, { status: 'completed' }); }}>
                     <Check className="h-4 w-4" />
                   </Button>
                 )}
-                <Button size="icon" variant="ghost" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={(e) => { e.stopPropagation(); deleteTask(task.id); }}>
+                <Button size="icon" variant="ghost" aria-label="Delete task" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={(e) => { e.stopPropagation(); deleteTask(task.id); }}>
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>

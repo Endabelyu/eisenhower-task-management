@@ -6,6 +6,11 @@ import { EditTaskModal } from '@/components/EditTaskModal';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
+/**
+ * Daily Focus Page.
+ * Displays the top 5 most urgent and important tasks from the 'Do' quadrant.
+ * Aimed at helping users focus on critical immediate work.
+ */
 export default function DailyFocus() {
   const { getDailyFocus, updateTask } = useTaskContext();
   const focus = getDailyFocus();
@@ -36,12 +41,15 @@ export default function DailyFocus() {
           {focus.map((task, i) => (
             <div
               key={task.id}
+              role="button"
+              tabIndex={0}
               className={cn(
                 'flex items-start gap-4 rounded-xl border bg-card p-5 shadow-sm transition-all animate-fade-in cursor-pointer hover:shadow-md',
                 task.isOverdue && 'border-status-overdue/40 ring-1 ring-status-overdue/10',
               )}
               style={{ animationDelay: `${i * 60}ms` }}
               onClick={() => setEditingTask(task)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setEditingTask(task); } }}
             >
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-quadrant-do/10 font-display text-sm font-bold text-quadrant-do">
                 {i + 1}

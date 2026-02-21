@@ -26,6 +26,10 @@ const statusConfig = {
   hold: { label: 'On Hold', className: 'bg-muted text-muted-foreground' },
 };
 
+/**
+ * TaskCard component - Renders an individual task with its properties.
+ * Supports drag-and-drop (sortable), editing, and status toggling.
+ */
 export function TaskCard({ task, compact, onEdit }: TaskCardProps) {
   const { updateTask, deleteTask } = useTaskContext();
   const {
@@ -59,6 +63,7 @@ export function TaskCard({ task, compact, onEdit }: TaskCardProps) {
     >
       {/* Drag handle */}
       <button
+        aria-label="Drag to reorder task"
         {...attributes}
         {...listeners}
         className="mt-1 cursor-grab text-muted-foreground/30 hover:text-muted-foreground/60 active:cursor-grabbing transition-colors"
@@ -68,6 +73,7 @@ export function TaskCard({ task, compact, onEdit }: TaskCardProps) {
 
       {/* Completion checkbox circle */}
       <button
+        aria-label={task.status === 'completed' ? 'Mark as pending' : 'Mark as completed'}
         onClick={() => updateTask(task.id, { status: task.status === 'completed' ? 'pending' : 'completed' })}
         className={cn(
           'mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-all',
@@ -139,10 +145,11 @@ export function TaskCard({ task, compact, onEdit }: TaskCardProps) {
       </div>
 
       {/* Delete on hover */}
-      <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
         <Button
           size="icon"
           variant="ghost"
+          aria-label="Delete task"
           className="h-6 w-6 text-muted-foreground/40 hover:text-destructive"
           onClick={() => deleteTask(task.id)}
         >

@@ -27,3 +27,16 @@ Task ID: 2
 - Memoized return object
 - Added parseInt radix parameter in EditTaskModal and QuickAddModal
 ---
+
+## 2026-02-22 - Fix accessibility: add aria-labels and keyboard navigation
+Task ID: 3
+- Added aria-label to drag handle button in TaskCard.tsx
+- Added dynamic aria-label to completion toggle button in TaskCard.tsx
+- Added group-focus-within:opacity-100 to delete button container in TaskCard.tsx for keyboard access
+- Added aria-label="Delete task" to delete button in TaskCard.tsx
+- Added role="button", tabIndex={0}, and onKeyDown handler to clickable div in TaskList.tsx
+- Added aria-label="Complete task" and aria-label="Delete task" to action buttons in TaskList.tsx
+- Added group-focus-within:opacity-100 to action buttons container in TaskList.tsx
+- Added role="button", tabIndex={0}, and onKeyDown handler to clickable div in DailyFocus.tsx
+- Files changed: src/components/TaskCard.tsx, src/pages/TaskList.tsx, src/pages/DailyFocus.tsx
+---
