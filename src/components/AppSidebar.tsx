@@ -1,8 +1,11 @@
-import { LayoutGrid, ListTodo, Zap, BarChart3, Settings } from 'lucide-react';
+import { LayoutGrid, ListTodo, Zap, BarChart3, Moon, Sun } from 'lucide-react';
+import { useTheme } from 'next-themes';
 import { NavLink } from '@/components/NavLink';
+import { Button } from '@/components/ui/button';
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -19,7 +22,19 @@ const navItems = [
   { title: 'Stats', url: '/stats', icon: BarChart3 },
 ];
 
+/**
+ * AppSidebar component - Main navigation sidebar for the application.
+ * Contains links to the Dashboard, Task List, Daily Focus, and Stats.
+ */
 export function AppSidebar() {
+  const { theme, setTheme } = useTheme();
+
+  const cycleTheme = () => {
+    if (theme === 'light') setTheme('dark');
+    else if (theme === 'dark') setTheme('system');
+    else setTheme('light');
+  };
+
   return (
     <Sidebar className="border-r-0">
       <SidebarHeader className="p-5 pb-2">
@@ -59,6 +74,17 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter className="p-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={cycleTheme}
+          className="w-full justify-start gap-3 text-sm text-sidebar-foreground"
+        >
+          {theme === 'dark' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+          <span>{theme === 'dark' ? 'Dark' : theme === 'light' ? 'Light' : 'System'}</span>
+        </Button>
+      </SidebarFooter>
     </Sidebar>
   );
 }

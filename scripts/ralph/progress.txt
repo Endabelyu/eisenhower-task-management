@@ -40,3 +40,12 @@ Task ID: 3
 - Added role="button", tabIndex={0}, and onKeyDown handler to clickable div in DailyFocus.tsx
 - Files changed: src/components/TaskCard.tsx, src/pages/TaskList.tsx, src/pages/DailyFocus.tsx
 ---
+
+## 2026-02-22 - Add dark mode toggle to sidebar
+Task ID: 4
+- Wrapped App with next-themes ThemeProvider (attribute="class", defaultTheme="system", enableSystem)
+- Added dark mode toggle button in SidebarFooter in AppSidebar.tsx
+- Toggle cycles: light → dark → system
+- Shows Moon/Sun icon and current theme label
+- Files changed: src/App.tsx, src/components/AppSidebar.tsx
+---
