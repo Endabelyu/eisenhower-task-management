@@ -58,7 +58,7 @@
 ---
 
 ## Task 7: Add recharts visualizations to Stats page
-- **Status:** 🔲 Open
+- **Status:** ✅ Completed
 - **Files:** `src/pages/Stats.tsx`
 - **Description:** Use `recharts` to add visual data representation to the Stats page.
 - **What to do:**

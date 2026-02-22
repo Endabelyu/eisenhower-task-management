@@ -67,3 +67,12 @@ Task ID: 6
 - stopPropagation on trigger/content to prevent row click-through
 - Files changed: src/components/TaskCard.tsx, src/pages/TaskList.tsx
 ---
+
+## 2026-02-22 - Add recharts visualizations to Stats page
+Task ID: 7
+- Added PieChart (donut) for quadrant distribution with matching colors
+- Added BarChart for completed vs pending per quadrant
+- Charts only render when total > 0
+- Responsive with tooltips
+- Files changed: src/pages/Stats.tsx
+---

@@ -1,8 +1,20 @@
 import { BarChart3 } from 'lucide-react';
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { useTaskContext } from '@/context/TaskContext';
 import { QUADRANT_CONFIG, Quadrant } from '@/types/task';
 import { cn } from '@/lib/utils';
 
+const QUADRANT_COLORS: Record<Quadrant, string> = {
+  do: 'hsl(0, 72%, 51%)',
+  schedule: 'hsl(43, 96%, 50%)',
+  delegate: 'hsl(25, 95%, 53%)',
+  hold: 'hsl(220, 10%, 60%)',
+};
+
+/**
+ * Statistics Page.
+ * Provides a visual breakdown of task completion rates and distribution across quadrants.
+ */
 export default function Stats() {
   const { getStats } = useTaskContext();
   const stats = getStats();
@@ -24,6 +36,56 @@ export default function Stats() {
         <StatCard label="Completion" value={`${stats.completionRate}%`} />
         <StatCard label="Overdue" value={stats.overdue} accent="text-status-overdue" />
       </div>
+
+      {/* Charts */}
+      {stats.total > 0 && (
+        <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2">
+          {/* Pie chart - quadrant distribution */}
+          <div className="rounded-xl border bg-card p-5 shadow-sm">
+            <h3 className="font-display text-sm font-semibold mb-4">Quadrant Distribution</h3>
+            <ResponsiveContainer width="100%" height={200}>
+              <PieChart>
+                <Pie
+                  data={stats.byQuadrant.filter(q => q.total > 0).map(q => ({
+                    name: QUADRANT_CONFIG[q.quadrant as Quadrant].label,
+                    value: q.total,
+                    quadrant: q.quadrant,
+                  }))}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={50}
+                  outerRadius={80}
+                  dataKey="value"
+                  paddingAngle={2}
+                >
+                  {stats.byQuadrant.filter(q => q.total > 0).map(q => (
+                    <Cell key={q.quadrant} fill={QUADRANT_COLORS[q.quadrant as Quadrant]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Bar chart - completed vs pending */}
+          <div className="rounded-xl border bg-card p-5 shadow-sm">
+            <h3 className="font-display text-sm font-semibold mb-4">Completed vs Pending</h3>
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={stats.byQuadrant.map(q => ({
+                name: QUADRANT_CONFIG[q.quadrant as Quadrant].emoji,
+                completed: q.completed,
+                pending: q.pending,
+              }))}>
+                <XAxis dataKey="name" />
+                <YAxis allowDecimals={false} />
+                <Tooltip />
+                <Bar dataKey="completed" fill="hsl(142, 71%, 45%)" name="Completed" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="pending" fill="hsl(220, 14%, 75%)" name="Pending" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
 
       {/* Per-quadrant breakdown */}
       <h2 className="font-display text-lg font-semibold mb-4">By Quadrant</h2>
@@ -70,6 +132,9 @@ export default function Stats() {
   );
 }
 
+/**
+ * Reusable card for displaying a single metric.
+ */
 function StatCard({ label, value, accent }: { label: string; value: number | string; accent?: string }) {
   return (
     <div className="rounded-xl border bg-card p-5 shadow-sm">
