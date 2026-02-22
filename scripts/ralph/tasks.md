@@ -117,7 +117,7 @@
 ---
 
 ## Task 11: Add keyboard shortcuts
-- **Status:** 🔲 Open
+- **Status:** ✅ Completed
 - **Files:** `src/hooks/use-keyboard-shortcuts.ts`, `src/components/KeyboardShortcutsDialog.tsx`, `src/components/Layout.tsx`, `src/pages/Index.tsx`
 - **Description:** Add global hotkeys for power users.
 - **What to do:**

@@ -11,19 +11,27 @@ import {
 import { Plus, CheckCircle2, AlertTriangle, ListTodo, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { QuadrantPanel } from '@/components/QuadrantPanel';
-import { QuickAddModal } from '@/components/QuickAddModal';
 import { EditTaskModal } from '@/components/EditTaskModal';
 import { useTaskContext } from '@/context/TaskContext';
 import { Quadrant } from '@/types/task';
 import { cn } from '@/lib/utils';
+import { OPEN_QUICK_ADD_EVENT } from '@/hooks/use-keyboard-shortcuts';
 
 const QUADRANTS: Quadrant[] = ['do', 'schedule', 'delegate', 'hold'];
 
+/**
+ * Dashboard Page - The Eisenhower Matrix view.
+ * Displays tasks in a 2x2 grid representing urgency and importance.
+ * Supports drag-and-drop to move tasks between quadrants.
+ */
 export default function Dashboard() {
   const { getQuadrantTasks, moveToQuadrant, reorderInQuadrant, getStats } = useTaskContext();
-  const [showAdd, setShowAdd] = useState(false);
   const [editingTask, setEditingTask] = useState<TaskWithMetrics | null>(null);
   const stats = getStats();
+
+  const openQuickAdd = () => {
+    window.dispatchEvent(new Event(OPEN_QUICK_ADD_EVENT));
+  };
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
@@ -73,7 +81,7 @@ export default function Dashboard() {
           <h1 className="font-display text-2xl font-bold tracking-tight">Eisenhower Matrix</h1>
           <p className="text-sm text-muted-foreground">Prioritize what matters most</p>
         </div>
-        <Button onClick={() => setShowAdd(true)} className="gap-2 shadow-sm">
+        <Button onClick={openQuickAdd} className="gap-2 shadow-sm">
           <Plus className="h-4 w-4" />
           Add Task
         </Button>
@@ -132,7 +140,6 @@ export default function Dashboard() {
         </div>
       </DndContext>
 
-      <QuickAddModal open={showAdd} onOpenChange={setShowAdd} />
       <EditTaskModal task={editingTask} open={!!editingTask} onOpenChange={(open) => !open && setEditingTask(null)} />
     </div>
   );

@@ -106,3 +106,17 @@ Task ID: 10
   - Keeping tag styles centralized in `PRESET_TAGS` makes add/edit/list/card UI stay visually consistent
   - Backward-compatible `loadTasks` mapping avoids breaking existing localStorage task data when new fields are introduced
 ---
+
+## 2026-02-23 - Add keyboard shortcuts
+Thread: https://ampcode.com/threads/T-019c8643-f6d0-702b-97f7-319126f6b1ef
+Task ID: 11
+- Added global `useKeyboardShortcuts` hook with guarded hotkeys (`Ctrl+N`, `Ctrl+/`, `1-4`)
+- Implemented editable-target detection to avoid triggering shortcuts while typing in inputs
+- Added `KeyboardShortcutsDialog` and wired it into the app header for discoverability
+- Centralized quick-add modal in `Layout` and routed dashboard Add Task button through `app:open-quick-add`
+- Verified with `npx tsc --noEmit` and `npm run test -- --run`
+- Files changed: src/hooks/use-keyboard-shortcuts.ts (new), src/components/KeyboardShortcutsDialog.tsx (new), src/components/Layout.tsx, src/pages/Index.tsx
+- **Learnings for future iterations:**
+  - Global modals are easier to reuse when triggered by both shortcut handlers and lightweight window events
+  - Input-guard logic in keyboard hooks prevents accidental navigation or dialog opening during form entry
+---
