@@ -4,6 +4,20 @@
 
 **URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
 
+## Screenshots
+
+<details>
+  <summary>Click to view screenshots</summary>
+  
+  ![Dashboard](screenshots/01-dashboard.png)
+  ![Dashboard Full](screenshots/02-dashboard-full.png)
+  ![Tasklist](screenshots/03-tasklist.png)
+  ![Daily Focus](screenshots/04-dailyfocus.png)
+  ![Stats](screenshots/05-stats.png)
+  ![Add Task Modal](screenshots/06-add-task-modal.png)
+  ![Sidebar](screenshots/07-sidebar.png)
+</details>
+
 ## How can I edit this code?
 
 There are several ways of editing your application.
