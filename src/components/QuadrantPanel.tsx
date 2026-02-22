@@ -35,6 +35,10 @@ const quadrantCountBg: Record<Quadrant, string> = {
   hold: 'bg-muted text-muted-foreground',
 };
 
+/**
+ * QuadrantPanel component - Represents one of the four quadrants in the matrix.
+ * Handles droppable logic for drag-and-drop and renders a list of tasks.
+ */
 export function QuadrantPanel({ quadrant, tasks, onEditTask }: QuadrantPanelProps) {
   const config = QUADRANT_CONFIG[quadrant];
   const { setNodeRef, isOver } = useDroppable({ id: quadrant });

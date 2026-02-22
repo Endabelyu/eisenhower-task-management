@@ -68,6 +68,9 @@ const addToRemoveQueue = (toastId: string) => {
   toastTimeouts.set(toastId, timeout);
 };
 
+/**
+ * Reducer for managing toast notifications state.
+ */
 export const reducer = (state: State, action: Action): State => {
   switch (action.type) {
     case "ADD_TOAST":
@@ -134,6 +137,11 @@ function dispatch(action: Action) {
 
 type Toast = Omit<ToasterToast, "id">;
 
+/**
+ * Function to trigger a new toast notification.
+ * @param props - Toast properties including title, description, and action.
+ * @returns Object with id and controls to dismiss or update the toast.
+ */
 function toast({ ...props }: Toast) {
   const id = genId();
 
@@ -163,6 +171,10 @@ function toast({ ...props }: Toast) {
   };
 }
 
+/**
+ * Hook to manage and display toast notifications.
+ * @returns State and functions to trigger or dismiss toasts.
+ */
 function useToast() {
   const [state, setState] = React.useState<State>(memoryState);
 
