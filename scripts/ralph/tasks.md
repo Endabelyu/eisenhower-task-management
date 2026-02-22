@@ -132,7 +132,7 @@
 ---
 
 ## Task 12: Add unit tests for use-tasks hook and task types
-- **Status:** 🔲 Open
+- **Status:** ✅ Completed
 - **Files:** `src/test/use-tasks.test.ts`, `src/test/task-types.test.ts`
 - **Description:** Replace placeholder tests with comprehensive coverage.
 - **What to do:**

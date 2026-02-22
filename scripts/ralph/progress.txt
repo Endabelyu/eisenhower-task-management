@@ -120,3 +120,16 @@ Task ID: 11
   - Global modals are easier to reuse when triggered by both shortcut handlers and lightweight window events
   - Input-guard logic in keyboard hooks prevents accidental navigation or dialog opening during form entry
 ---
+
+## 2026-02-23 - Add unit tests for use-tasks hook and task types
+Thread: https://ampcode.com/threads/T-019c8643-f6d0-702b-97f7-319126f6b1ef
+Task ID: 12
+- Added `task-types.test.ts` covering quadrant helpers and preset tags
+- Added `use-tasks.test.ts` with CRUD, ordering, import/export validation, stats, and metrics behavior checks
+- Added 26 new assertions across the two new test files (27 total including existing example test)
+- Verified with `npx tsc --noEmit` and `npm run test -- --run`
+- Files changed: src/test/task-types.test.ts (new), src/test/use-tasks.test.ts (new)
+- **Learnings for future iterations:**
+  - `renderHook` from `@testing-library/react` works well for stateful hook verification without extra wrappers in this project
+  - `vi.hoisted` mock setup keeps `sonner` toast assertions stable across test runs
+---
