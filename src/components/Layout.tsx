@@ -1,5 +1,5 @@
-import { ReactNode, useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useCallback, useEffect, useState } from 'react';
+import { Outlet, useNavigate } from 'react-router';
 import { Keyboard } from 'lucide-react';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
@@ -9,10 +9,10 @@ import { KeyboardShortcutsDialog } from '@/components/KeyboardShortcutsDialog';
 import { OPEN_QUICK_ADD_EVENT, useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
 
 /**
- * Layout component - Provides the main application structure.
- * Includes the AppSidebar and the main content area with a header.
+ * Layout component - Root layout route for the application.
+ * Renders child routes via <Outlet /> and provides the sidebar/header shell.
  */
-export function Layout({ children }: { children: ReactNode }) {
+export function Layout() {
   const navigate = useNavigate();
   const [showQuickAdd, setShowQuickAdd] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
@@ -51,7 +51,7 @@ export function Layout({ children }: { children: ReactNode }) {
             </Button>
           </header>
           <main className="flex-1 p-6">
-            {children}
+            <Outlet />
           </main>
           <QuickAddModal open={showQuickAdd} onOpenChange={setShowQuickAdd} />
           <KeyboardShortcutsDialog open={showShortcuts} onOpenChange={setShowShortcuts} />

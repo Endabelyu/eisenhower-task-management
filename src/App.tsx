@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router";
 import { TaskProvider } from "@/context/TaskContext";
 import { Layout } from "@/components/Layout";
 import Index from "./pages/Index";
@@ -16,13 +16,30 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 /**
+ * Route tree — Layout acts as the root layout route, rendering child
+ * pages via <Outlet /> so all pages share the sidebar and header.
+ */
+const router = createBrowserRouter([
+  {
+    element: <Layout />,
+    children: [
+      { path: "/", element: <Index /> },
+      { path: "/tasks", element: <TaskList /> },
+      { path: "/daily", element: <DailyFocus /> },
+      { path: "/stats", element: <Stats /> },
+      { path: "/settings", element: <Settings /> },
+      { path: "*", element: <NotFound /> },
+    ],
+  },
+]);
+
+/**
  * Main Application Component.
  * Sets up global providers:
  * - QueryClientProvider: For data fetching and caching.
  * - TooltipProvider: For accessible tooltips.
- * - BrowserRouter: For client-side routing.
- * - TaskProvider: For global task management state.
- * - Layout: Provides the sidebar and consistent page structure.
+ * - RouterProvider: React Router v7 data router.
+ * - TaskProvider: For global task management state (wrapped inside Layout).
  */
 const App = () => (
   <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
@@ -30,20 +47,9 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
-          <TaskProvider>
-            <Layout>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/tasks" element={<TaskList />} />
-                <Route path="/daily" element={<DailyFocus />} />
-                <Route path="/stats" element={<Stats />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Layout>
-          </TaskProvider>
-        </BrowserRouter>
+        <TaskProvider>
+          <RouterProvider router={router} />
+        </TaskProvider>
       </TooltipProvider>
     </QueryClientProvider>
   </ThemeProvider>
