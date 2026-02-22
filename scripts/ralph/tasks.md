@@ -146,7 +146,7 @@
 ---
 
 ## Task 13: Enhanced Daily Focus with time budget and Pomodoro timer
-- **Status:** 🔲 Open
+- **Status:** ✅ Completed
 - **Files:** `src/components/PomodoroTimer.tsx`, `src/pages/DailyFocus.tsx`
 - **Description:** Upgrade the Daily Focus page with productivity tools.
 - **What to do:**

@@ -133,3 +133,17 @@ Task ID: 12
   - `renderHook` from `@testing-library/react` works well for stateful hook verification without extra wrappers in this project
   - `vi.hoisted` mock setup keeps `sonner` toast assertions stable across test runs
 ---
+
+## 2026-02-23 - Enhanced Daily Focus with time budget and Pomodoro timer
+Thread: https://ampcode.com/threads/T-019c8643-f6d0-702b-97f7-319126f6b1ef
+Task ID: 13
+- Added `PomodoroTimer` component with 25-minute focus and 5-minute break sessions, start/pause/reset controls
+- Updated Daily Focus to sort priorities across all quadrants and support configurable focus count (Top 3/5/8/10)
+- Added time budget summary card using total estimated minutes from the active focus set
+- Added quadrant context badges in focus cards and integrated Pomodoro section into the page layout
+- Verified with `npx tsc --noEmit` and `npm run test -- --run`
+- Files changed: src/components/PomodoroTimer.tsx (new), src/pages/DailyFocus.tsx
+- **Learnings for future iterations:**
+  - Keeping focus ranking based on existing `urgencyScore` reuses established prioritization logic without new state complexity
+  - Timer session switching is simpler to reason about when mode reset and countdown reset are centralized in one helper
+---
