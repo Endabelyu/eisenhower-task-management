@@ -212,6 +212,36 @@ export function useTasks() {
     return { total, completed, overdue, completionRate: total ? Math.round((completed / total) * 100) : 0, byQuadrant };
   }, [tasks, tasksWithMetrics]);
 
+  const exportTasks = useCallback(() => {
+    const blob = new Blob([JSON.stringify(tasks, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `eisenhower-tasks-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success('Tasks exported');
+  }, [tasks]);
+
+  const importTasks = useCallback((json: string) => {
+    try {
+      const parsed = JSON.parse(json);
+      if (!Array.isArray(parsed)) throw new Error('Invalid format');
+      for (const t of parsed) {
+        if (!t.id || !t.title || !t.quadrant) throw new Error('Invalid task data');
+      }
+      setTasks(parsed as Task[]);
+      toast.success(`Imported ${parsed.length} tasks`);
+    } catch {
+      toast.error('Invalid file format');
+    }
+  }, []);
+
+  const clearAllTasks = useCallback(() => {
+    setTasks([]);
+    toast('All tasks cleared');
+  }, []);
+
   return useMemo(() => ({
     tasks: tasksWithMetrics,
     addTask,
@@ -222,5 +252,8 @@ export function useTasks() {
     getQuadrantTasks,
     getDailyFocus,
     getStats,
-  }), [tasksWithMetrics, addTask, updateTask, deleteTask, moveToQuadrant, reorderInQuadrant, getQuadrantTasks, getDailyFocus, getStats]);
+    exportTasks,
+    importTasks,
+    clearAllTasks,
+  }), [tasksWithMetrics, addTask, updateTask, deleteTask, moveToQuadrant, reorderInQuadrant, getQuadrantTasks, getDailyFocus, getStats, exportTasks, importTasks, clearAllTasks]);
 }

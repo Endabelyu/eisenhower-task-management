@@ -76,3 +76,11 @@ Task ID: 7
 - Responsive with tooltips
 - Files changed: src/pages/Stats.tsx
 ---
+
+## 2026-02-22 - Add Export/Import functionality
+Task ID: 8
+- Added exportTasks (downloads dated JSON), importTasks (validates + replaces), clearAllTasks to use-tasks.ts
+- Created DataManagement.tsx component with Export/Import/Clear buttons
+- Clear All uses AlertDialog confirmation
+- Files changed: src/hooks/use-tasks.ts, src/components/DataManagement.tsx (new)
+---

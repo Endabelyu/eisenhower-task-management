@@ -73,7 +73,7 @@
 ---
 
 ## Task 8: Add Export/Import functionality for task data
-- **Status:** 🔲 Open
+- **Status:** ✅ Completed
 - **Files:** `src/hooks/use-tasks.ts`, `src/components/DataManagement.tsx`
 - **Description:** Allow users to backup and restore task data via JSON.
 - **What to do:**
