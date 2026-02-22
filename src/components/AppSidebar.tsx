@@ -1,4 +1,4 @@
-import { LayoutGrid, ListTodo, Zap, BarChart3, Moon, Sun } from 'lucide-react';
+import { LayoutGrid, ListTodo, Zap, BarChart3, Settings, Moon, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { NavLink } from '@/components/NavLink';
 import { Button } from '@/components/ui/button';
@@ -20,6 +20,7 @@ const navItems = [
   { title: 'All Tasks', url: '/tasks', icon: ListTodo },
   { title: 'Daily Focus', url: '/daily', icon: Zap },
   { title: 'Stats', url: '/stats', icon: BarChart3 },
+  { title: 'Settings', url: '/settings', icon: Settings },
 ];
 
 /**

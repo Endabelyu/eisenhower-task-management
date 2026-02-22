@@ -87,7 +87,7 @@
 ---
 
 ## Task 9: Add Settings page with data management and preferences
-- **Status:** 🔲 Open
+- **Status:** ✅ Completed
 - **Depends on:** Task 8
 - **Files:** `src/pages/Settings.tsx`, `src/App.tsx`, `src/components/AppSidebar.tsx`
 - **Description:** Create a dedicated settings area.

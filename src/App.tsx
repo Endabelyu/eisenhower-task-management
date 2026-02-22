@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 import TaskList from "./pages/TaskList";
 import DailyFocus from "./pages/DailyFocus";
 import Stats from "./pages/Stats";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -37,6 +38,7 @@ const App = () => (
                 <Route path="/tasks" element={<TaskList />} />
                 <Route path="/daily" element={<DailyFocus />} />
                 <Route path="/stats" element={<Stats />} />
+                <Route path="/settings" element={<Settings />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Layout>

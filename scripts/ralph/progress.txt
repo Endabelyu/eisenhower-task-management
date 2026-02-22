@@ -84,3 +84,11 @@ Task ID: 8
 - Clear All uses AlertDialog confirmation
 - Files changed: src/hooks/use-tasks.ts, src/components/DataManagement.tsx (new)
 ---
+
+## 2026-02-22 - Add Settings page
+Task ID: 9
+- Created Settings.tsx with Data Management section using DataManagement component
+- Added /settings route to App.tsx
+- Added Settings nav item to AppSidebar.tsx
+- Files changed: src/pages/Settings.tsx (new), src/App.tsx, src/components/AppSidebar.tsx
+---
