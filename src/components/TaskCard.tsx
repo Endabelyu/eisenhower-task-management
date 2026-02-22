@@ -1,7 +1,7 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, Clock, Check, Trash2, AlertTriangle, Timer, CircleDot } from 'lucide-react';
-import { TaskWithMetrics, QUADRANT_CONFIG, Quadrant } from '@/types/task';
+import { TaskWithMetrics, QUADRANT_CONFIG, Quadrant, PRESET_TAGS } from '@/types/task';
 import { useTaskContext } from '@/context/TaskContext';
 import { Button } from '@/components/ui/button';
 import {
@@ -36,6 +36,8 @@ const statusConfig = {
   completed: { label: 'Done', className: 'bg-status-completed/15 text-status-completed' },
   hold: { label: 'On Hold', className: 'bg-muted text-muted-foreground' },
 };
+
+const tagColorMap = Object.fromEntries(PRESET_TAGS.map((tag) => [tag.name, tag.color])) as Record<string, string>;
 
 /**
  * TaskCard component - Renders an individual task with its properties.
@@ -116,6 +118,22 @@ export function TaskCard({ task, compact, onEdit }: TaskCardProps) {
         {/* Description */}
         {!compact && task.description && (
           <p className="mt-1 text-xs text-muted-foreground/80 line-clamp-2">{task.description}</p>
+        )}
+
+        {task.tags.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {task.tags.map((tag) => (
+              <span
+                key={tag}
+                className={cn(
+                  'inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium',
+                  tagColorMap[tag] ?? 'bg-muted text-muted-foreground',
+                )}
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
         )}
 
         {/* Meta row */}

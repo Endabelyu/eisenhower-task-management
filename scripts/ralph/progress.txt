@@ -92,3 +92,17 @@ Task ID: 9
 - Added Settings nav item to AppSidebar.tsx
 - Files changed: src/pages/Settings.tsx (new), src/App.tsx, src/components/AppSidebar.tsx
 ---
+
+## 2026-02-23 - Add task tags/labels system
+Thread: https://ampcode.com/threads/T-019c8643-f6d0-702b-97f7-319126f6b1ef
+Task ID: 10
+- Added tag selection UI to Quick Add and Edit modals with multi-select toggle chips
+- Persisted selected tags on create/update and reset quick-add tags after successful submit
+- Displayed task tags as color-coded badges on TaskCard using PRESET_TAGS metadata
+- Added tag filter dropdown to TaskList, combined with search and quadrant filtering
+- Verified with `npx tsc --noEmit` and `npm run test -- --run`
+- Files changed: src/components/QuickAddModal.tsx, src/components/EditTaskModal.tsx, src/components/TaskCard.tsx, src/pages/TaskList.tsx, src/hooks/use-tasks.ts, src/types/task.ts
+- **Learnings for future iterations:**
+  - Keeping tag styles centralized in `PRESET_TAGS` makes add/edit/list/card UI stay visually consistent
+  - Backward-compatible `loadTasks` mapping avoids breaking existing localStorage task data when new fields are introduced
+---

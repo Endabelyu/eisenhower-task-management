@@ -13,7 +13,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTaskContext } from '@/context/TaskContext';
-import { TaskWithMetrics, getQuadrant, QUADRANT_CONFIG, TaskStatus } from '@/types/task';
+import { TaskWithMetrics, getQuadrant, QUADRANT_CONFIG, TaskStatus, PRESET_TAGS } from '@/types/task';
+import { cn } from '@/lib/utils';
 
 interface EditTaskModalProps {
   task: TaskWithMetrics | null;
@@ -34,6 +35,7 @@ export function EditTaskModal({ task, open, onOpenChange }: EditTaskModalProps) 
   const [dueDate, setDueDate] = useState('');
   const [duration, setDuration] = useState('30');
   const [status, setStatus] = useState<TaskStatus>('pending');
+  const [tags, setTags] = useState<string[]>([]);
 
   useEffect(() => {
     if (task) {
@@ -44,11 +46,20 @@ export function EditTaskModal({ task, open, onOpenChange }: EditTaskModalProps) 
       setDueDate(task.dueDate || '');
       setDuration(String(task.estimatedDuration));
       setStatus(task.status);
+      setTags(task.tags || []);
     }
   }, [task]);
 
   const quadrant = getQuadrant(urgent, important);
   const config = QUADRANT_CONFIG[quadrant];
+
+  const toggleTag = (tagName: string) => {
+    setTags((prev) => (
+      prev.includes(tagName)
+        ? prev.filter((tag) => tag !== tagName)
+        : [...prev, tagName]
+    ));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,6 +73,7 @@ export function EditTaskModal({ task, open, onOpenChange }: EditTaskModalProps) 
       dueDate: dueDate || undefined,
       estimatedDuration: parseInt(duration, 10) || 30,
       status,
+      tags,
     });
 
     onOpenChange(false);
@@ -149,6 +161,30 @@ export function EditTaskModal({ task, open, onOpenChange }: EditTaskModalProps) 
                 min="5"
                 step="5"
               />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Tags</Label>
+            <div className="flex flex-wrap gap-2">
+              {PRESET_TAGS.map((tag) => {
+                const selected = tags.includes(tag.name);
+                return (
+                  <Button
+                    key={tag.name}
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => toggleTag(tag.name)}
+                    className={cn(
+                      'h-7 rounded-full px-2 text-xs',
+                      selected ? `${tag.color} border-transparent` : 'text-muted-foreground',
+                    )}
+                  >
+                    {tag.name}
+                  </Button>
+                );
+              })}
             </div>
           </div>
 

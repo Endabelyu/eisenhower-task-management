@@ -17,7 +17,9 @@ const generateId = () => crypto.randomUUID();
 const loadTasks = (): Task[] => {
   try {
     const data = localStorage.getItem(STORAGE_KEY);
-    return data ? JSON.parse(data) : [];
+    if (!data) return [];
+    const parsed = JSON.parse(data) as Task[];
+    return parsed.map(t => ({ ...t, tags: t.tags || [] }));
   } catch {
     return [];
   }
@@ -78,6 +80,7 @@ export function useTasks() {
     important: boolean;
     dueDate?: string;
     estimatedDuration?: number;
+    tags?: string[];
   }) => {
     const quadrant = getQuadrant(data.urgent, data.important);
     const now = new Date().toISOString();
@@ -94,6 +97,7 @@ export function useTasks() {
       estimatedDuration: data.estimatedDuration || 30,
       status: 'pending',
       order: quadrantTasks.length > 0 ? Math.max(...quadrantTasks.map(t => t.order)) + 1 : 0,
+      tags: data.tags || [],
       createdAt: now,
       updatedAt: now,
     };

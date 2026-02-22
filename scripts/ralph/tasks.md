@@ -102,7 +102,7 @@
 ---
 
 ## Task 10: Add task tags/labels system
-- **Status:** 🔲 Open
+- **Status:** ✅ Completed
 - **Files:** `src/types/task.ts`, `src/hooks/use-tasks.ts`, `src/components/QuickAddModal.tsx`, `src/components/EditTaskModal.tsx`, `src/components/TaskCard.tsx`, `src/pages/TaskList.tsx`
 - **Description:** Implement a color-coded tagging system for tasks.
 - **What to do:**

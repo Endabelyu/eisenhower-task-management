@@ -12,7 +12,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { useTaskContext } from '@/context/TaskContext';
-import { getQuadrant, QUADRANT_CONFIG } from '@/types/task';
+import { getQuadrant, QUADRANT_CONFIG, PRESET_TAGS } from '@/types/task';
+import { cn } from '@/lib/utils';
 
 interface QuickAddModalProps {
   open: boolean;
@@ -31,9 +32,18 @@ export function QuickAddModal({ open, onOpenChange }: QuickAddModalProps) {
   const [important, setImportant] = useState(false);
   const [dueDate, setDueDate] = useState('');
   const [duration, setDuration] = useState('30');
+  const [tags, setTags] = useState<string[]>([]);
 
   const quadrant = getQuadrant(urgent, important);
   const config = QUADRANT_CONFIG[quadrant];
+
+  const toggleTag = (tagName: string) => {
+    setTags((prev) => (
+      prev.includes(tagName)
+        ? prev.filter((tag) => tag !== tagName)
+        : [...prev, tagName]
+    ));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,6 +56,7 @@ export function QuickAddModal({ open, onOpenChange }: QuickAddModalProps) {
       important,
       dueDate: dueDate || undefined,
       estimatedDuration: parseInt(duration, 10) || 30,
+      tags,
     });
 
     setTitle('');
@@ -54,6 +65,7 @@ export function QuickAddModal({ open, onOpenChange }: QuickAddModalProps) {
     setImportant(false);
     setDueDate('');
     setDuration('30');
+    setTags([]);
     onOpenChange(false);
   };
 
@@ -122,6 +134,30 @@ export function QuickAddModal({ open, onOpenChange }: QuickAddModalProps) {
                 min="5"
                 step="5"
               />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Tags</Label>
+            <div className="flex flex-wrap gap-2">
+              {PRESET_TAGS.map((tag) => {
+                const selected = tags.includes(tag.name);
+                return (
+                  <Button
+                    key={tag.name}
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => toggleTag(tag.name)}
+                    className={cn(
+                      'h-7 rounded-full px-2 text-xs',
+                      selected ? `${tag.color} border-transparent` : 'text-muted-foreground',
+                    )}
+                  >
+                    {tag.name}
+                  </Button>
+                );
+              })}
             </div>
           </div>
 

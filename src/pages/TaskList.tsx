@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useTaskContext } from '@/context/TaskContext';
-import { QUADRANT_CONFIG, Quadrant, TaskWithMetrics } from '@/types/task';
+import { QUADRANT_CONFIG, Quadrant, TaskWithMetrics, PRESET_TAGS } from '@/types/task';
 import { EditTaskModal } from '@/components/EditTaskModal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Check, Trash2, Clock, AlertTriangle, Search, ListTodo } from 'lucide-react';
 import {
   AlertDialog,
@@ -37,11 +38,13 @@ type FilterValue = typeof FILTERS[number]['value'];
 export default function TaskList() {
   const { tasks, updateTask, deleteTask } = useTaskContext();
   const [filter, setFilter] = useState<FilterValue>('all');
+  const [tagFilter, setTagFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [editingTask, setEditingTask] = useState<TaskWithMetrics | null>(null);
 
   const filtered = tasks.filter(t => {
     if (search && !t.title.toLowerCase().includes(search.toLowerCase())) return false;
+    if (tagFilter !== 'all' && !t.tags.includes(tagFilter)) return false;
     if (filter === 'all') return true;
     if (filter === 'completed') return t.status === 'completed';
     return t.quadrant === filter && t.status !== 'completed';
@@ -79,6 +82,21 @@ export default function TaskList() {
               {f.label}
             </Button>
           ))}
+        </div>
+        <div className="w-full sm:w-[180px]">
+          <Select value={tagFilter} onValueChange={setTagFilter}>
+            <SelectTrigger className="h-9">
+              <SelectValue placeholder="All tags" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All tags</SelectItem>
+              {PRESET_TAGS.map((tag) => (
+                <SelectItem key={tag.name} value={tag.name}>
+                  {tag.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
