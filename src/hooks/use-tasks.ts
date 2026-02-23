@@ -76,7 +76,8 @@ export function useTasks() {
         
         // Check for legacy local storage migration
         const legacyData = localStorage.getItem(STORAGE_KEY);
-        if (legacyData && data.length === 0) {
+        if (legacyData && data.length === 0 && !sessionStorage.getItem('migrated_prompted')) {
+          sessionStorage.setItem('migrated_prompted', 'true');
           toast('Legacy tasks found!', {
             description: 'We found tasks saved to this browser. Would you like to migrate them to your cloud account?',
             duration: 10000,
@@ -102,17 +103,17 @@ export function useTasks() {
       if (!user) return;
       const parsed = JSON.parse(jsonData) as Task[];
       
-      const payload = parsed.map(t => ({
+      const payload = parsed.map((t: any) => ({
         user_id: user.id,
         title: t.title,
-        description: t.description,
-        urgent: t.urgent,
-        important: t.important,
+        description: t.description || null,
+        urgent: t.urgent || false,
+        important: t.important || false,
         quadrant: t.quadrant,
-        due_date: t.dueDate,
-        estimated_duration: t.estimatedDuration,
-        status: t.status,
-        order: t.order,
+        due_date: t.dueDate || null,
+        estimated_duration: t.estimatedDuration || 30,
+        status: t.status || 'pending',
+        order: t.order || 0,
         tags: t.tags || [],
       }));
 
