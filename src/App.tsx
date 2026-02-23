@@ -13,6 +13,10 @@ import DailyFocus from "./pages/DailyFocus";
 import Stats from "./pages/Stats";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import Login from "./pages/Login";
+
+import { AuthProvider } from "@/context/AuthContext";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 // Only include MonitoringPanel in dev — tree-shaken out of production builds
 import { MonitoringPanel } from "@/monitoring/MonitoringPanel";
@@ -25,7 +29,15 @@ const queryClient = new QueryClient();
  */
 const router = createBrowserRouter([
   {
-    element: <Layout />,
+    path: "/login",
+    element: <Login />,
+  },
+  {
+    element: (
+      <ProtectedRoute>
+        <Layout />
+      </ProtectedRoute>
+    ),
     children: [
       { path: "/", element: <Index /> },
       { path: "/tasks", element: <TaskList /> },
@@ -54,9 +66,11 @@ const App = () => (
         <Toaster />
         <Sonner />
         <ErrorBoundary>
-          <TaskProvider>
-            <RouterProvider router={router} />
-          </TaskProvider>
+          <AuthProvider>
+            <TaskProvider>
+              <RouterProvider router={router} />
+            </TaskProvider>
+          </AuthProvider>
         </ErrorBoundary>
         {import.meta.env.DEV && <MonitoringPanel />}
       </TooltipProvider>

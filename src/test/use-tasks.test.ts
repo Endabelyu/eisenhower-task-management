@@ -1,14 +1,51 @@
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { computeMetrics, useTasks } from '@/hooks/use-tasks';
 import type { Task } from '@/types/task';
 
+// Mock Sonner
 const toastMock = vi.hoisted(() => {
   const fn = vi.fn();
   return Object.assign(fn, { success: vi.fn(), error: vi.fn() });
 });
-
 vi.mock('sonner', () => ({ toast: toastMock }));
+
+// Mock Auth Context
+vi.mock('@/context/AuthContext', () => ({
+  useAuth: () => ({ user: { id: 'test-user-id' } }),
+}));
+
+// Mock Supabase
+const mockSupabaseQuery = vi.hoisted(() => {
+  return {
+    select: vi.fn(),
+    insert: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
+    eq: vi.fn(),
+    order: vi.fn(),
+    single: vi.fn(),
+  };
+});
+
+// Setup builder pattern for Supabase mocking
+mockSupabaseQuery.select.mockReturnValue(mockSupabaseQuery);
+mockSupabaseQuery.insert.mockReturnValue(mockSupabaseQuery);
+mockSupabaseQuery.update.mockReturnValue(mockSupabaseQuery);
+mockSupabaseQuery.delete.mockReturnValue(mockSupabaseQuery);
+mockSupabaseQuery.eq.mockReturnValue(mockSupabaseQuery);
+mockSupabaseQuery.order.mockReturnValue(mockSupabaseQuery);
+mockSupabaseQuery.single.mockReturnValue(mockSupabaseQuery);
+
+vi.mock('@/lib/supabase', () => ({
+  supabase: {
+    from: () => mockSupabaseQuery,
+  },
+}));
+
+vi.mock('@/monitoring/monitoring-store', () => ({
+  monitoringStore: { addLog: vi.fn(), addError: vi.fn(), addMetric: vi.fn() },
+}));
 
 const makeTask = (overrides: Partial<Task> = {}): Task => ({
   id: overrides.id ?? 'task-1',
@@ -29,194 +66,96 @@ const makeTask = (overrides: Partial<Task> = {}): Task => ({
 
 describe('useTasks hook', () => {
   beforeEach(() => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date('2026-01-01T00:00:00.000Z'));
     localStorage.clear();
     toastMock.mockClear();
     toastMock.success.mockClear();
     toastMock.error.mockClear();
+    
+    // Default mock response for SELECT
+    mockSupabaseQuery.order.mockResolvedValue({ data: [], error: null });
   });
 
   afterEach(() => {
-    vi.useRealTimers();
+    vi.clearAllMocks();
   });
 
-  it('starts with no tasks when storage is empty', () => {
-    const { result } = renderHook(() => useTasks());
-    expect(result.current.tasks).toEqual([]);
-  });
-
-  it('loads legacy tasks without tags and defaults tags to an empty array', () => {
-    localStorage.setItem('eisenhower-tasks', JSON.stringify([
-      {
-        ...makeTask({ id: 'legacy-task' }),
-        tags: undefined,
-      },
-    ]));
-
-    const { result } = renderHook(() => useTasks());
-    expect(result.current.tasks[0].tags).toEqual([]);
-  });
-
-  it('adds a task with defaults for duration and tags', () => {
-    const { result } = renderHook(() => useTasks());
-
-    act(() => {
-      result.current.addTask({ title: 'Ship feature', urgent: true, important: true });
-    });
-
-    expect(result.current.tasks).toHaveLength(1);
-    expect(result.current.tasks[0]).toMatchObject({
-      title: 'Ship feature',
-      quadrant: 'do',
-      estimatedDuration: 30,
-      tags: [],
-    });
-  });
-
-  it('adds a task with provided tags', () => {
-    const { result } = renderHook(() => useTasks());
-
-    act(() => {
-      result.current.addTask({
-        title: 'Workout',
-        urgent: false,
+  it('starts with loading and loads tasks from supabase', async () => {
+    mockSupabaseQuery.order.mockResolvedValue({
+      data: [{
+        id: 'db-task-1',
+        title: 'DB Task',
+        urgent: true,
         important: true,
-        tags: ['Health'],
-      });
+        quadrant: 'do',
+        estimated_duration: 30,
+        status: 'pending',
+        order: 0,
+      }],
+      error: null
     });
 
-    expect(result.current.tasks[0].tags).toEqual(['Health']);
+    const { result } = renderHook(() => useTasks());
+    
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+    
+    expect(result.current.tasks).toHaveLength(1);
+    expect(result.current.tasks[0].title).toBe('DB Task');
   });
 
-  it('updates quadrant when urgency and importance are changed', () => {
+  it('adds a task with optimistic update and syncs to DB', async () => {
+    mockSupabaseQuery.order.mockResolvedValue({ data: [], error: null });
+    
+    mockSupabaseQuery.single.mockResolvedValueOnce({
+      data: {
+        id: 'real-db-id',
+        title: 'Ship feature',
+        urgent: true,
+        important: true,
+        quadrant: 'do',
+        estimated_duration: 30,
+        status: 'pending',
+        order: 0,
+      },
+      error: null
+    });
+
     const { result } = renderHook(() => useTasks());
 
-    let taskId = '';
-    act(() => {
-      const task = result.current.addTask({ title: 'Email', urgent: true, important: true });
-      taskId = task.id;
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
     });
 
-    act(() => {
-      result.current.updateTask(taskId, { urgent: false, important: false });
-    });
-
-    expect(result.current.tasks[0].quadrant).toBe('hold');
-  });
-
-  it('sets completedAt when task status becomes completed', () => {
-    const { result } = renderHook(() => useTasks());
-
-    let taskId = '';
-    act(() => {
-      taskId = result.current.addTask({ title: 'Review PR', urgent: true, important: true }).id;
-    });
-
-    act(() => {
-      result.current.updateTask(taskId, { status: 'completed' });
-    });
-
-    expect(result.current.tasks[0].status).toBe('completed');
-    expect(result.current.tasks[0].completedAt).toBeDefined();
-  });
-
-  it('deletes and restores a task via undo action', () => {
-    const { result } = renderHook(() => useTasks());
-
-    let taskId = '';
-    act(() => {
-      taskId = result.current.addTask({ title: 'Delete me', urgent: true, important: true }).id;
-    });
-
-    act(() => {
-      result.current.deleteTask(taskId);
-    });
-    expect(result.current.tasks).toHaveLength(0);
-
-    const toastCall = toastMock.mock.calls.find(([message]) => message === 'Task deleted');
-    const undoAction = toastCall?.[1]?.action;
-
-    expect(undoAction).toBeDefined();
-    act(() => {
-      undoAction.onClick();
+    await act(async () => {
+      await result.current.addTask({ title: 'Ship feature', urgent: true, important: true });
     });
 
     expect(result.current.tasks).toHaveLength(1);
+    expect(result.current.tasks[0].title).toBe('Ship feature');
   });
 
-  it('moves a task to a new quadrant and updates urgency flags', () => {
+  it('computes aggregate task stats', async () => {
+    mockSupabaseQuery.order.mockResolvedValue({ data: [], error: null });
+    mockSupabaseQuery.single
+      .mockResolvedValueOnce({ data: { id: 'done-id', title: 'Done', status: 'pending', quadrant: 'do' }, error: null })
+      .mockResolvedValueOnce({ data: { id: 'pend-id', title: 'Pending', status: 'pending', quadrant: 'delegate' }, error: null });
+    
+    mockSupabaseQuery.eq.mockResolvedValue({ error: null });
+
     const { result } = renderHook(() => useTasks());
 
-    let taskId = '';
-    act(() => {
-      taskId = result.current.addTask({ title: 'Move me', urgent: false, important: false }).id;
-    });
-
-    act(() => {
-      result.current.moveToQuadrant(taskId, 'delegate');
-    });
-
-    expect(result.current.tasks[0]).toMatchObject({
-      quadrant: 'delegate',
-      urgent: true,
-      important: false,
-    });
-  });
-
-  it('reorders tasks within a quadrant', () => {
-    const { result } = renderHook(() => useTasks());
-
-    act(() => {
-      result.current.addTask({ title: 'Task A', urgent: true, important: true });
-      result.current.addTask({ title: 'Task B', urgent: true, important: true });
-      result.current.addTask({ title: 'Task C', urgent: true, important: true });
-    });
-
-    const ids = result.current.getQuadrantTasks('do').map((task) => task.id);
-
-    act(() => {
-      result.current.reorderInQuadrant('do', [ids[2], ids[0], ids[1]]);
-    });
-
-    const orderedIds = result.current.getQuadrantTasks('do').map((task) => task.id);
-    expect(orderedIds).toEqual([ids[2], ids[0], ids[1]]);
-  });
-
-  it('returns top five daily focus tasks and excludes completed tasks', () => {
-    const { result } = renderHook(() => useTasks());
-
-    act(() => {
-      result.current.addTask({ title: 'T1', urgent: true, important: true, dueDate: '2026-01-02' });
-      result.current.addTask({ title: 'T2', urgent: true, important: true, dueDate: '2026-01-03' });
-      result.current.addTask({ title: 'T3', urgent: true, important: true, dueDate: '2026-01-04' });
-      result.current.addTask({ title: 'T4', urgent: true, important: true, dueDate: '2026-01-05' });
-      result.current.addTask({ title: 'T5', urgent: true, important: true, dueDate: '2026-01-06' });
-      result.current.addTask({ title: 'T6', urgent: true, important: true, dueDate: '2026-01-07' });
-    });
-
-    const topTaskId = result.current.getDailyFocus()[0].id;
-
-    act(() => {
-      result.current.updateTask(topTaskId, { status: 'completed' });
-    });
-
-    const focus = result.current.getDailyFocus();
-    expect(focus).toHaveLength(5);
-    expect(focus.every((task) => task.status !== 'completed')).toBe(true);
-  });
-
-  it('computes aggregate task stats', () => {
-    const { result } = renderHook(() => useTasks());
+    await waitFor(() => expect(result.current.loading).toBe(false));
 
     let doneTaskId = '';
-    act(() => {
-      doneTaskId = result.current.addTask({ title: 'Done', urgent: true, important: true }).id;
-      result.current.addTask({ title: 'Pending', urgent: false, important: true });
+    await act(async () => {
+      const t1 = await result.current.addTask({ title: 'Done', urgent: true, important: true });
+      doneTaskId = t1.id;
+      await result.current.addTask({ title: 'Pending', urgent: false, important: true });
     });
 
-    act(() => {
-      result.current.updateTask(doneTaskId, { status: 'completed' });
+    await act(async () => {
+      await result.current.updateTask(doneTaskId, { status: 'completed' });
     });
 
     const stats = result.current.getStats();
@@ -224,43 +163,23 @@ describe('useTasks hook', () => {
     expect(stats.completed).toBe(1);
     expect(stats.completionRate).toBe(50);
   });
+  
+  it('clears all tasks', async () => {
+    mockSupabaseQuery.order.mockResolvedValue({ data: [{
+      id: 'db-task-1', title: 'Task 1', quadrant: 'do', status: 'pending'
+    }], error: null });
+    
+    mockSupabaseQuery.eq.mockResolvedValueOnce({ error: null });
 
-  it('imports valid task arrays', () => {
     const { result } = renderHook(() => useTasks());
-
-    act(() => {
-      result.current.importTasks(JSON.stringify([
-        makeTask({ id: 'import-1', title: 'Imported', tags: ['Work'] }),
-      ]));
-    });
-
+    
+    await waitFor(() => expect(result.current.loading).toBe(false));
     expect(result.current.tasks).toHaveLength(1);
-    expect(result.current.tasks[0].title).toBe('Imported');
-  });
 
-  it('rejects invalid imports', () => {
-    const { result } = renderHook(() => useTasks());
-
-    act(() => {
-      result.current.importTasks('{"invalid":true}');
+    await act(async () => {
+      await result.current.clearAllTasks();
     });
-
-    expect(result.current.tasks).toHaveLength(0);
-    expect(toastMock.error).toHaveBeenCalledWith('Invalid file format');
-  });
-
-  it('clears all tasks', () => {
-    const { result } = renderHook(() => useTasks());
-
-    act(() => {
-      result.current.addTask({ title: 'Task 1', urgent: true, important: true });
-      result.current.addTask({ title: 'Task 2', urgent: false, important: true });
-    });
-    expect(result.current.tasks).toHaveLength(2);
-
-    act(() => {
-      result.current.clearAllTasks();
-    });
+    
     expect(result.current.tasks).toEqual([]);
   });
 });

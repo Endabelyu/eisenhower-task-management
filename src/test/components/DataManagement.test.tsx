@@ -13,6 +13,7 @@ const mockClear = vi.fn();
 
 vi.spyOn(TaskContext, 'useTaskContext').mockReturnValue({
   tasks: [],
+  loading: false,
   addTask: vi.fn(),
   updateTask: vi.fn(),
   deleteTask: vi.fn(),
