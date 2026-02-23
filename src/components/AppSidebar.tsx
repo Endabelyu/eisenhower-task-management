@@ -55,7 +55,7 @@ export function AppSidebar() {
   const userInitials = user?.email?.substring(0, 2).toUpperCase() || 'U';
 
   return (
-    <Sidebar className="border-r-0">
+    <Sidebar className="hidden md:flex border-r-0">
       <SidebarHeader className="p-5 pb-2">
         <div className="flex items-center gap-2.5">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">

@@ -6,6 +6,7 @@ import { AppSidebar } from '@/components/AppSidebar';
 import { Button } from '@/components/ui/button';
 import { QuickAddModal } from '@/components/QuickAddModal';
 import { KeyboardShortcutsDialog } from '@/components/KeyboardShortcutsDialog';
+import { MobileBottomNav } from '@/components/MobileBottomNav';
 import { OPEN_QUICK_ADD_EVENT, useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
 
 /**
@@ -59,9 +60,10 @@ export function Layout() {
               Shortcuts
             </Button>
           </header>
-          <main className="flex-1 p-6">
+          <main className="flex-1 p-6 pb-24 md:pb-6">
             <Outlet />
           </main>
+          <MobileBottomNav />
           <QuickAddModal open={showQuickAdd} onOpenChange={setShowQuickAdd} />
           <KeyboardShortcutsDialog open={showShortcuts} onOpenChange={setShowShortcuts} />
         </div>
