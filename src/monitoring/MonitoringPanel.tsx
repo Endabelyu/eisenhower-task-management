@@ -125,22 +125,23 @@ export function MonitoringPanel() {
       <div className="max-h-72 overflow-y-auto p-2 space-y-1 font-mono text-[11px]">
         {tab === 'errors' && (
           <>
-            {snap.errors.length === 0 && (
+            {snap.errors.length === 0 ? (
               <p className="py-6 text-center text-muted-foreground">✅ No errors</p>
-            )}
-            {snap.errors.map((e: MonitoringError) => (
-              <div key={e.id} className="rounded-md border border-red-500/20 bg-red-500/5 p-2">
-                <div className="flex items-start justify-between gap-2">
-                  <span className="text-red-500 font-semibold">{e.message}</span>
-                  <span className="shrink-0 text-muted-foreground">{fmt(e.timestamp)}</span>
+            ) : (
+              snap.errors.map((e: MonitoringError) => (
+                <div key={e.id} className="rounded-md border border-red-500/20 bg-red-500/5 p-2">
+                  <div className="flex items-start justify-between gap-2">
+                     <span className="text-red-500 font-semibold">{e.message}</span>
+                     <span className="shrink-0 text-muted-foreground">{fmt(e.timestamp)}</span>
+                  </div>
+                  {e.stack && (
+                    <pre className="mt-1 whitespace-pre-wrap text-muted-foreground/70 text-[10px] leading-tight line-clamp-4">
+                      {e.stack}
+                    </pre>
+                  )}
                 </div>
-                {e.stack && (
-                  <pre className="mt-1 whitespace-pre-wrap text-muted-foreground/70 text-[10px] leading-tight line-clamp-4">
-                    {e.stack}
-                  </pre>
-                )}
-              </div>
-            ))}
+              ))
+            )}
           </>
         )}
 
