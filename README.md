@@ -1,14 +1,20 @@
-# Welcome to your Lovable project
+# Eisenhower Matrix - Quadrant Calm
 
-## Project info
+A productivity web app for prioritizing tasks using the Eisenhower Matrix.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+The app helps you:
+- Organize tasks into `Do`, `Schedule`, `Delegate`, and `Hold`
+- Manage task details (status, due date, estimate, tags)
+- Focus with a Daily Focus view, time budget summary, and Pomodoro timer
+- Track progress with statistics and charts
+- Export/import task data
+- Use global keyboard shortcuts for faster navigation
 
 ## Screenshots
 
 <details>
   <summary>Click to view screenshots</summary>
-  
+
   ![Dashboard](screenshots/01-dashboard.png)
   ![Dashboard Full](screenshots/02-dashboard-full.png)
   ![Tasklist](screenshots/03-tasklist.png)
@@ -18,70 +24,97 @@
   ![Sidebar](screenshots/07-sidebar.png)
 </details>
 
-## How can I edit this code?
+## Tech Stack
 
-There are several ways of editing your application.
+- React + TypeScript
+- Vite
+- Tailwind CSS
+- shadcn/ui (Radix primitives)
+- React Router
+- dnd-kit (drag and drop)
+- Recharts (stats visualizations)
+- Supabase Auth
+- Vitest + Testing Library
 
-**Use Lovable**
+## Getting Started
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+### 1. Install dependencies
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+npm install
+```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### 2. Configure environment variables
 
-# Step 3: Install the necessary dependencies.
-npm i
+Create `.env.local` in the project root:
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```env
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+```
+
+If these values are missing, the app will still build but authentication will not function correctly.
+
+### 3. Run the app
+
+```sh
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Open the local URL shown by Vite (usually `http://localhost:5173`).
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Available Scripts
 
-**Use GitHub Codespaces**
+- `npm run dev` - Start local development server
+- `npm run build` - Production build
+- `npm run build:dev` - Development-mode build
+- `npm run preview` - Preview built app
+- `npm run lint` - Run ESLint
+- `npm run test` - Run tests once
+- `npm run test:watch` - Run tests in watch mode
+- `npx tsc --noEmit` - Type-check project
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Core Features
 
-## What technologies are used for this project?
+- Matrix dashboard with drag-and-drop task movement between quadrants
+- Quick Add and Edit modals
+- Task tags/labels with color coding and filtering
+- Task list with search, quadrant filters, and tag filter
+- Daily Focus page:
+  - Cross-quadrant urgency ranking
+  - Configurable focus count (`Top 3/5/8/10`)
+  - Time budget summary
+  - Pomodoro timer (`25/5` focus-break cycle)
+- Stats page with chart-based task insights
+- Settings page with data export/import and clear actions
+- Keyboard shortcuts and shortcut help dialog
 
-This project is built with:
+## Keyboard Shortcuts
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- `Ctrl/Cmd + N` - Open Quick Add
+- `Ctrl/Cmd + /` - Open shortcuts dialog
+- `1` - Dashboard
+- `2` - All Tasks
+- `3` - Daily Focus
+- `4` - Stats
+- `F` - Toggle focus query mode (when supported by current route)
 
-## How can I deploy this project?
+Shortcuts are disabled while typing in inputs, textareas, selects, or contenteditable elements.
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+## Project Structure
 
-## Can I connect a custom domain to my Lovable project?
+```text
+src/
+  components/      UI and feature components
+  context/         React context providers (tasks, auth)
+  hooks/           Custom hooks (tasks, keyboard shortcuts, etc.)
+  pages/           Route-level pages
+  test/            Unit tests
+  types/           Shared domain types
+```
 
-Yes, you can!
+## Notes
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+- Task state is persisted locally for app behavior and supports export/import workflows.
+- Authentication uses Supabase and route protection is applied for main app pages.
+- Monitoring and diagnostics components are enabled in development mode.

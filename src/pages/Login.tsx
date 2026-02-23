@@ -61,11 +61,11 @@ export default function Login() {
     <div className="flex min-h-screen w-full flex-col items-center justify-center p-6 bg-muted/20">
       <div className="w-full max-w-sm rounded-2xl border bg-card p-8 shadow-sm animate-fade-in">
         <div className="mb-8 flex flex-col items-center text-center">
-          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-            <LayoutGrid className="h-6 w-6 text-primary" />
+          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary shadow-sm animate-fade-in">
+            <LayoutGrid className="h-8 w-8" />
           </div>
           <h1 className="font-display text-2xl font-bold tracking-tight">
-            {isSignUp ? 'Create an account' : 'Welcome back'}
+            {isSignUp ? 'Create an account' : 'Welcome to EM'}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {isSignUp
