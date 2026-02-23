@@ -11,8 +11,9 @@ const toastMock = vi.hoisted(() => {
 vi.mock('sonner', () => ({ toast: toastMock }));
 
 // Mock Auth Context
+const mockUser = { id: 'test-user-id' };
 vi.mock('@/context/AuthContext', () => ({
-  useAuth: () => ({ user: { id: 'test-user-id' } }),
+  useAuth: () => ({ user: mockUser }),
 }));
 
 // Mock Supabase
@@ -107,7 +108,8 @@ describe('useTasks hook', () => {
   it('adds a task with optimistic update and syncs to DB', async () => {
     mockSupabaseQuery.order.mockResolvedValue({ data: [], error: null });
     
-    mockSupabaseQuery.single.mockResolvedValueOnce({
+    // Explicitly mock the chain for insert().select().single()
+    const mockSingleInsert = vi.fn().mockResolvedValue({
       data: {
         id: 'real-db-id',
         title: 'Ship feature',
@@ -119,6 +121,12 @@ describe('useTasks hook', () => {
         order: 0,
       },
       error: null
+    });
+    
+    mockSupabaseQuery.insert.mockReturnValueOnce({
+      select: () => ({
+        single: mockSingleInsert
+      })
     });
 
     const { result } = renderHook(() => useTasks());
@@ -137,10 +145,19 @@ describe('useTasks hook', () => {
 
   it('computes aggregate task stats', async () => {
     mockSupabaseQuery.order.mockResolvedValue({ data: [], error: null });
-    mockSupabaseQuery.single
+    
+    // Setup for add tasks
+    const mockSingleInsert = vi.fn()
       .mockResolvedValueOnce({ data: { id: 'done-id', title: 'Done', status: 'pending', quadrant: 'do' }, error: null })
       .mockResolvedValueOnce({ data: { id: 'pend-id', title: 'Pending', status: 'pending', quadrant: 'delegate' }, error: null });
+      
+    mockSupabaseQuery.insert.mockReturnValue({
+      select: () => ({
+        single: mockSingleInsert
+      })
+    });
     
+    // We need to handle the .eq() mapping internally for the updateTask operation to not throw error
     mockSupabaseQuery.eq.mockResolvedValue({ error: null });
 
     const { result } = renderHook(() => useTasks());
@@ -169,7 +186,7 @@ describe('useTasks hook', () => {
       id: 'db-task-1', title: 'Task 1', quadrant: 'do', status: 'pending'
     }], error: null });
     
-    mockSupabaseQuery.eq.mockResolvedValueOnce({ error: null });
+    mockSupabaseQuery.eq.mockResolvedValue({ error: null });
 
     const { result } = renderHook(() => useTasks());
     
