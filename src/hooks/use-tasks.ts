@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { toast } from 'sonner';
 import { Task, Quadrant, getQuadrant, getQuadrantFlags, TaskWithMetrics, QUADRANT_CONFIG } from '@/types/task';
+import { monitoringStore } from '@/monitoring/monitoring-store';
 
 /** Local storage key for persisting tasks */
 const STORAGE_KEY = 'eisenhower-tasks';
@@ -104,6 +105,7 @@ export function useTasks() {
 
     setTasks(prev => [...prev, task]);
     toast.success(`Task added to ${QUADRANT_CONFIG[quadrant].label}`);
+    monitoringStore.addLog('task:add', { id: task.id, title: task.title, quadrant });
     return task;
   }, [tasks]);
 
@@ -127,6 +129,9 @@ export function useTasks() {
     }));
     if (updates.status === 'completed') {
       toast.success('Task completed! 🎉');
+      monitoringStore.addLog('task:complete', { id });
+    } else {
+      monitoringStore.addLog('task:update', { id, fields: Object.keys(updates) });
     }
   }, []);
 
@@ -140,11 +145,15 @@ export function useTasks() {
       deleted = prev.find(t => t.id === id);
       return prev.filter(t => t.id !== id);
     });
+    monitoringStore.addLog('task:delete', { id }, 'warn');
     toast('Task deleted', {
       action: {
         label: 'Undo',
         onClick: () => {
-          if (deleted) setTasks(prev => [...prev, deleted!]);
+          if (deleted) {
+            setTasks(prev => [...prev, deleted!]);
+            monitoringStore.addLog('task:undo-delete', { id });
+          }
         },
       },
     });
@@ -161,6 +170,7 @@ export function useTasks() {
       if (t.id !== id) return t;
       return { ...t, ...flags, quadrant, updatedAt: new Date().toISOString() };
     }));
+    monitoringStore.addLog('task:move', { id, quadrant });
     toast(`Moved to ${QUADRANT_CONFIG[quadrant].label}`);
   }, []);
 
@@ -224,6 +234,7 @@ export function useTasks() {
     a.download = `eisenhower-tasks-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
+    monitoringStore.addLog('task:export', { count: tasks.length });
     toast.success('Tasks exported');
   }, [tasks]);
 
@@ -235,16 +246,19 @@ export function useTasks() {
         if (!t.id || !t.title || !t.quadrant) throw new Error('Invalid task data');
       }
       setTasks(parsed as Task[]);
+      monitoringStore.addLog('task:import', { count: parsed.length });
       toast.success(`Imported ${parsed.length} tasks`);
     } catch {
+      monitoringStore.addLog('task:import-failed', {}, 'error');
       toast.error('Invalid file format');
     }
   }, []);
 
   const clearAllTasks = useCallback(() => {
+    monitoringStore.addLog('task:clear', { previous: tasks.length }, 'warn');
     setTasks([]);
     toast('All tasks cleared');
-  }, []);
+  }, [tasks.length]);
 
   return useMemo(() => ({
     tasks: tasksWithMetrics,

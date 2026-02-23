@@ -6,12 +6,16 @@ import { ThemeProvider } from "next-themes";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import { TaskProvider } from "@/context/TaskContext";
 import { Layout } from "@/components/Layout";
+import { ErrorBoundary } from "@/monitoring/ErrorBoundary";
 import Index from "./pages/Index";
 import TaskList from "./pages/TaskList";
 import DailyFocus from "./pages/DailyFocus";
 import Stats from "./pages/Stats";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+
+// Only include MonitoringPanel in dev — tree-shaken out of production builds
+import { MonitoringPanel } from "@/monitoring/MonitoringPanel";
 
 const queryClient = new QueryClient();
 
@@ -38,8 +42,10 @@ const router = createBrowserRouter([
  * Sets up global providers:
  * - QueryClientProvider: For data fetching and caching.
  * - TooltipProvider: For accessible tooltips.
+ * - ErrorBoundary: Catches render errors globally.
  * - RouterProvider: React Router v7 data router.
- * - TaskProvider: For global task management state (wrapped inside Layout).
+ * - TaskProvider: For global task management state.
+ * - MonitoringPanel: Dev-only floating diagnostic panel (guarded by import.meta.env.DEV).
  */
 const App = () => (
   <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
@@ -47,9 +53,12 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <TaskProvider>
-          <RouterProvider router={router} />
-        </TaskProvider>
+        <ErrorBoundary>
+          <TaskProvider>
+            <RouterProvider router={router} />
+          </TaskProvider>
+        </ErrorBoundary>
+        {import.meta.env.DEV && <MonitoringPanel />}
       </TooltipProvider>
     </QueryClientProvider>
   </ThemeProvider>
