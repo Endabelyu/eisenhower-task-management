@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Outlet, useNavigate } from 'react-router';
+import { Outlet, useNavigate, useSearchParams } from 'react-router';
 import { Keyboard } from 'lucide-react';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
@@ -16,15 +16,24 @@ export function Layout() {
   const navigate = useNavigate();
   const [showQuickAdd, setShowQuickAdd] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const openQuickAdd = useCallback(() => setShowQuickAdd(true), []);
   const openShortcuts = useCallback(() => setShowShortcuts(true), []);
   const handleNavigate = useCallback((path: string) => navigate(path), [navigate]);
+  const handleToggleFocus = useCallback(() => {
+    setSearchParams(prev => {
+      if (prev.get('focus') === '1') prev.delete('focus');
+      else prev.set('focus', '1');
+      return prev;
+    });
+  }, [setSearchParams]);
 
   useKeyboardShortcuts({
     onQuickAdd: openQuickAdd,
     onHelp: openShortcuts,
     onNavigate: handleNavigate,
+    onToggleFocus: handleToggleFocus,
   });
 
   useEffect(() => {

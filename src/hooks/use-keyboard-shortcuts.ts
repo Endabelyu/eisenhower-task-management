@@ -13,6 +13,7 @@ interface KeyboardShortcutHandlers {
   onQuickAdd: () => void;
   onHelp: () => void;
   onNavigate: (path: string) => void;
+  onToggleFocus?: () => void;
 }
 
 const isEditableTarget = (target: EventTarget | null): boolean => {
@@ -28,7 +29,7 @@ const isEditableTarget = (target: EventTarget | null): boolean => {
 /**
  * Registers global keyboard shortcuts while safely ignoring focused form fields.
  */
-export function useKeyboardShortcuts({ onQuickAdd, onHelp, onNavigate }: KeyboardShortcutHandlers) {
+export function useKeyboardShortcuts({ onQuickAdd, onHelp, onNavigate, onToggleFocus }: KeyboardShortcutHandlers) {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (isEditableTarget(event.target)) return;
@@ -50,6 +51,12 @@ export function useKeyboardShortcuts({ onQuickAdd, onHelp, onNavigate }: Keyboar
 
       if (hasCommandModifier || event.altKey || event.shiftKey) return;
 
+      if (key === 'f' && onToggleFocus) {
+        event.preventDefault();
+        onToggleFocus();
+        return;
+      }
+
       const destination = NAVIGATION_KEYS[key];
       if (destination) {
         event.preventDefault();
@@ -59,5 +66,5 @@ export function useKeyboardShortcuts({ onQuickAdd, onHelp, onNavigate }: Keyboar
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onHelp, onNavigate, onQuickAdd]);
+  }, [onHelp, onNavigate, onQuickAdd, onToggleFocus]);
 }

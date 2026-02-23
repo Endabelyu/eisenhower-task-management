@@ -1,69 +1,34 @@
 import { useState } from 'react';
+import { useSearchParams } from 'react-router';
 import { TaskWithMetrics } from '@/types/task';
-import {
-  DndContext,
-  DragEndEvent,
-  closestCorners,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
 import { Plus, CheckCircle2, AlertTriangle, ListTodo, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { QuadrantPanel } from '@/components/QuadrantPanel';
 import { EditTaskModal } from '@/components/EditTaskModal';
 import { useTaskContext } from '@/context/TaskContext';
-import { Quadrant } from '@/types/task';
 import { cn } from '@/lib/utils';
 import { OPEN_QUICK_ADD_EVENT } from '@/hooks/use-keyboard-shortcuts';
 
-const QUADRANTS: Quadrant[] = ['do', 'schedule', 'delegate', 'hold'];
+import { ViewSwitcher } from '@/components/ViewSwitcher';
+import { MatrixView } from '@/components/views/MatrixView';
+import { ListPanel } from '@/components/views/ListPanel';
+import { TodayPanel } from '@/components/views/TodayPanel';
 
 /**
- * Dashboard Page - The Eisenhower Matrix view.
- * Displays tasks in a 2x2 grid representing urgency and importance.
- * Supports drag-and-drop to move tasks between quadrants.
+ * Dashboard Page.
+ * Can display multiple views (Matrix, List, Today) and supports a Focus Mode to hide unimportant tasks.
  */
 export default function Dashboard() {
-  const { getQuadrantTasks, moveToQuadrant, reorderInQuadrant, getStats } = useTaskContext();
+  const { getStats } = useTaskContext();
   const [editingTask, setEditingTask] = useState<TaskWithMetrics | null>(null);
+  const [searchParams] = useSearchParams();
+  
+  const view = searchParams.get('view') || 'matrix';
+  const focusMode = searchParams.get('focus') === '1';
+  
   const stats = getStats();
 
   const openQuickAdd = () => {
     window.dispatchEvent(new Event(OPEN_QUICK_ADD_EVENT));
-  };
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
-  );
-
-  const quadrantTasks = Object.fromEntries(
-    QUADRANTS.map(q => [q, getQuadrantTasks(q)])
-  ) as Record<Quadrant, ReturnType<typeof getQuadrantTasks>>;
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!over) return;
-
-    const taskId = active.id as string;
-    const overId = over.id as string;
-
-    if (QUADRANTS.includes(overId as Quadrant)) {
-      moveToQuadrant(taskId, overId as Quadrant);
-      return;
-    }
-
-    for (const q of QUADRANTS) {
-      const ids = quadrantTasks[q].map(t => t.id);
-      if (ids.includes(overId)) {
-        moveToQuadrant(taskId, q);
-        const newOrder = ids.filter(id => id !== taskId);
-        const overIndex = newOrder.indexOf(overId);
-        newOrder.splice(overIndex, 0, taskId);
-        reorderInQuadrant(q, newOrder);
-        return;
-      }
-    }
   };
 
   const summaryCards = [
@@ -87,6 +52,8 @@ export default function Dashboard() {
         </Button>
       </div>
 
+      <ViewSwitcher />
+
       {/* Summary strip */}
       <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">
         {summaryCards.map((card, i) => (
@@ -106,41 +73,12 @@ export default function Dashboard() {
         ))}
       </div>
 
-      {/* Axis labels */}
-      <div className="mb-2 grid grid-cols-2 gap-4">
-        <div className="text-center text-[10px] font-semibold text-muted-foreground/60 uppercase tracking-[0.2em]">
-          ← Urgent →
-        </div>
-        <div className="text-center text-[10px] font-semibold text-muted-foreground/60 uppercase tracking-[0.2em]">
-          ← Not Urgent →
-        </div>
-      </div>
-
-      {/* Matrix grid */}
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCorners}
-        onDragEnd={handleDragEnd}
-      >
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div className="relative">
-            <div className="absolute -left-7 top-1/2 -translate-y-1/2 -rotate-90 text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground/40 hidden lg:block">
-              Important
-            </div>
-            <QuadrantPanel quadrant="do" tasks={quadrantTasks.do} onEditTask={setEditingTask} />
-          </div>
-          <QuadrantPanel quadrant="schedule" tasks={quadrantTasks.schedule} onEditTask={setEditingTask} />
-          <div className="relative">
-            <div className="absolute -left-7 top-1/2 -translate-y-1/2 -rotate-90 text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground/40 hidden lg:block whitespace-nowrap">
-              Not Important
-            </div>
-            <QuadrantPanel quadrant="delegate" tasks={quadrantTasks.delegate} onEditTask={setEditingTask} />
-          </div>
-          <QuadrantPanel quadrant="hold" tasks={quadrantTasks.hold} onEditTask={setEditingTask} />
-        </div>
-      </DndContext>
+      {view === 'matrix' && <MatrixView focusMode={focusMode} onEditTask={setEditingTask} />}
+      {view === 'list' && <ListPanel onEditTask={setEditingTask} />}
+      {view === 'today' && <TodayPanel onEditTask={setEditingTask} />}
 
       <EditTaskModal task={editingTask} open={!!editingTask} onOpenChange={(open) => !open && setEditingTask(null)} />
     </div>
   );
 }
+
