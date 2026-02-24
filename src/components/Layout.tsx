@@ -8,6 +8,7 @@ import { QuickAddModal } from '@/components/QuickAddModal';
 import { KeyboardShortcutsDialog } from '@/components/KeyboardShortcutsDialog';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
 import { OPEN_QUICK_ADD_EVENT, useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
+import { AppWalkthrough } from '@/components/AppWalkthrough';
 
 /**
  * Layout component - Root layout route for the application.
@@ -66,6 +67,7 @@ export function Layout() {
           <MobileBottomNav />
           <QuickAddModal open={showQuickAdd} onOpenChange={setShowQuickAdd} />
           <KeyboardShortcutsDialog open={showShortcuts} onOpenChange={setShowShortcuts} />
+          <AppWalkthrough />
         </div>
       </div>
     </SidebarProvider>

@@ -42,20 +42,22 @@ export default function Dashboard() {
     <div className="animate-fade-in">
       {/* Header */}
       <div className="mb-6 flex items-center justify-between gap-3">
-        <div className="min-w-0">
+        <div className="min-w-0" id="tour-header">
           <h1 className="font-display text-2xl font-bold tracking-tight truncate">Eisenhower Matrix</h1>
           <p className="text-sm text-muted-foreground truncate">Prioritize what matters most</p>
         </div>
-        <Button onClick={openQuickAdd} className="gap-2 shadow-sm shrink-0">
+        <Button onClick={openQuickAdd} className="gap-2 shadow-sm shrink-0" id="tour-add-task">
           <Plus className="h-4 w-4" />
           <span className="hidden sm:inline">Add Task</span>
         </Button>
       </div>
 
-      <ViewSwitcher />
+      <div id="tour-views">
+        <ViewSwitcher />
+      </div>
 
       {/* Summary strip */}
-      <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4" id="tour-stats">
         {summaryCards.map((card, i) => (
           <div
             key={card.label}

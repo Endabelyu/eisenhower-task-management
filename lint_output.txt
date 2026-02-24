@@ -1,0 +1,64 @@
+
+> vite_react_shadcn_ts@0.0.0 lint
+> eslint .
+
+
+C:\Project\lovable\quadrant-calm\src\components\ui\badge.tsx
+  29:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Project\lovable\quadrant-calm\src\components\ui\button.tsx
+  47:18  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Project\lovable\quadrant-calm\src\components\ui\command.tsx
+  24:11  error  An interface declaring no members is equivalent to its supertype  @typescript-eslint/no-empty-object-type
+
+C:\Project\lovable\quadrant-calm\src\components\ui\form.tsx
+  129:10  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Project\lovable\quadrant-calm\src\components\ui\navigation-menu.tsx
+  111:3  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Project\lovable\quadrant-calm\src\components\ui\sidebar.tsx
+  636:3  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Project\lovable\quadrant-calm\src\components\ui\sonner.tsx
+  27:19  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Project\lovable\quadrant-calm\src\components\ui\textarea.tsx
+  5:18  error  An interface declaring no members is equivalent to its supertype  @typescript-eslint/no-empty-object-type
+
+C:\Project\lovable\quadrant-calm\src\components\ui\toggle.tsx
+  37:18  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Project\lovable\quadrant-calm\src\context\AuthContext.tsx
+  20:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+  35:21  error    Unexpected any. Specify a different type                                                                                        @typescript-eslint/no-explicit-any
+
+C:\Project\lovable\quadrant-calm\src\context\TaskContext.tsx
+  20:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Project\lovable\quadrant-calm\src\hooks\use-tasks.ts
+   34:25  error    Unexpected any. Specify a different type                                                                                  @typescript-eslint/no-explicit-any
+   90:21  error    Unexpected any. Specify a different type                                                                                  @typescript-eslint/no-explicit-any
+   99:6   warning  React Hook useEffect has a missing dependency: 'handleLegacyMigration'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  106:38  error    Unexpected any. Specify a different type                                                                                  @typescript-eslint/no-explicit-any
+  127:19  error    Unexpected any. Specify a different type                                                                                  @typescript-eslint/no-explicit-any
+  167:12  error    Unexpected any. Specify a different type                                                                                  @typescript-eslint/no-explicit-any
+  179:19  error    Unexpected any. Specify a different type                                                                                  @typescript-eslint/no-explicit-any
+  201:20  error    Unexpected any. Specify a different type                                                                                  @typescript-eslint/no-explicit-any
+  225:19  error    Unexpected any. Specify a different type                                                                                  @typescript-eslint/no-explicit-any
+  244:19  error    Unexpected any. Specify a different type                                                                                  @typescript-eslint/no-explicit-any
+  270:19  error    Unexpected any. Specify a different type                                                                                  @typescript-eslint/no-explicit-any
+  295:19  error    Unexpected any. Specify a different type                                                                                  @typescript-eslint/no-explicit-any
+  370:19  error    Unexpected any. Specify a different type                                                                                  @typescript-eslint/no-explicit-any
+  385:19  error    Unexpected any. Specify a different type                                                                                  @typescript-eslint/no-explicit-any
+
+C:\Project\lovable\quadrant-calm\src\pages\Login.tsx
+  39:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  55:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Project\lovable\quadrant-calm\tailwind.config.ts
+  108:13  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+
+✖ 29 problems (19 errors, 10 warnings)
+
