@@ -41,14 +41,14 @@ export default function Dashboard() {
   return (
     <div className="animate-fade-in">
       {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="font-display text-2xl font-bold tracking-tight">Eisenhower Matrix</h1>
-          <p className="text-sm text-muted-foreground">Prioritize what matters most</p>
+      <div className="mb-6 flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="font-display text-2xl font-bold tracking-tight truncate">Eisenhower Matrix</h1>
+          <p className="text-sm text-muted-foreground truncate">Prioritize what matters most</p>
         </div>
-        <Button onClick={openQuickAdd} className="gap-2 shadow-sm">
+        <Button onClick={openQuickAdd} className="gap-2 shadow-sm shrink-0">
           <Plus className="h-4 w-4" />
-          Add Task
+          <span className="hidden sm:inline">Add Task</span>
         </Button>
       </div>
 

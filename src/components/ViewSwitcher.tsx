@@ -32,38 +32,38 @@ export function ViewSwitcher() {
   };
 
   return (
-    <div className="mb-6 flex items-center justify-between">
+    <div className="mb-6 flex items-center justify-between gap-2 overflow-x-auto">
       {/* View Tabs */}
-      <div className="flex items-center gap-1 rounded-lg bg-muted/50 p-1">
+      <div className="flex items-center gap-1 rounded-lg bg-muted/50 p-1 shrink-0">
         <button
           onClick={() => setView('matrix')}
           className={cn(
-            'flex items-center gap-2 rounded-md px-3 py-1.5 text-xs font-semibold uppercase tracking-wider transition-all',
+            'flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wider transition-all',
             view === 'matrix' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
           )}
         >
-          <LayoutGrid className="h-3.5 w-3.5" />
-          Matrix
+          <LayoutGrid className="h-3.5 w-3.5 shrink-0" />
+          <span className="hidden sm:inline">Matrix</span>
         </button>
         <button
           onClick={() => setView('list')}
           className={cn(
-            'flex items-center gap-2 rounded-md px-3 py-1.5 text-xs font-semibold uppercase tracking-wider transition-all',
+            'flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wider transition-all',
             view === 'list' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
           )}
         >
-          <List className="h-4 w-4" />
-          List
+          <List className="h-4 w-4 shrink-0" />
+          <span className="hidden sm:inline">List</span>
         </button>
         <button
           onClick={() => setView('today')}
           className={cn(
-            'flex items-center gap-2 rounded-md px-3 py-1.5 text-xs font-semibold uppercase tracking-wider transition-all',
+            'flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wider transition-all',
             view === 'today' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
           )}
         >
-          <Calendar className="h-3.5 w-3.5" />
-          Today
+          <Calendar className="h-3.5 w-3.5 shrink-0" />
+          <span className="hidden sm:inline">Today</span>
         </button>
       </div>
 
@@ -74,14 +74,14 @@ export function ViewSwitcher() {
           size="sm"
           onClick={toggleFocus}
           className={cn(
-            'gap-2 text-xs uppercase tracking-widest font-semibold transition-colors',
+            'gap-2 text-xs uppercase tracking-widest font-semibold transition-colors shrink-0',
             focusMode 
               ? 'border-red-500/30 bg-red-500/10 text-red-500 hover:bg-red-500/20 hover:text-red-500' 
               : 'text-muted-foreground'
           )}
         >
           <Sparkles className={cn("h-3.5 w-3.5", focusMode ? "text-red-500" : "")} />
-          Focus Mode
+          <span className="hidden sm:inline">Focus Mode</span>
         </Button>
       )}
     </div>
