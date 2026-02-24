@@ -65,7 +65,7 @@ export function MatrixView({ focusMode, onEditTask }: MatrixViewProps) {
       >
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {/* Do First */}
-          <div className="relative animate-fade-in">
+          <div className="relative animate-fade-in" id="tour-quadrant-do">
             <div className="absolute -left-7 top-1/2 -translate-y-1/2 -rotate-90 text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground/40 hidden lg:block">
               Important
             </div>
@@ -73,7 +73,7 @@ export function MatrixView({ focusMode, onEditTask }: MatrixViewProps) {
           </div>
 
           {/* Schedule */}
-          <div className="animate-fade-in">
+          <div className="animate-fade-in" id="tour-quadrant-schedule">
             <QuadrantPanel quadrant="schedule" tasks={quadrantTasks.schedule} onEditTask={onEditTask} />
           </div>
 

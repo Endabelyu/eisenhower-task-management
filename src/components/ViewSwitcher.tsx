@@ -70,6 +70,7 @@ export function ViewSwitcher() {
       {/* Focus Mode Toggle */}
       {view === 'matrix' && (
         <Button
+          id="tour-focus-mode"
           variant="outline"
           size="sm"
           onClick={toggleFocus}

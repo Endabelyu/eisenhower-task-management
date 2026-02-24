@@ -18,7 +18,7 @@ export function AppWalkthrough() {
             element: '#tour-sidebar',
             popover: {
               title: 'Welcome to Eisenhower Matrix!',
-              description: 'This is the main navigation menu where you can access your dashboard, settings, and more.',
+              description: 'This is your main navigation hub. From here, you can access your unified Dashboard, All Tasks list, Daily Focus mode, and Settings.',
               side: 'right',
               align: 'start'
             }
@@ -26,8 +26,8 @@ export function AppWalkthrough() {
           {
             element: '#tour-header',
             popover: {
-              title: 'Your Dashboard',
-              description: 'Here you have an overview of all your tasks and priorities.',
+              title: 'The Dashboard',
+              description: 'Your command center. The Eisenhower Matrix helps you decide on and prioritize tasks by urgency and importance, sorting out less urgent and important tasks which you should either delegate or not do at all.',
               side: 'bottom',
               align: 'start'
             }
@@ -35,17 +35,35 @@ export function AppWalkthrough() {
           {
             element: '#tour-add-task',
             popover: {
-              title: 'Add a Task',
-              description: 'Click here or press "N" anytime to quickly add a new task.',
+              title: 'Capture Thoughts Quickly',
+              description: 'Click here or press "N" on your keyboard anytime to add a new task before you forget it.',
               side: 'left',
               align: 'start'
             }
           },
           {
-            element: '#tour-stats',
+            element: '#tour-quadrant-do',
             popover: {
-              title: 'Quick Stats',
-              description: 'Keep track of your total, completed, and overdue tasks at a single glance.',
+              title: '"Do First" Quadrant',
+              description: 'Tasks here are both Urgent and Important. These are your top priorities that require immediate attention. Do them today.',
+              side: 'right',
+              align: 'start'
+            }
+          },
+          {
+            element: '#tour-quadrant-schedule',
+            popover: {
+              title: 'Drag & Drop Reprioritization',
+              description: 'This is the "Schedule" quadrant (Important, Not Urgent). You can drag and drop tasks freely between any of the four quadrants as their priorities shift.',
+              side: 'left',
+              align: 'start'
+            }
+          },
+          {
+            element: '#tour-focus-mode',
+            popover: {
+              title: 'Eliminate Distractions',
+              description: 'Click "Focus Mode" to hide the bottom two quadrants (Delegate & Hold). This keeps your screen completely focused on what truly matters right now.',
               side: 'bottom',
               align: 'center'
             }
@@ -53,10 +71,19 @@ export function AppWalkthrough() {
           {
             element: '#tour-views',
             popover: {
-              title: 'Switch Views',
-              description: 'Easily toggle between the Matrix, List, or Today view to focus on what matters.',
+              title: 'Change Your Perspective',
+              description: 'Not in a Matrix mood? Switch to the List view for a traditional checklist, or the Today panel to see your upcoming schedule.',
               side: 'bottom',
               align: 'start'
+            }
+          },
+          {
+            element: '#tour-stats',
+            popover: {
+              title: 'Track Your Progress',
+              description: 'Watch your completion rate rise! This summary strip gives you a real-time glance at your productivity and highlights any overdue tasks.',
+              side: 'top',
+              align: 'center'
             }
           },
         ],
