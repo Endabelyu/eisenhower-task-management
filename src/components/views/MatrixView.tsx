@@ -48,7 +48,8 @@ export function MatrixView({ focusMode, onEditTask }: MatrixViewProps) {
 
   return (
     <>
-      <div className="mb-2 grid grid-cols-2 gap-4">
+      {/* Axis labels only visible when grid is 2-col (md+) */}
+      <div className="mb-2 hidden md:grid grid-cols-2 gap-4">
         <div className="text-center text-[10px] font-semibold text-muted-foreground/60 uppercase tracking-[0.2em]">
           ← Urgent →
         </div>

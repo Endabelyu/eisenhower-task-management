@@ -55,7 +55,7 @@ export default function Dashboard() {
       <ViewSwitcher />
 
       {/* Summary strip */}
-      <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">
+      <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
         {summaryCards.map((card, i) => (
           <div
             key={card.label}
