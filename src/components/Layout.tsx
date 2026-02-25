@@ -48,7 +48,7 @@ export function Layout() {
       <div className="flex min-h-screen w-full overflow-x-hidden">
         <AppSidebar />
         <div className="flex flex-1 flex-col">
-          <header className="flex h-14 items-center justify-between border-b px-4">
+          <header className="hidden md:flex h-14 items-center justify-between border-b px-4">
             <SidebarTrigger />
             <Button
               type="button"

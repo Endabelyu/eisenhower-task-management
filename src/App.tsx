@@ -6,14 +6,17 @@ import { ThemeProvider } from "next-themes";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import { TaskProvider } from "@/context/TaskContext";
 import { Layout } from "@/components/Layout";
+import { lazy, Suspense } from "react";
 import { ErrorBoundary } from "@/monitoring/ErrorBoundary";
-import Index from "./pages/Index";
-import TaskList from "./pages/TaskList";
-import DailyFocus from "./pages/DailyFocus";
-import Stats from "./pages/Stats";
-import Settings from "./pages/Settings";
-import NotFound from "./pages/NotFound";
-import Login from "./pages/Login";
+
+// Lazy-loaded routes for code splitting
+const Index = lazy(() => import("./pages/Index"));
+const TaskList = lazy(() => import("./pages/TaskList"));
+const DailyFocus = lazy(() => import("./pages/DailyFocus"));
+const Stats = lazy(() => import("./pages/Stats"));
+const Settings = lazy(() => import("./pages/Settings"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const Login = lazy(() => import("./pages/Login"));
 
 import { AuthProvider } from "@/context/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -68,7 +71,9 @@ const App = () => (
         <ErrorBoundary>
           <AuthProvider>
             <TaskProvider>
-              <RouterProvider router={router} />
+              <Suspense fallback={<div className="flex h-screen w-screen items-center justify-center bg-background"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" /></div>}>
+                <RouterProvider router={router} />
+              </Suspense>
             </TaskProvider>
           </AuthProvider>
         </ErrorBoundary>
