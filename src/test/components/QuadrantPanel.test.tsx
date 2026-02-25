@@ -28,6 +28,9 @@ vi.mock('@/context/TaskContext', () => ({
   useTaskContext: () => ({
     updateTask: vi.fn(),
     deleteTask: vi.fn(),
+    addSubTask: vi.fn(),
+    toggleSubTask: vi.fn(),
+    deleteSubTask: vi.fn(),
   }),
 }));
 
@@ -41,6 +44,7 @@ const makeTask = (id: string, overrides: Partial<TaskWithMetrics> = {}): TaskWit
   status: 'pending',
   order: 0,
   tags: [],
+  subtasks: [],
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-01-01T00:00:00.000Z',
   daysUntilDue: null,

@@ -60,6 +60,7 @@ const makeTask = (overrides: Partial<Task> = {}): Task => ({
   status: overrides.status ?? 'pending',
   order: overrides.order ?? 0,
   tags: overrides.tags ?? [],
+  subtasks: overrides.subtasks ?? [],
   createdAt: overrides.createdAt ?? '2026-01-01T00:00:00.000Z',
   updatedAt: overrides.updatedAt ?? '2026-01-01T00:00:00.000Z',
   completedAt: overrides.completedAt,

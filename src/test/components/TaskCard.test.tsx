@@ -41,6 +41,9 @@ vi.spyOn(TaskContext, 'useTaskContext').mockReturnValue({
   exportTasks: vi.fn(),
   importTasks: vi.fn(),
   clearAllTasks: vi.fn(),
+  addSubTask: vi.fn(),
+  toggleSubTask: vi.fn(),
+  deleteSubTask: vi.fn(),
 });
 
 const makeTask = (overrides: Partial<TaskWithMetrics> = {}): TaskWithMetrics => ({
@@ -55,6 +58,7 @@ const makeTask = (overrides: Partial<TaskWithMetrics> = {}): TaskWithMetrics => 
   status: 'pending',
   order: 0,
   tags: [],
+  subtasks: [],
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-01-01T00:00:00.000Z',
   completedAt: undefined,
