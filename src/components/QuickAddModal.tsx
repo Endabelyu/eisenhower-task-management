@@ -71,13 +71,14 @@ export function QuickAddModal({ open, onOpenChange }: QuickAddModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
+      <DialogContent className="w-[95vw] sm:max-w-md max-h-[90dvh] flex flex-col p-4 sm:p-6 gap-0">
+        <DialogHeader className="mb-4 shrink-0">
           <DialogTitle className="font-display">Quick Add Task</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label htmlFor="title">Title</Label>
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden min-h-0">
+          <div className="flex-1 overflow-y-auto space-y-4 px-1 pb-4">
+            <div>
+              <Label htmlFor="title">Title</Label>
             <Input
               id="title"
               value={title}
@@ -160,8 +161,9 @@ export function QuickAddModal({ open, onOpenChange }: QuickAddModalProps) {
               })}
             </div>
           </div>
+          </div>
 
-          <DialogFooter>
+          <DialogFooter className="pt-4 mt-2 border-t shrink-0">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
