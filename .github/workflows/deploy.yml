@@ -3,12 +3,13 @@ name: Deploy to VPS
 on:
   push:
     branches:
-      - main # Or your default branch like 'master'
+      - main
 
 jobs:
-  build-and-deploy:
+  # ── Job 1: Build ────────────────────────────────────────────────
+  build:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -16,7 +17,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20' # You can adjust this to your preferred Node version
+          node-version: '20'
           cache: 'npm'
 
       - name: Install Dependencies
@@ -25,22 +26,36 @@ jobs:
       - name: Build Project
         run: npm run build
         env:
-          # Inject production secrets so Vite can read them during the build process
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY }}
 
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          retention-days: 1
+
+  # ── Job 2: Deploy (only runs if build succeeds) ─────────────────
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
       - name: Deploy to VPS via Rsync
         uses: easingthemes/ssh-deploy@v5.1.0
         env:
-          # SSH details for accessing your VPS securely
           SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_KEY }}
           REMOTE_HOST: ${{ secrets.VPS_HOST }}
           REMOTE_USER: ${{ secrets.VPS_USERNAME }}
           REMOTE_PORT: ${{ secrets.VPS_PORT || '22' }}
-          # Path to deploy the build files to on the VPS
           TARGET: ${{ secrets.VPS_TARGET_DIR }}
-          # What folder from our Github repository to send (we only want the built app)
           SOURCE: "dist/"
-          # Overwrite files by default on the VPS
           ARGS: "-rltgoDzvO --delete"
