@@ -14,6 +14,7 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTaskContext } from '@/context/TaskContext';
 import { TaskWithMetrics, getQuadrant, QUADRANT_CONFIG, TaskStatus, PRESET_TAGS } from '@/types/task';
+import { SubTaskList } from '@/components/SubTaskList';
 import { cn } from '@/lib/utils';
 
 interface EditTaskModalProps {
@@ -187,6 +188,9 @@ export function EditTaskModal({ task, open, onOpenChange }: EditTaskModalProps) 
               })}
             </div>
           </div>
+
+          {/* Sub-tasks */}
+          <SubTaskList taskId={task.id} subtasks={task.subtasks} />
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>

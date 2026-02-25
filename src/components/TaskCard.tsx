@@ -1,6 +1,6 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, Clock, Check, Trash2, AlertTriangle, Timer, CircleDot } from 'lucide-react';
+import { GripVertical, Clock, Check, Trash2, AlertTriangle, Timer, CircleDot, ListChecks, Bell } from 'lucide-react';
 import { TaskWithMetrics, QUADRANT_CONFIG, Quadrant, PRESET_TAGS } from '@/types/task';
 import { useTaskContext } from '@/context/TaskContext';
 import { Button } from '@/components/ui/button';
@@ -113,6 +113,18 @@ export function TaskCard({ task, compact, onEdit }: TaskCardProps) {
               Overdue
             </span>
           )}
+          {!task.isOverdue && task.daysUntilDue === 0 && (
+            <span className="flex items-center gap-1 rounded-full bg-orange-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-orange-600 dark:text-orange-400 animate-pulse">
+              <Bell className="h-3 w-3" />
+              Due today
+            </span>
+          )}
+          {!task.isOverdue && task.daysUntilDue === 1 && (
+            <span className="flex items-center gap-1 rounded-full bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-amber-600 dark:text-amber-400">
+              <Bell className="h-3 w-3" />
+              Due tomorrow
+            </span>
+          )}
         </div>
 
         {/* Description */}
@@ -171,6 +183,29 @@ export function TaskCard({ task, compact, onEdit }: TaskCardProps) {
             #{task.urgencyScore}
           </span>
         </div>
+
+        {/* Sub-task progress */}
+        {task.subtasks.length > 0 && (() => {
+          const done = task.subtasks.filter(st => st.completed).length;
+          const total = task.subtasks.length;
+          const pct = Math.round((done / total) * 100);
+          return (
+            <div className="mt-2 space-y-1">
+              <div className="flex items-center gap-1.5">
+                <ListChecks className="h-3 w-3 text-muted-foreground/60" />
+                <span className="text-[10px] font-medium text-muted-foreground">
+                  {done}/{total} ({pct}%)
+                </span>
+              </div>
+              <div className="h-1 w-full rounded-full bg-muted overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-blue-500 to-emerald-500 transition-all duration-300"
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+            </div>
+          );
+        })()}
       </div>
 
       {/* Delete on hover */}
