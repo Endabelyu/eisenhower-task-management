@@ -13,6 +13,18 @@ export type Quadrant = 'do' | 'schedule' | 'delegate' | 'hold';
 export type TaskStatus = 'pending' | 'in-progress' | 'completed' | 'hold';
 
 /**
+ * Represents a lightweight sub-task (checklist item) within a parent task.
+ */
+export interface SubTask {
+  id: string;
+  taskId: string;
+  title: string;
+  completed: boolean;
+  order: number;
+  createdAt: string;
+}
+
+/**
  * Core Task interface representing a user task.
  */
 export interface Task {
@@ -27,6 +39,7 @@ export interface Task {
   status: TaskStatus;
   order: number;
   tags: string[];
+  subtasks: SubTask[];
   createdAt: string;
   updatedAt: string;
   completedAt?: string;

@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { toast } from 'sonner';
-import { Task, Quadrant, getQuadrant, getQuadrantFlags, TaskWithMetrics, QUADRANT_CONFIG } from '@/types/task';
+import { Task, SubTask, Quadrant, getQuadrant, getQuadrantFlags, TaskWithMetrics, QUADRANT_CONFIG } from '@/types/task';
 import { monitoringStore } from '@/monitoring/monitoring-store';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
@@ -31,7 +31,7 @@ export const computeMetrics = (task: Task): TaskWithMetrics => {
   return { ...task, daysUntilDue, urgencyScore, isOverdue };
 };
 
-const mapToTask = (row: any): Task => ({
+const mapToTask = (row: any, subtasks: SubTask[] = []): Task => ({
   id: row.id,
   title: row.title,
   description: row.description,
@@ -43,9 +43,19 @@ const mapToTask = (row: any): Task => ({
   status: row.status,
   order: row.order,
   tags: row.tags || [],
+  subtasks,
   createdAt: row.created_at,
   updatedAt: row.updated_at,
   completedAt: row.completed_at,
+});
+
+const mapToSubTask = (row: any): SubTask => ({
+  id: row.id,
+  taskId: row.task_id,
+  title: row.title,
+  completed: row.completed,
+  order: row.order,
+  createdAt: row.created_at,
 });
 
 /**
@@ -66,17 +76,27 @@ export function useTasks() {
 
     const fetchTasks = async () => {
       try {
-        const { data, error } = await supabase
-          .from('tasks')
-          .select('*')
-          .order('order', { ascending: true });
+        const [tasksRes, subtasksRes] = await Promise.all([
+          supabase.from('tasks').select('*').order('order', { ascending: true }),
+          supabase.from('subtasks').select('*').order('order', { ascending: true }),
+        ]);
           
-        if (error) throw error;
-        setTasks(data.map(mapToTask));
+        if (tasksRes.error) throw tasksRes.error;
+        if (subtasksRes.error) throw subtasksRes.error;
+
+        const subtasksByTask = new Map<string, SubTask[]>();
+        for (const row of subtasksRes.data) {
+          const st = mapToSubTask(row);
+          const list = subtasksByTask.get(st.taskId) || [];
+          list.push(st);
+          subtasksByTask.set(st.taskId, list);
+        }
+
+        setTasks(tasksRes.data.map(row => mapToTask(row, subtasksByTask.get(row.id) || [])));
         
         // Check for legacy local storage migration
         const legacyData = localStorage.getItem(STORAGE_KEY);
-        if (legacyData && data.length === 0 && !sessionStorage.getItem('migrated_prompted')) {
+        if (legacyData && tasksRes.data.length === 0 && !sessionStorage.getItem('migrated_prompted')) {
           sessionStorage.setItem('migrated_prompted', 'true');
           toast('Legacy tasks found!', {
             description: 'We found tasks saved to this browser. Would you like to migrate them to your cloud account?',
@@ -120,7 +140,7 @@ export function useTasks() {
       const { data, error } = await supabase.from('tasks').insert(payload).select();
       if (error) throw error;
       
-      setTasks(prev => [...prev, ...data.map(mapToTask)]);
+      setTasks(prev => [...prev, ...data.map(row => mapToTask(row))]);
       localStorage.removeItem(STORAGE_KEY);
       toast.success('Successfully migrated legacy tasks to cloud');
       monitoringStore.addLog('tasks:migrated-legacy', { count: data.length });
@@ -163,14 +183,14 @@ export function useTasks() {
       // Optimistic update
       const tempId = crypto.randomUUID();
       const optimisticTask: Task = {
-        ...payload, id: tempId, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), dueDate: payload.due_date, estimatedDuration: payload.estimated_duration
+        ...payload, id: tempId, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), dueDate: payload.due_date, estimatedDuration: payload.estimated_duration, subtasks: []
       } as any;
       setTasks(prev => [...prev, optimisticTask]);
 
       const { data: dbData, error } = await supabase.from('tasks').insert(payload).select().single();
       if (error) throw error;
       
-      const newTask = mapToTask(dbData);
+      const newTask = mapToTask(dbData, []);
       setTasks(prev => prev.map(t => t.id === tempId ? newTask : t));
       
       toast.success(`Task added to ${QUADRANT_CONFIG[quadrant].label}`);
@@ -298,6 +318,109 @@ export function useTasks() {
     }
   }, []);
 
+  // ── Sub-task operations ───────────────────────────────────────────────
+
+  const addSubTask = useCallback(async (taskId: string, title: string) => {
+    if (!user || !title.trim()) return;
+
+    const parentTask = tasks.find(t => t.id === taskId);
+    const order = parentTask ? parentTask.subtasks.length : 0;
+
+    const tempId = crypto.randomUUID();
+    const optimistic: SubTask = {
+      id: tempId,
+      taskId,
+      title: title.trim(),
+      completed: false,
+      order,
+      createdAt: new Date().toISOString(),
+    };
+
+    setTasks(prev => prev.map(t =>
+      t.id === taskId ? { ...t, subtasks: [...t.subtasks, optimistic] } : t
+    ));
+
+    try {
+      const { data, error } = await supabase.from('subtasks').insert({
+        task_id: taskId,
+        user_id: user.id,
+        title: title.trim(),
+        order,
+      }).select().single();
+
+      if (error) throw error;
+
+      const real = mapToSubTask(data);
+      setTasks(prev => prev.map(t =>
+        t.id === taskId
+          ? { ...t, subtasks: t.subtasks.map(st => st.id === tempId ? real : st) }
+          : t
+      ));
+    } catch (err: any) {
+      // Revert optimistic
+      setTasks(prev => prev.map(t =>
+        t.id === taskId
+          ? { ...t, subtasks: t.subtasks.filter(st => st.id !== tempId) }
+          : t
+      ));
+      toast.error('Failed to add sub-task');
+      monitoringStore.addError('subtask:add-error', err);
+    }
+  }, [tasks, user]);
+
+  const toggleSubTask = useCallback(async (subtaskId: string, completed: boolean) => {
+    // Optimistic
+    setTasks(prev => prev.map(t => ({
+      ...t,
+      subtasks: t.subtasks.map(st =>
+        st.id === subtaskId ? { ...st, completed } : st
+      ),
+    })));
+
+    try {
+      const { error } = await supabase.from('subtasks').update({ completed }).eq('id', subtaskId);
+      if (error) throw error;
+    } catch (err: any) {
+      // Revert
+      setTasks(prev => prev.map(t => ({
+        ...t,
+        subtasks: t.subtasks.map(st =>
+          st.id === subtaskId ? { ...st, completed: !completed } : st
+        ),
+      })));
+      toast.error('Failed to update sub-task');
+      monitoringStore.addError('subtask:toggle-error', err);
+    }
+  }, []);
+
+  const deleteSubTask = useCallback(async (subtaskId: string) => {
+    let deletedFrom: { taskId: string; subtask: SubTask } | null = null;
+
+    setTasks(prev => prev.map(t => {
+      const found = t.subtasks.find(st => st.id === subtaskId);
+      if (found) deletedFrom = { taskId: t.id, subtask: found };
+      return {
+        ...t,
+        subtasks: t.subtasks.filter(st => st.id !== subtaskId),
+      };
+    }));
+
+    try {
+      const { error } = await supabase.from('subtasks').delete().eq('id', subtaskId);
+      if (error) throw error;
+    } catch (err: any) {
+      // Revert
+      if (deletedFrom) {
+        const { taskId, subtask } = deletedFrom;
+        setTasks(prev => prev.map(t =>
+          t.id === taskId ? { ...t, subtasks: [...t.subtasks, subtask] } : t
+        ));
+      }
+      toast.error('Failed to delete sub-task');
+      monitoringStore.addError('subtask:delete-error', err);
+    }
+  }, []);
+
   const tasksWithMetrics = useMemo(() => tasks.map(computeMetrics), [tasks]);
 
   const getQuadrantTasks = useCallback((quadrant: Quadrant) => {
@@ -364,7 +487,7 @@ export function useTasks() {
       const { data, error } = await supabase.from('tasks').insert(payload).select();
       if (error) throw error;
       
-      setTasks(prev => [...prev, ...data.map(mapToTask)]);
+      setTasks(prev => [...prev, ...data.map(row => mapToTask(row))]);
       monitoringStore.addLog('task:import', { count: parsed.length });
       toast.success(`Imported ${parsed.length} tasks synced to cloud`);
     } catch (err: any) {
@@ -401,5 +524,8 @@ export function useTasks() {
     exportTasks,
     importTasks,
     clearAllTasks,
-  }), [tasksWithMetrics, loading, addTask, updateTask, deleteTask, moveToQuadrant, reorderInQuadrant, getQuadrantTasks, getDailyFocus, getStats, exportTasks, importTasks, clearAllTasks]);
+    addSubTask,
+    toggleSubTask,
+    deleteSubTask,
+  }), [tasksWithMetrics, loading, addTask, updateTask, deleteTask, moveToQuadrant, reorderInQuadrant, getQuadrantTasks, getDailyFocus, getStats, exportTasks, importTasks, clearAllTasks, addSubTask, toggleSubTask, deleteSubTask]);
 }
