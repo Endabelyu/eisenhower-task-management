@@ -17,6 +17,7 @@ const Stats = lazy(() => import("./pages/Stats"));
 const Settings = lazy(() => import("./pages/Settings"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Login = lazy(() => import("./pages/Login"));
+const SpotifyCallback = lazy(() => import("./pages/SpotifyCallback"));
 
 import { AuthProvider } from "@/context/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -47,6 +48,7 @@ const router = createBrowserRouter([
       { path: "/daily", element: <DailyFocus /> },
       { path: "/stats", element: <Stats /> },
       { path: "/settings", element: <Settings /> },
+      { path: "/callback", element: <SpotifyCallback /> },
       { path: "*", element: <NotFound /> },
     ],
   },
