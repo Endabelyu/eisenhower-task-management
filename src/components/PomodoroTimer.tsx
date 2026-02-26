@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Pause, Play, RotateCcw, Timer } from 'lucide-react';
+import { Pause, Play, RotateCcw, Timer, Volume2, VolumeX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Slider } from '@/components/ui/slider';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const FOCUS_SECONDS = 25 * 60;
 const BREAK_SECONDS = 5 * 60;
@@ -11,6 +13,16 @@ const formatTime = (seconds: number) => {
   return `${minutes}:${remainingSeconds}`;
 };
 
+const AMBIENCE_SOUNDS = {
+  none: { label: 'None', url: null },
+  rain: { label: '🌧️ Rain', url: '/sounds/rain.mp3' },
+  cafe: { label: '☕ Cafe', url: '/sounds/cafe.mp3' },
+  whitenoise: { label: '🌊 White Noise', url: '/sounds/whitenoise.mp3' },
+  forest: { label: '🌲 Forest', url: '/sounds/forest.mp3' },
+} as const;
+
+type AmbienceType = keyof typeof AMBIENCE_SOUNDS;
+
 /**
  * Lightweight Pomodoro timer with 25-minute focus and 5-minute break cycles.
  */
@@ -18,6 +30,10 @@ export function PomodoroTimer() {
   const [mode, setMode] = useState<'focus' | 'break'>('focus');
   const [secondsLeft, setSecondsLeft] = useState(FOCUS_SECONDS);
   const [running, setRunning] = useState(false);
+  const [ambience, setAmbience] = useState<AmbienceType>('none');
+  const [volume, setVolume] = useState(30);
+  const [audio] = useState(() => new Audio());
+  const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
     if (!running) {
@@ -48,6 +64,37 @@ export function PomodoroTimer() {
       document.title = 'Daily Focus - Eisenhower Matrix';
     };
   }, [mode, running]);
+
+  useEffect(() => {
+    const sound = AMBIENCE_SOUNDS[ambience];
+    
+    if (!sound.url) {
+      audio.pause();
+      setIsPlaying(false);
+      return;
+    }
+
+    audio.src = sound.url;
+    audio.loop = true;
+    audio.volume = volume / 100;
+
+    if (running) {
+      audio.play()
+        .then(() => setIsPlaying(true))
+        .catch(() => setIsPlaying(false));
+    } else {
+      audio.pause();
+      setIsPlaying(false);
+    }
+
+    return () => {
+      audio.pause();
+    };
+  }, [ambience, running, audio]);
+
+  useEffect(() => {
+    audio.volume = volume / 100;
+  }, [volume, audio]);
 
   const modeLabel = useMemo(
     () => (mode === 'focus' ? 'Focus Session (25 min)' : 'Break Session (5 min)'),
@@ -142,6 +189,49 @@ export function PomodoroTimer() {
           <RotateCcw className="h-4 w-4" />
           Reset
         </Button>
+      </div>
+
+      {/* Ambience Player Section */}
+      <div className="mt-4 border-t pt-4">
+        <div className="mb-3 flex items-center gap-2">
+          {isPlaying ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+          <span className="text-sm font-medium">Background Sound</span>
+        </div>
+        
+        <div className="space-y-3">
+          <Select 
+            value={ambience} 
+            onValueChange={(val) => setAmbience(val as AmbienceType)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select ambience" />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.entries(AMBIENCE_SOUNDS).map(([key, sound]) => (
+                <SelectItem key={key} value={key}>
+                  {sound.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {ambience !== 'none' && (
+            <div className="flex items-center gap-3">
+              <VolumeX className="h-4 w-4 text-muted-foreground" />
+              <Slider
+                value={[volume]}
+                onValueChange={(vals) => setVolume(vals[0])}
+                max={100}
+                step={5}
+                className="flex-1"
+              />
+              <Volume2 className="h-4 w-4 text-muted-foreground" />
+              <span className="w-10 text-sm tabular-nums text-muted-foreground">
+                {volume}%
+              </span>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
