@@ -12,5 +12,28 @@ if (!supabaseUrl || !supabaseAnonKey || supabaseUrl === 'https://replace-me.supa
 
 export const supabase = createClient(
   supabaseUrl || 'https://dummy.supabase.co',
-  supabaseAnonKey || 'dummy-key'
+  supabaseAnonKey || 'dummy-key',
+  {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+    },
+    global: {
+      fetch: async (url, options) => {
+        const response = await fetch(url, options);
+        // Intercept 401 responses, but exclude auth endpoints to avoid loops if refresh fails
+        if (response.status === 401 && typeof url === 'string' && !url.includes('/auth/v1/')) {
+          console.warn('Caught 401 Unauthorized response globally. Forcing sign out.');
+          
+          // Dispatch a custom event so the React tree (AuthContext) can show a toast
+          window.dispatchEvent(new CustomEvent('supabase-401'));
+          
+          // Force sign out to clean up local state and trigger ProtectedRoute redirect
+          await supabase.auth.signOut();
+        }
+        return response;
+      }
+    }
+  }
 );

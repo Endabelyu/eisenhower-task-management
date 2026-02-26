@@ -58,7 +58,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     });
 
-    return () => subscription.unsubscribe();
+    // Listen for global 401 unauth events from the supabase fetch interceptor
+    const handleUnauth = () => {
+      toast.error('Session expired. Please log in again.');
+      // The signout is handled by the interceptor which will trigger onAuthStateChange
+    };
+    
+    window.addEventListener('supabase-401', handleUnauth);
+
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener('supabase-401', handleUnauth);
+    };
   }, []);
 
   // Proactive refresh mechanism
