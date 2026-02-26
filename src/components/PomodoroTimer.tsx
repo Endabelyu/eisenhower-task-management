@@ -20,12 +20,22 @@ export function PomodoroTimer() {
   const [running, setRunning] = useState(false);
 
   useEffect(() => {
-    if (!running) return;
+    if (!running) {
+      document.title = 'Daily Focus - Eisenhower Matrix';
+      return;
+    }
 
     const timerId = window.setInterval(() => {
       setSecondsLeft((current) => {
-        if (current > 1) return current - 1;
+        if (current > 1) {
+          const timeStr = formatTime(current - 1);
+          const emoji = mode === 'focus' ? '⏱️' : '☕';
+          const modeText = mode === 'focus' ? 'Focus' : 'Break';
+          document.title = `${emoji} ${timeStr} - ${modeText}`;
+          return current - 1;
+        }
 
+        document.title = `✅ ${mode === 'focus' ? 'Focus' : 'Break'} Complete!`;
         const nextMode = mode === 'focus' ? 'break' : 'focus';
         setMode(nextMode);
         setRunning(false);
@@ -33,7 +43,10 @@ export function PomodoroTimer() {
       });
     }, 1000);
 
-    return () => window.clearInterval(timerId);
+    return () => {
+      window.clearInterval(timerId);
+      document.title = 'Daily Focus - Eisenhower Matrix';
+    };
   }, [mode, running]);
 
   const modeLabel = useMemo(
@@ -51,6 +64,8 @@ export function PomodoroTimer() {
     setRunning(false);
     setSecondsLeft(mode === 'focus' ? FOCUS_SECONDS : BREAK_SECONDS);
   };
+
+  const totalSeconds = mode === 'focus' ? FOCUS_SECONDS : BREAK_SECONDS;
 
   return (
     <div className="rounded-xl border bg-card p-5 shadow-sm">
@@ -79,7 +94,44 @@ export function PomodoroTimer() {
       </div>
 
       <p className="text-sm text-muted-foreground">{modeLabel}</p>
-      <p className="mt-2 font-display text-4xl font-bold tabular-nums">{formatTime(secondsLeft)}</p>
+      
+      {/* Circular Progress Indicator */}
+      <div className="relative my-6 flex items-center justify-center">
+        <svg className="h-48 w-48 -rotate-90 transform">
+          {/* Background circle */}
+          <circle
+            cx="96"
+            cy="96"
+            r="88"
+            stroke="currentColor"
+            strokeWidth="8"
+            fill="none"
+            className="text-muted/20"
+          />
+          {/* Progress circle */}
+          <circle
+            cx="96"
+            cy="96"
+            r="88"
+            stroke="currentColor"
+            strokeWidth="8"
+            fill="none"
+            strokeDasharray={`${2 * Math.PI * 88}`}
+            strokeDashoffset={`${2 * Math.PI * 88 * (1 - ((totalSeconds - secondsLeft) / totalSeconds))}`}
+            className={mode === 'focus' ? 'text-status-in-progress' : 'text-quadrant-schedule'}
+            strokeLinecap="round"
+            style={{ transition: 'stroke-dashoffset 1s linear' }}
+          />
+        </svg>
+        
+        {/* Time display in center */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <p className="font-display text-5xl font-bold tabular-nums">{formatTime(secondsLeft)}</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {Math.round(((totalSeconds - secondsLeft) / totalSeconds) * 100)}%
+          </p>
+        </div>
+      </div>
 
       <div className="mt-4 flex gap-2">
         <Button type="button" onClick={() => setRunning((prev) => !prev)} className="gap-2">
