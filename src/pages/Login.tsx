@@ -44,6 +44,27 @@ export default function Login() {
     }
   };
 
+  const handleResetPassword = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!email) {
+      toast.error('Please enter your email address first to reset your password');
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/`,
+      });
+      if (error) throw error;
+      toast.success('Password reset link sent! Please check your email.');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to send reset email');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleGoogleLogin = async () => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
@@ -96,9 +117,13 @@ export default function Login() {
             <div className="flex items-center justify-between">
               <Label htmlFor="password">Password</Label>
               {!isSignUp && (
-                <a href="#" className="text-xs text-primary hover:underline">
+                <button 
+                  type="button"
+                  onClick={handleResetPassword}
+                  className="text-xs text-primary hover:underline focus:outline-none"
+                >
                   Forgot password?
-                </a>
+                </button>
               )}
             </div>
             <div className="relative">
