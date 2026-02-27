@@ -5,9 +5,8 @@ export default function SpotifyCallback() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Spotify implicit grant flow returns the token in the URL hash (e.g., #access_token=xyz&token_type=Bearer&expires_in=3600)
-    const hash = window.location.hash;
     const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
     const error = params.get('error');
 
     if (error) {
@@ -16,18 +15,58 @@ export default function SpotifyCallback() {
       return;
     }
 
-    if (hash) {
-      // Remove the leading '#' so URLSearchParams can parse the key=value pairs easily
-      const hashParams = new URLSearchParams(hash.substring(1));
-      const accessToken = hashParams.get('access_token');
-      
-      if (accessToken) {
-        localStorage.setItem('spotify_access_token', accessToken);
+    const exchangeToken = async () => {
+      const codeVerifier = localStorage.getItem('spotify_code_verifier');
+      if (!code || !codeVerifier) {
+        navigate('/daily');
+        return;
       }
+
+      const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
+      const redirectUri = import.meta.env.VITE_SPOTIFY_REDIRECT_URI;
+
+      try {
+        const body = new URLSearchParams({
+          client_id: clientId,
+          grant_type: 'authorization_code',
+          code: code,
+          redirect_uri: redirectUri,
+          code_verifier: codeVerifier,
+        });
+
+        const response = await fetch('https://accounts.spotify.com/api/token', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body,
+        });
+
+        if (!response.ok) {
+          throw new Error('HTTP status ' + response.status);
+        }
+
+        const data = await response.json();
+        
+        if (data.access_token) {
+          localStorage.setItem('spotify_access_token', data.access_token);
+          // Optional: handle refresh_token here if needed
+        }
+      } catch (err) {
+        console.error('Token exchange failed:', err);
+      } finally {
+        // Clean up
+        localStorage.removeItem('spotify_code_verifier');
+        navigate('/daily');
+      }
+    };
+
+    if (code) {
+      exchangeToken();
+    } else {
+      navigate('/daily');
     }
     
-    // Always navigate back to the main app layout afterwards
-    navigate('/daily');
   }, [navigate]);
 
   return (

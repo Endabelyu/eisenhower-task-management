@@ -10,6 +10,26 @@ const SPOTIFY_SCOPES = [
   'user-read-currently-playing',
 ].join(' ');
 
+// PKCE Helpers
+const generateRandomString = (length: number) => {
+  const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const values = crypto.getRandomValues(new Uint8Array(length));
+  return values.reduce((acc, x) => acc + possible[x % possible.length], '');
+};
+
+const sha256 = async (plain: string) => {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(plain);
+  return window.crypto.subtle.digest('SHA-256', data);
+};
+
+const base64encode = (input: ArrayBuffer) => {
+  return btoa(String.fromCharCode(...new Uint8Array(input)))
+    .replace(/=/g, '')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_');
+};
+
 interface SpotifyTrack {
   name: string;
   artists: { name: string }[];
@@ -90,19 +110,26 @@ export function SpotifyPlayer() {
   }, [accessToken]);
 
   // Generate Spotify authorization URL
-  const handleLogin = () => {
+  const handleLogin = async () => {
     const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID 
     const redirectUri = import.meta.env.VITE_SPOTIFY_REDIRECT_URI
-    console.log(clientId, 'client_id')
+    
+    // PKCE
+    const codeVerifier = generateRandomString(64);
+    const hashed = await sha256(codeVerifier);
+    const codeChallenge = base64encode(hashed);
+    
+    window.localStorage.setItem('spotify_code_verifier', codeVerifier);
 
     const scopes = 'user-read-playback-state user-modify-playback-state user-read-currently-playing';
-    const authUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=token&redirect_uri=${redirectUri}&scope=${scopes}`;
-
-// ');
-//     authUrl.searchParams.append('client_id', clientId);
-//     authUrl.searchParams.append('response_type', 'code');
-//     authUrl.searchParams.append('redirect_uri', redirectUri);
-//     authUrl.searchParams.append('scope', SPOTIFY_SCOPES);
+    
+    const authUrl = new URL("https://accounts.spotify.com/authorize");
+    authUrl.searchParams.append("client_id", clientId);
+    authUrl.searchParams.append("response_type", "code");
+    authUrl.searchParams.append("redirect_uri", redirectUri);
+    authUrl.searchParams.append("scope", scopes);
+    authUrl.searchParams.append("code_challenge_method", "S256");
+    authUrl.searchParams.append("code_challenge", codeChallenge);
     
     window.location.href = authUrl.toString();
   };
