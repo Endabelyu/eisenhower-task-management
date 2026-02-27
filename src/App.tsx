@@ -6,8 +6,9 @@ import { ThemeProvider } from "next-themes";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import { TaskProvider } from "@/context/TaskContext";
 import { Layout } from "@/components/Layout";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { ErrorBoundary } from "@/monitoring/ErrorBoundary";
+import { applyColorPalette, getStoredColorPalette } from "@/lib/color-palette";
 
 // Lazy-loaded routes for code splitting
 const Index = lazy(() => import("./pages/Index"));
@@ -22,6 +23,7 @@ const SpotifyCallback = lazy(() => import("./pages/SpotifyCallback"));
 import { AuthProvider } from "@/context/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { SpotifyPlayer } from "@/components/SpotifyPlayer";
+import { RadioPlayer } from "@/components/RadioPlayer";
 import { PomodoroProvider } from "@/context/PomodoroContext";
 import { SpotifyProvider } from "@/context/SpotifyContext";
 
@@ -67,30 +69,36 @@ const router = createBrowserRouter([
  * - TaskProvider: For global task management state.
  * - MonitoringPanel: Dev-only floating diagnostic panel (guarded by import.meta.env.DEV).
  */
-const App = () => (
-  <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <ErrorBoundary>
-          <AuthProvider>
-            <SpotifyProvider>
-              <PomodoroProvider>
-                <TaskProvider>
-                  <Suspense fallback={<div className="flex h-screen w-screen items-center justify-center bg-background"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" /></div>}>
-                    <RouterProvider router={router} />
-                  </Suspense>
-                </TaskProvider>
-              </PomodoroProvider>
-              <SpotifyPlayer />
-            </SpotifyProvider>
-          </AuthProvider>
-        </ErrorBoundary>
-        {import.meta.env.DEV && <MonitoringPanel />}
-      </TooltipProvider>
-    </QueryClientProvider>
-  </ThemeProvider>
-);
+const App = () => {
+  useEffect(() => {
+    applyColorPalette(getStoredColorPalette());
+  }, []);
+
+  return (
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <ErrorBoundary>
+            <AuthProvider>
+              <SpotifyProvider>
+                <PomodoroProvider>
+                  <TaskProvider>
+                    <Suspense fallback={<div className="flex h-screen w-screen items-center justify-center bg-background"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" /></div>}>
+                      <RouterProvider router={router} />
+                    </Suspense>
+                  </TaskProvider>
+                </PomodoroProvider>
+                <RadioPlayer />
+              </SpotifyProvider>
+            </AuthProvider>
+          </ErrorBoundary>
+          {import.meta.env.DEV && <MonitoringPanel />}
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
+  );
+};
 
 export default App;

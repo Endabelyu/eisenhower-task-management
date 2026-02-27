@@ -74,6 +74,88 @@
     --font-body: 'Inter', sans-serif;
   }
 
+  :root[data-palette='forest'] {
+    --background: 120 18% 96%;
+    --foreground: 158 18% 16%;
+    --primary: 148 44% 34%;
+    --secondary: 126 18% 90%;
+    --muted: 126 16% 92%;
+    --muted-foreground: 158 10% 40%;
+    --accent: 92 24% 86%;
+    --accent-foreground: 158 18% 16%;
+    --border: 128 16% 82%;
+    --input: 128 16% 82%;
+    --ring: 148 40% 40%;
+
+    --quadrant-do: 152 48% 38%;
+    --quadrant-do-soft: 148 50% 93%;
+    --quadrant-do-border: 148 35% 76%;
+    --quadrant-schedule: 114 40% 42%;
+    --quadrant-schedule-soft: 110 44% 93%;
+    --quadrant-schedule-border: 112 28% 76%;
+    --quadrant-delegate: 36 74% 50%;
+    --quadrant-delegate-soft: 38 84% 93%;
+    --quadrant-delegate-border: 36 52% 76%;
+    --quadrant-hold: 220 12% 48%;
+    --quadrant-hold-soft: 220 16% 94%;
+    --quadrant-hold-border: 220 14% 82%;
+
+    --sidebar-background: 156 24% 14%;
+    --sidebar-foreground: 132 20% 86%;
+    --sidebar-primary: 110 20% 94%;
+    --sidebar-primary-foreground: 156 24% 14%;
+    --sidebar-accent: 156 18% 22%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 156 16% 24%;
+    --sidebar-ring: 148 40% 52%;
+
+    --status-pending: 220 10% 52%;
+    --status-in-progress: 168 46% 42%;
+    --status-completed: 132 46% 38%;
+    --status-overdue: 8 70% 52%;
+  }
+
+  :root[data-palette='warm'] {
+    --background: 36 30% 96%;
+    --foreground: 22 20% 18%;
+    --primary: 24 44% 40%;
+    --secondary: 34 24% 90%;
+    --muted: 32 22% 92%;
+    --muted-foreground: 24 12% 42%;
+    --accent: 82 22% 86%;
+    --accent-foreground: 24 22% 18%;
+    --border: 30 18% 82%;
+    --input: 30 18% 82%;
+    --ring: 24 46% 46%;
+
+    --quadrant-do: 20 62% 46%;
+    --quadrant-do-soft: 20 78% 93%;
+    --quadrant-do-border: 20 46% 76%;
+    --quadrant-schedule: 48 66% 46%;
+    --quadrant-schedule-soft: 50 80% 93%;
+    --quadrant-schedule-border: 48 46% 76%;
+    --quadrant-delegate: 12 72% 52%;
+    --quadrant-delegate-soft: 12 86% 93%;
+    --quadrant-delegate-border: 12 50% 76%;
+    --quadrant-hold: 222 12% 48%;
+    --quadrant-hold-soft: 224 14% 94%;
+    --quadrant-hold-border: 224 12% 82%;
+
+    --sidebar-background: 24 24% 16%;
+    --sidebar-foreground: 34 22% 86%;
+    --sidebar-primary: 44 28% 95%;
+    --sidebar-primary-foreground: 24 24% 16%;
+    --sidebar-accent: 24 20% 24%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 24 16% 26%;
+    --sidebar-ring: 24 48% 56%;
+
+    --status-pending: 222 10% 52%;
+    --status-in-progress: 32 70% 50%;
+    --status-completed: 118 28% 40%;
+    --status-overdue: 10 72% 54%;
+  }
+
   .dark {
     --background: 214 30% 10%;
     --foreground: 204 16% 90%;
@@ -117,6 +199,76 @@
     --status-in-progress: 197 65% 60%;
     --status-completed: 156 52% 53%;
     --status-overdue: 7 70% 62%;
+  }
+
+  :root.dark[data-palette='forest'] {
+    --background: 156 20% 11%;
+    --foreground: 132 16% 90%;
+    --primary: 146 52% 66%;
+    --primary-foreground: 156 20% 11%;
+    --secondary: 156 16% 19%;
+    --muted: 156 16% 17%;
+    --muted-foreground: 138 10% 64%;
+    --accent: 156 18% 22%;
+    --border: 156 14% 24%;
+    --input: 156 14% 24%;
+    --ring: 146 46% 60%;
+
+    --sidebar-background: 156 24% 9%;
+    --sidebar-foreground: 130 16% 84%;
+    --sidebar-primary: 146 52% 70%;
+    --sidebar-primary-foreground: 156 24% 9%;
+    --sidebar-accent: 156 18% 17%;
+    --sidebar-border: 156 14% 20%;
+    --sidebar-ring: 146 46% 60%;
+
+    --quadrant-do-soft: 148 34% 18%;
+    --quadrant-do-border: 148 30% 30%;
+    --quadrant-schedule-soft: 112 30% 18%;
+    --quadrant-schedule-border: 112 28% 30%;
+    --quadrant-delegate-soft: 36 36% 18%;
+    --quadrant-delegate-border: 36 34% 30%;
+    --quadrant-hold-soft: 222 14% 16%;
+    --quadrant-hold-border: 222 12% 28%;
+
+    --status-in-progress: 168 42% 58%;
+    --status-completed: 132 44% 56%;
+    --status-overdue: 10 68% 62%;
+  }
+
+  :root.dark[data-palette='warm'] {
+    --background: 24 18% 11%;
+    --foreground: 34 18% 90%;
+    --primary: 28 66% 68%;
+    --primary-foreground: 24 18% 11%;
+    --secondary: 24 16% 19%;
+    --muted: 24 14% 17%;
+    --muted-foreground: 30 10% 64%;
+    --accent: 24 18% 22%;
+    --border: 24 14% 24%;
+    --input: 24 14% 24%;
+    --ring: 30 52% 62%;
+
+    --sidebar-background: 24 24% 9%;
+    --sidebar-foreground: 34 18% 84%;
+    --sidebar-primary: 30 62% 72%;
+    --sidebar-primary-foreground: 24 24% 9%;
+    --sidebar-accent: 24 20% 17%;
+    --sidebar-border: 24 16% 20%;
+    --sidebar-ring: 30 52% 62%;
+
+    --quadrant-do-soft: 20 34% 18%;
+    --quadrant-do-border: 20 34% 30%;
+    --quadrant-schedule-soft: 48 34% 18%;
+    --quadrant-schedule-border: 48 34% 30%;
+    --quadrant-delegate-soft: 12 36% 18%;
+    --quadrant-delegate-border: 12 34% 30%;
+    --quadrant-hold-soft: 222 14% 16%;
+    --quadrant-hold-border: 222 12% 28%;
+
+    --status-in-progress: 32 68% 60%;
+    --status-completed: 122 30% 58%;
+    --status-overdue: 12 72% 64%;
   }
 }
 
