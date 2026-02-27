@@ -26,6 +26,7 @@ import { SpotifyPlayer } from "@/components/SpotifyPlayer";
 import { RadioPlayer } from "@/components/RadioPlayer";
 import { PomodoroProvider } from "@/context/PomodoroContext";
 import { SpotifyProvider } from "@/context/SpotifyContext";
+import { LanguageProvider } from "@/context/LanguageContext";
 
 // Only include MonitoringPanel in dev — tree-shaken out of production builds
 import { MonitoringPanel } from "@/monitoring/MonitoringPanel";
@@ -75,29 +76,31 @@ const App = () => {
   }, []);
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <ErrorBoundary>
-            <AuthProvider>
-              <SpotifyProvider>
-                <PomodoroProvider>
-                  <TaskProvider>
-                    <Suspense fallback={<div className="flex h-screen w-screen items-center justify-center bg-background"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" /></div>}>
-                      <RouterProvider router={router} />
-                    </Suspense>
-                  </TaskProvider>
-                </PomodoroProvider>
-                <RadioPlayer />
-              </SpotifyProvider>
-            </AuthProvider>
-          </ErrorBoundary>
-          {import.meta.env.DEV && <MonitoringPanel />}
-        </TooltipProvider>
-      </QueryClientProvider>
-    </ThemeProvider>
+    <LanguageProvider>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <QueryClientProvider client={queryClient}>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <ErrorBoundary>
+              <AuthProvider>
+                <SpotifyProvider>
+                  <PomodoroProvider>
+                    <TaskProvider>
+                      <Suspense fallback={<div className="flex h-screen w-screen items-center justify-center bg-background"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" /></div>}>
+                        <RouterProvider router={router} />
+                      </Suspense>
+                    </TaskProvider>
+                  </PomodoroProvider>
+                  <RadioPlayer />
+                </SpotifyProvider>
+              </AuthProvider>
+            </ErrorBoundary>
+            {import.meta.env.DEV && <MonitoringPanel />}
+          </TooltipProvider>
+        </QueryClientProvider>
+      </ThemeProvider>
+    </LanguageProvider>
   );
 };
 

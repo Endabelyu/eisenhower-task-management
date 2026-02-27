@@ -25,13 +25,15 @@ import {
   SidebarMenuItem,
   SidebarHeader,
 } from '@/components/ui/sidebar';
+import { useLanguage } from '@/context/LanguageContext';
+import { TranslationKey } from '@/i18n/dictionaries';
 
-const navItems = [
-  { title: 'Dashboard', url: '/', icon: LayoutGrid },
-  { title: 'All Tasks', url: '/tasks', icon: ListTodo },
-  { title: 'Daily Focus', url: '/daily', icon: Zap },
-  { title: 'Stats', url: '/stats', icon: BarChart3 },
-  { title: 'Settings', url: '/settings', icon: Settings },
+const getNavItems = (): { titleKey: TranslationKey; url: string; icon: any }[] => [
+  { titleKey: 'nav.dashboard', url: '/', icon: LayoutGrid },
+  { titleKey: 'nav.tasks', url: '/tasks', icon: ListTodo },
+  { titleKey: 'nav.focus', url: '/daily', icon: Zap },
+  { titleKey: 'nav.stats', url: '/stats', icon: BarChart3 },
+  { titleKey: 'nav.settings', url: '/settings', icon: Settings },
 ];
 
 /**
@@ -39,8 +41,11 @@ const navItems = [
  * Contains links to the Dashboard, Task List, Daily Focus, and Stats.
  */
 export function AppSidebar() {
+  const { t } = useLanguage();
   const { theme, setTheme } = useTheme();
   const { user } = useAuth();
+  
+  const navItems = getNavItems();
 
   const cycleTheme = () => {
     if (theme === 'light') setTheme('dark');
@@ -75,7 +80,7 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {navItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
+                <SidebarMenuItem key={item.titleKey}>
                   <SidebarMenuButton asChild>
                     <NavLink
                       to={item.url}
@@ -84,7 +89,7 @@ export function AppSidebar() {
                       activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
                     >
                       <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
+                      <span>{t(item.titleKey)}</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -101,7 +106,7 @@ export function AppSidebar() {
           className="w-full justify-start gap-3 text-sm text-sidebar-foreground"
         >
           {theme === 'dark' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-          <span>{theme === 'dark' ? 'Dark' : theme === 'light' ? 'Light' : 'System'}</span>
+          <span>{theme === 'dark' ? t('settings.theme.dark' as any) : theme === 'light' ? t('settings.theme.light' as any) : t('settings.theme.system' as any)}</span>
         </Button>
 
         {user && (
@@ -147,7 +152,7 @@ export function AppSidebar() {
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleSignOut} className="text-red-600 focus:text-red-600">
                 <LogOut className="mr-2 h-4 w-4" />
-                <span>Log out</span>
+                <span>{t('settings.account.logout' as any)}</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

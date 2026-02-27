@@ -7,6 +7,7 @@ import { EditTaskModal } from '@/components/EditTaskModal';
 import { useTaskContext } from '@/context/TaskContext';
 import { cn } from '@/lib/utils';
 import { OPEN_QUICK_ADD_EVENT } from '@/hooks/use-keyboard-shortcuts';
+import { useLanguage } from '@/context/LanguageContext';
 
 import { ViewSwitcher } from '@/components/ViewSwitcher';
 import { MatrixView } from '@/components/views/MatrixView';
@@ -18,6 +19,7 @@ import { TodayPanel } from '@/components/views/TodayPanel';
  * Can display multiple views (Matrix, List, Today) and supports a Focus Mode to hide unimportant tasks.
  */
 export default function Dashboard() {
+  const { t } = useLanguage();
   const { getStats } = useTaskContext();
   const [editingTask, setEditingTask] = useState<TaskWithMetrics | null>(null);
   const [searchParams] = useSearchParams();
@@ -33,9 +35,9 @@ export default function Dashboard() {
 
   const summaryCards = [
     { label: 'Total', value: stats.total, icon: ListTodo, className: 'text-foreground' },
-    { label: 'Completed', value: stats.completed, icon: CheckCircle2, className: 'text-status-completed' },
-    { label: 'Overdue', value: stats.overdue, icon: AlertTriangle, className: 'text-status-overdue' },
-    { label: 'Completion', value: `${stats.completionRate}%`, icon: Clock, className: 'text-status-in-progress' },
+    { label: t('tasks.filter.completed' as any), value: stats.completed, icon: CheckCircle2, className: 'text-status-completed' },
+    { label: t('dashboard.stats.overdue' as any), value: stats.overdue, icon: AlertTriangle, className: 'text-status-overdue' },
+    { label: t('dashboard.stats.completion' as any), value: `${stats.completionRate}%`, icon: Clock, className: 'text-status-in-progress' },
   ];
 
   return (
@@ -43,12 +45,12 @@ export default function Dashboard() {
       {/* Header */}
       <div className="mb-6 flex items-center justify-between gap-3">
         <div className="min-w-0" id="tour-header">
-          <h1 className="font-display text-2xl font-bold tracking-tight truncate">Eisenhower Matrix</h1>
-          <p className="text-sm text-muted-foreground truncate">Prioritize what matters most</p>
+          <h1 className="font-display text-2xl font-bold tracking-tight truncate">{t('dashboard.overview' as any)}</h1>
+          <p className="text-sm text-muted-foreground truncate">{t('dashboard.welcome' as any)}</p>
         </div>
         <Button onClick={openQuickAdd} className="gap-2 shadow-sm shrink-0" id="tour-add-task">
           <Plus className="h-4 w-4" />
-          <span className="hidden sm:inline">Add Task</span>
+          <span className="hidden sm:inline">{t('tasks.add' as any)}</span>
         </Button>
       </div>
 

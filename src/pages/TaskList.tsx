@@ -18,6 +18,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/context/LanguageContext';
 
 const FILTERS = [
   { value: 'all', label: 'All' },
@@ -36,6 +37,7 @@ type FilterValue = typeof FILTERS[number]['value'];
  * Includes status overview and quick actions.
  */
 export default function TaskList() {
+  const { t } = useLanguage();
   const { tasks, updateTask, deleteTask } = useTaskContext();
   const [filter, setFilter] = useState<FilterValue>('all');
   const [tagFilter, setTagFilter] = useState('all');
@@ -55,7 +57,7 @@ export default function TaskList() {
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-1">
           <ListTodo className="h-5 w-5 text-muted-foreground" />
-          <h1 className="font-display text-2xl font-bold">All Tasks</h1>
+          <h1 className="font-display text-2xl font-bold">{t('tasks.title' as any)}</h1>
         </div>
         <p className="text-sm text-muted-foreground">{filtered.length} tasks</p>
       </div>
@@ -66,7 +68,7 @@ export default function TaskList() {
           <Input
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search tasks..."
+            placeholder={t('tasks.search' as any)}
             className="pl-9"
           />
         </div>

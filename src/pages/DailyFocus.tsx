@@ -7,6 +7,7 @@ import { PomodoroTimer } from '@/components/PomodoroTimer';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/context/LanguageContext';
 
 const FOCUS_COUNT_OPTIONS = [3, 5, 8, 10];
 
@@ -16,6 +17,7 @@ const FOCUS_COUNT_OPTIONS = [3, 5, 8, 10];
  * Includes a time budget summary and a Pomodoro timer for structured work sessions.
  */
 export default function DailyFocus() {
+  const { t } = useLanguage();
   const { tasks, updateTask } = useTaskContext();
   const [focusCount, setFocusCount] = useState('5');
   const [editingTask, setEditingTask] = useState<TaskWithMetrics | null>(null);
@@ -35,21 +37,21 @@ export default function DailyFocus() {
       <div className="mb-8">
         <div className="flex items-center gap-2 mb-1">
           <Zap className="h-5 w-5 text-quadrant-do" />
-          <h1 className="font-display text-2xl font-bold">Daily Focus</h1>
+          <h1 className="font-display text-2xl font-bold">{t('focus.title' as any)}</h1>
         </div>
         <p className="text-sm text-muted-foreground">
-          Top priority tasks across all quadrants, sorted by urgency score
+          {t('focus.subtitle' as any)}
         </p>
       </div>
 
       <div className="mb-6 grid gap-3 sm:grid-cols-2">
         <div className="rounded-xl border bg-card p-4 shadow-sm">
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">Time Budget</p>
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">{t('focus.budget.title' as any)}</p>
           <p className="mt-2 font-display text-3xl font-bold tabular-nums">{totalMinutes}m</p>
-          <p className="mt-1 text-sm text-muted-foreground">Estimated time for current focus set</p>
+          <p className="mt-1 text-sm text-muted-foreground">{t('focus.budget.subtitle' as any)}</p>
         </div>
         <div className="rounded-xl border bg-card p-4 shadow-sm">
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">Focus Task Count</p>
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">{t('focus.count.title' as any)}</p>
           <div className="mt-2">
             <Select value={focusCount} onValueChange={setFocusCount}>
               <SelectTrigger className="w-[140px]">
@@ -64,7 +66,7 @@ export default function DailyFocus() {
               </SelectContent>
             </Select>
           </div>
-          <p className="mt-2 text-sm text-muted-foreground">Currently showing {focus.length} tasks</p>
+          <p className="mt-2 text-sm text-muted-foreground">{t('focus.count.subtitle' as any, { count: focus.length })}</p>
         </div>
       </div>
 

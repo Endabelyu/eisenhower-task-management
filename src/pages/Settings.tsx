@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Palette, Settings as SettingsIcon } from 'lucide-react';
+import { Palette, Settings as SettingsIcon, Globe } from 'lucide-react';
 import { DataManagement } from '@/components/DataManagement';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
@@ -10,7 +10,11 @@ import {
   type ColorPalette,
 } from '@/lib/color-palette';
 
+import { useLanguage } from '@/context/LanguageContext';
+import { type Language } from '@/i18n/dictionaries';
+
 export default function Settings() {
+  const { language, setLanguage, t } = useLanguage();
   const [palette, setPalette] = useState<ColorPalette>('ocean');
 
   useEffect(() => {
@@ -31,18 +35,18 @@ export default function Settings() {
       <div className="mb-8">
         <div className="flex items-center gap-2 mb-1">
           <SettingsIcon className="h-5 w-5 text-muted-foreground" />
-          <h1 className="font-display text-2xl font-bold">Settings</h1>
+          <h1 className="font-display text-2xl font-bold">{t('settings.title' as any)}</h1>
         </div>
-        <p className="text-sm text-muted-foreground">Manage your data and preferences</p>
+        <p className="text-sm text-muted-foreground">{t('settings.appearance' as any)}</p>
       </div>
 
       <section className="mb-6 rounded-xl border bg-card p-6 shadow-sm">
         <div className="mb-4 flex items-center gap-2">
           <Palette className="h-4 w-4 text-primary" />
-          <h2 className="font-display text-lg font-semibold">Visual Comfort Theme</h2>
+          <h2 className="font-display text-lg font-semibold">{t('settings.appearance' as any)}</h2>
         </div>
         <p className="mb-4 text-sm text-muted-foreground">
-          Choose the palette that feels most comfortable for long planning sessions.
+          {t('settings.theme' as any)}
         </p>
 
         <div className="max-w-xs">
@@ -65,9 +69,31 @@ export default function Settings() {
         )}
       </section>
 
+      <section className="mb-6 rounded-xl border bg-card p-6 shadow-sm">
+        <div className="mb-4 flex items-center gap-2">
+          <Globe className="h-4 w-4 text-primary" />
+          <h2 className="font-display text-lg font-semibold">{t('settings.language' as any)}</h2>
+        </div>
+        <p className="mb-4 text-sm text-muted-foreground">
+          Choose your preferred language / Pilih bahasa pilihan Anda.
+        </p>
+
+        <div className="max-w-xs">
+          <Select value={language} onValueChange={(val) => setLanguage(val as Language)}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select Language" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="id">{t('settings.language.id' as any)}</SelectItem>
+              <SelectItem value="en">{t('settings.language.en' as any)}</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </section>
+
       <section className="rounded-xl border bg-card p-6 shadow-sm">
-        <h2 className="font-display text-lg font-semibold mb-1">Data Management</h2>
-        <p className="text-sm text-muted-foreground mb-4">Export, import, or clear your task data</p>
+        <h2 className="font-display text-lg font-semibold mb-1">Data</h2>
+        <p className="text-sm text-muted-foreground mb-4">Export/Import</p>
         <DataManagement />
       </section>
     </div>
