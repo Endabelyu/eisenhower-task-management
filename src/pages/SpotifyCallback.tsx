@@ -5,35 +5,29 @@ export default function SpotifyCallback() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Spotify implicit grant flow returns the token in the URL hash (e.g., #access_token=xyz&token_type=Bearer&expires_in=3600)
+    const hash = window.location.hash;
     const params = new URLSearchParams(window.location.search);
-    const code = params.get('code');
     const error = params.get('error');
-    
+
     if (error) {
       console.error('Spotify auth error:', error);
       navigate('/daily');
       return;
     }
-    
-    if (code) {
-      // Exchange code for access token via backend
-      fetch('/api/spotify/token', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code }),
-      })
-        .then(res => res.json())
-        .then(data => {
-          if (data.access_token) {
-            localStorage.setItem('spotify_access_token', data.access_token);
-            navigate('/daily');
-          }
-        })
-        .catch(err => {
-          console.error('Token exchange failed:', err);
-          navigate('/daily');
-        });
+
+    if (hash) {
+      // Remove the leading '#' so URLSearchParams can parse the key=value pairs easily
+      const hashParams = new URLSearchParams(hash.substring(1));
+      const accessToken = hashParams.get('access_token');
+      
+      if (accessToken) {
+        localStorage.setItem('spotify_access_token', accessToken);
+      }
     }
+    
+    // Always navigate back to the main app layout afterwards
+    navigate('/daily');
   }, [navigate]);
 
   return (

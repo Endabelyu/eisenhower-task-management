@@ -5,6 +5,14 @@ import { PomodoroTimer } from '@/components/PomodoroTimer';
 describe('PomodoroTimer', () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    // Mock Audio API for JSDOM
+    window.HTMLMediaElement.prototype.pause = vi.fn();
+    window.HTMLMediaElement.prototype.play = vi.fn().mockResolvedValue(true);
+    // Mock Notification API
+    global.Notification = {
+      requestPermission: vi.fn().mockResolvedValue('granted'),
+      permission: 'granted',
+    } as unknown as typeof Notification;
   });
 
   afterEach(() => {
@@ -17,28 +25,36 @@ describe('PomodoroTimer', () => {
     expect(screen.getByText('Focus Session (25 min)')).toBeInTheDocument();
   });
 
-  it('starts countdown when Start is clicked', () => {
+  it('starts countdown when Start is clicked', async () => {
     render(<PomodoroTimer />);
-    fireEvent.click(screen.getByText('Start'));
+    await act(async () => {
+      fireEvent.click(screen.getByText('Start'));
+    });
     act(() => {
       vi.advanceTimersByTime(3000);
     });
     expect(screen.getByText('24:57')).toBeInTheDocument();
   });
 
-  it('shows Pause when running', () => {
+  it('shows Pause when running', async () => {
     render(<PomodoroTimer />);
-    fireEvent.click(screen.getByText('Start'));
+    await act(async () => {
+      fireEvent.click(screen.getByText('Start'));
+    });
     expect(screen.getByText('Pause')).toBeInTheDocument();
   });
 
-  it('pauses countdown when Pause is clicked', () => {
+  it('pauses countdown when Pause is clicked', async () => {
     render(<PomodoroTimer />);
-    fireEvent.click(screen.getByText('Start'));
+    await act(async () => {
+      fireEvent.click(screen.getByText('Start'));
+    });
     act(() => {
       vi.advanceTimersByTime(5000);
     });
-    fireEvent.click(screen.getByText('Pause'));
+    await act(async () => {
+      fireEvent.click(screen.getByText('Pause'));
+    });
     const timeBefore = screen.getByText(/^\d{2}:\d{2}$/).textContent;
     act(() => {
       vi.advanceTimersByTime(5000);
@@ -46,13 +62,17 @@ describe('PomodoroTimer', () => {
     expect(screen.getByText(/^\d{2}:\d{2}$/).textContent).toBe(timeBefore);
   });
 
-  it('resets to 25:00 when Reset is clicked', () => {
+  it('resets to 25:00 when Reset is clicked', async () => {
     render(<PomodoroTimer />);
-    fireEvent.click(screen.getByText('Start'));
+    await act(async () => {
+      fireEvent.click(screen.getByText('Start'));
+    });
     act(() => {
       vi.advanceTimersByTime(10000);
     });
-    fireEvent.click(screen.getByText('Reset'));
+    await act(async () => {
+      fireEvent.click(screen.getByText('Reset'));
+    });
     expect(screen.getByText('25:00')).toBeInTheDocument();
   });
 

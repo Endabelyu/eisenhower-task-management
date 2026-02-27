@@ -52,6 +52,24 @@ export function PomodoroTimer() {
         }
 
         document.title = `✅ ${mode === 'focus' ? 'Focus' : 'Break'} Complete!`;
+        
+        if ('Notification' in window && Notification.permission === 'granted') {
+          const notificationTitle = mode === 'focus' ? 'Focus Session Complete!' : 'Break Complete!';
+          const notificationBody = mode === 'focus' 
+            ? "Time's up! Take a break." 
+            : "Break is over! Ready to focus?";
+            
+          const notification = new Notification(notificationTitle, {
+            body: notificationBody,
+            requireInteraction: true,
+          });
+
+          notification.onclick = () => {
+            window.focus();
+            notification.close();
+          };
+        }
+
         const nextMode = mode === 'focus' ? 'break' : 'focus';
         setMode(nextMode);
         setRunning(false);
@@ -110,6 +128,19 @@ export function PomodoroTimer() {
   const resetTimer = () => {
     setRunning(false);
     setSecondsLeft(mode === 'focus' ? FOCUS_SECONDS : BREAK_SECONDS);
+  };
+
+  const requestNotificationPermission = async () => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      await Notification.requestPermission();
+    }
+  };
+
+  const toggleTimer = async () => {
+    if (!running) {
+      await requestNotificationPermission();
+    }
+    setRunning((prev) => !prev);
   };
 
   const totalSeconds = mode === 'focus' ? FOCUS_SECONDS : BREAK_SECONDS;
@@ -181,7 +212,7 @@ export function PomodoroTimer() {
       </div>
 
       <div className="mt-4 flex gap-2">
-        <Button type="button" onClick={() => setRunning((prev) => !prev)} className="gap-2">
+        <Button type="button" onClick={toggleTimer} className="gap-2">
           {running ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
           {running ? 'Pause' : 'Start'}
         </Button>

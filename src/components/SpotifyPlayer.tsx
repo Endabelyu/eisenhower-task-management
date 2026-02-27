@@ -96,7 +96,7 @@ export function SpotifyPlayer() {
     console.log(clientId, 'client_id')
 
     const scopes = 'user-read-playback-state user-modify-playback-state user-read-currently-playing';
-    const authUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=${scopes}`;
+    const authUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=token&redirect_uri=${redirectUri}&scope=${scopes}`;
 
 // ');
 //     authUrl.searchParams.append('client_id', clientId);
