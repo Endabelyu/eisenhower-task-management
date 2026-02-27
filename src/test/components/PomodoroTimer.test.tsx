@@ -1,6 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { PomodoroTimer } from '@/components/PomodoroTimer';
+import { PomodoroProvider } from '@/context/PomodoroContext';
+
+const renderWithProvider = () => {
+  return render(
+    <PomodoroProvider>
+      <PomodoroTimer />
+    </PomodoroProvider>
+  );
+};
 
 describe('PomodoroTimer', () => {
   beforeEach(() => {
@@ -20,13 +29,13 @@ describe('PomodoroTimer', () => {
   });
 
   it('renders in focus mode initially with 25:00', () => {
-    render(<PomodoroTimer />);
+    renderWithProvider();
     expect(screen.getByText('25:00')).toBeInTheDocument();
     expect(screen.getByText('Focus Session (25 min)')).toBeInTheDocument();
   });
 
   it('starts countdown when Start is clicked', async () => {
-    render(<PomodoroTimer />);
+    renderWithProvider();
     await act(async () => {
       fireEvent.click(screen.getByText('Start'));
     });
@@ -37,7 +46,7 @@ describe('PomodoroTimer', () => {
   });
 
   it('shows Pause when running', async () => {
-    render(<PomodoroTimer />);
+    renderWithProvider();
     await act(async () => {
       fireEvent.click(screen.getByText('Start'));
     });
@@ -45,7 +54,7 @@ describe('PomodoroTimer', () => {
   });
 
   it('pauses countdown when Pause is clicked', async () => {
-    render(<PomodoroTimer />);
+    renderWithProvider();
     await act(async () => {
       fireEvent.click(screen.getByText('Start'));
     });
@@ -63,7 +72,7 @@ describe('PomodoroTimer', () => {
   });
 
   it('resets to 25:00 when Reset is clicked', async () => {
-    render(<PomodoroTimer />);
+    renderWithProvider();
     await act(async () => {
       fireEvent.click(screen.getByText('Start'));
     });
@@ -77,14 +86,14 @@ describe('PomodoroTimer', () => {
   });
 
   it('switches to break mode and shows 05:00', () => {
-    render(<PomodoroTimer />);
+    renderWithProvider();
     fireEvent.click(screen.getByText('Break 5m'));
     expect(screen.getByText('05:00')).toBeInTheDocument();
     expect(screen.getByText('Break Session (5 min)')).toBeInTheDocument();
   });
 
   it('switches back to focus mode and shows 25:00', () => {
-    render(<PomodoroTimer />);
+    renderWithProvider();
     fireEvent.click(screen.getByText('Break 5m'));
     fireEvent.click(screen.getByText('Focus 25m'));
     expect(screen.getByText('25:00')).toBeInTheDocument();

@@ -1,149 +1,30 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Pause, Play, RotateCcw, Timer, Volume2, VolumeX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { usePomodoro, AMBIENCE_SOUNDS, formatTime } from '@/context/PomodoroContext';
 
-const FOCUS_SECONDS = 25 * 60;
-const BREAK_SECONDS = 5 * 60;
-
-const formatTime = (seconds: number) => {
-  const minutes = String(Math.floor(seconds / 60)).padStart(2, '0');
-  const remainingSeconds = String(seconds % 60).padStart(2, '0');
-  return `${minutes}:${remainingSeconds}`;
-};
-
-const AMBIENCE_SOUNDS = {
-  none: { label: 'None', url: null },
-  rain: { label: '🌧️ Rain', url: '/sounds/rain.mp3' },
-  cafe: { label: '☕ Cafe', url: '/sounds/cafe.mp3' },
-  whitenoise: { label: '🌊 White Noise', url: '/sounds/whitenoise.mp3' },
-  forest: { label: '🌲 Forest', url: '/sounds/forest.mp3' },
-} as const;
-
-type AmbienceType = keyof typeof AMBIENCE_SOUNDS;
-
-/**
- * Lightweight Pomodoro timer with 25-minute focus and 5-minute break cycles.
- */
 export function PomodoroTimer() {
-  const [mode, setMode] = useState<'focus' | 'break'>('focus');
-  const [secondsLeft, setSecondsLeft] = useState(FOCUS_SECONDS);
-  const [running, setRunning] = useState(false);
-  const [ambience, setAmbience] = useState<AmbienceType>('none');
-  const [volume, setVolume] = useState(30);
-  const [audio] = useState(() => new Audio());
-  const [isPlaying, setIsPlaying] = useState(false);
-
-  useEffect(() => {
-    if (!running) {
-      document.title = 'Daily Focus - Eisenhower Matrix';
-      return;
-    }
-
-    const timerId = window.setInterval(() => {
-      setSecondsLeft((current) => {
-        if (current > 1) {
-          const timeStr = formatTime(current - 1);
-          const emoji = mode === 'focus' ? '⏱️' : '☕';
-          const modeText = mode === 'focus' ? 'Focus' : 'Break';
-          document.title = `${emoji} ${timeStr} - ${modeText}`;
-          return current - 1;
-        }
-
-        document.title = `✅ ${mode === 'focus' ? 'Focus' : 'Break'} Complete!`;
-        
-        if ('Notification' in window && Notification.permission === 'granted') {
-          const notificationTitle = mode === 'focus' ? 'Focus Session Complete!' : 'Break Complete!';
-          const notificationBody = mode === 'focus' 
-            ? "Time's up! Take a break." 
-            : "Break is over! Ready to focus?";
-            
-          const notification = new Notification(notificationTitle, {
-            body: notificationBody,
-            requireInteraction: true,
-          });
-
-          notification.onclick = () => {
-            window.focus();
-            notification.close();
-          };
-        }
-
-        const nextMode = mode === 'focus' ? 'break' : 'focus';
-        setMode(nextMode);
-        setRunning(false);
-        return nextMode === 'focus' ? FOCUS_SECONDS : BREAK_SECONDS;
-      });
-    }, 1000);
-
-    return () => {
-      window.clearInterval(timerId);
-      document.title = 'Daily Focus - Eisenhower Matrix';
-    };
-  }, [mode, running]);
-
-  useEffect(() => {
-    const sound = AMBIENCE_SOUNDS[ambience];
-    
-    if (!sound.url) {
-      audio.pause();
-      setIsPlaying(false);
-      return;
-    }
-
-    audio.src = sound.url;
-    audio.loop = true;
-    audio.volume = volume / 100;
-
-    if (running) {
-      audio.play()
-        .then(() => setIsPlaying(true))
-        .catch(() => setIsPlaying(false));
-    } else {
-      audio.pause();
-      setIsPlaying(false);
-    }
-
-    return () => {
-      audio.pause();
-    };
-  }, [ambience, running, audio]);
-
-  useEffect(() => {
-    audio.volume = volume / 100;
-  }, [volume, audio]);
+  const {
+    mode,
+    secondsLeft,
+    running,
+    ambience,
+    volume,
+    isPlaying,
+    setSessionMode,
+    resetTimer,
+    toggleTimer,
+    setAmbience,
+    setVolume,
+    totalSeconds
+  } = usePomodoro();
 
   const modeLabel = useMemo(
     () => (mode === 'focus' ? 'Focus Session (25 min)' : 'Break Session (5 min)'),
     [mode],
   );
-
-  const setSessionMode = (nextMode: 'focus' | 'break') => {
-    setMode(nextMode);
-    setRunning(false);
-    setSecondsLeft(nextMode === 'focus' ? FOCUS_SECONDS : BREAK_SECONDS);
-  };
-
-  const resetTimer = () => {
-    setRunning(false);
-    setSecondsLeft(mode === 'focus' ? FOCUS_SECONDS : BREAK_SECONDS);
-  };
-
-  const requestNotificationPermission = async () => {
-    if ('Notification' in window && Notification.permission === 'default') {
-      await Notification.requestPermission();
-    }
-  };
-
-  const toggleTimer = async () => {
-    if (!running) {
-      await requestNotificationPermission();
-    }
-    setRunning((prev) => !prev);
-  };
-
-  const totalSeconds = mode === 'focus' ? FOCUS_SECONDS : BREAK_SECONDS;
 
   return (
     <div className="rounded-xl border bg-card p-5 shadow-sm">
@@ -232,7 +113,7 @@ export function PomodoroTimer() {
         <div className="space-y-3">
           <Select 
             value={ambience} 
-            onValueChange={(val) => setAmbience(val as AmbienceType)}
+            onValueChange={(val: any) => setAmbience(val)}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select ambience" />

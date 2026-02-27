@@ -11,14 +11,14 @@ export default function SpotifyCallback() {
 
     if (error) {
       console.error('Spotify auth error:', error);
-      navigate('/daily');
+      window.location.href = '/daily';
       return;
     }
 
     const exchangeToken = async () => {
       const codeVerifier = localStorage.getItem('spotify_code_verifier');
       if (!code || !codeVerifier) {
-        navigate('/daily');
+        window.location.href = '/daily';
         return;
       }
 
@@ -57,14 +57,14 @@ export default function SpotifyCallback() {
       } finally {
         // Clean up
         localStorage.removeItem('spotify_code_verifier');
-        navigate('/daily');
+        window.location.href = '/daily';
       }
     };
 
     if (code) {
       exchangeToken();
     } else {
-      navigate('/daily');
+      window.location.href = '/daily';
     }
     
   }, [navigate]);
