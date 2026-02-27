@@ -177,7 +177,7 @@ export function RadioPlayer() {
           className={`fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg transition-all hover:scale-105 z-50 text-white
             ${isPlaying
               ? 'bg-green-500 hover:bg-green-600 ring-2 ring-green-400 ring-offset-2 animate-pulse-subtle'
-              : 'bg-neutral-800 hover:bg-neutral-700'
+              : 'bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-600 dark:hover:bg-neutral-500'
             }
             ${isLoading ? 'opacity-70 cursor-wait' : ''}
           `}
