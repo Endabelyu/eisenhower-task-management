@@ -6,68 +6,68 @@
 
 @layer base {
   :root {
-    --background: 40 20% 97%;
-    --foreground: 220 20% 10%;
+    --background: 206 34% 97%;
+    --foreground: 220 24% 16%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 20% 10%;
+    --card-foreground: 220 24% 16%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 10%;
+    --popover-foreground: 220 24% 16%;
 
-    --primary: 220 20% 12%;
-    --primary-foreground: 40 20% 97%;
+    --primary: 196 65% 38%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 40 15% 93%;
-    --secondary-foreground: 220 20% 12%;
+    --secondary: 198 28% 92%;
+    --secondary-foreground: 220 24% 16%;
 
-    --muted: 40 10% 94%;
-    --muted-foreground: 220 10% 46%;
+    --muted: 200 24% 94%;
+    --muted-foreground: 218 14% 42%;
 
-    --accent: 40 15% 90%;
-    --accent-foreground: 220 20% 12%;
+    --accent: 171 28% 90%;
+    --accent-foreground: 220 24% 16%;
 
-    --destructive: 0 72% 51%;
+    --destructive: 7 72% 52%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 40 10% 88%;
-    --input: 40 10% 88%;
-    --ring: 220 20% 12%;
+    --border: 206 24% 86%;
+    --input: 206 24% 86%;
+    --ring: 196 60% 42%;
 
     --radius: 0.625rem;
 
     /* Quadrant colors */
-    --quadrant-do: 0 72% 51%;
-    --quadrant-do-soft: 0 72% 96%;
-    --quadrant-do-border: 0 72% 85%;
+    --quadrant-do: 197 72% 44%;
+    --quadrant-do-soft: 197 78% 95%;
+    --quadrant-do-border: 197 48% 80%;
 
-    --quadrant-schedule: 43 96% 50%;
-    --quadrant-schedule-soft: 43 96% 96%;
-    --quadrant-schedule-border: 43 80% 80%;
+    --quadrant-schedule: 156 52% 40%;
+    --quadrant-schedule-soft: 156 54% 94%;
+    --quadrant-schedule-border: 156 35% 78%;
 
-    --quadrant-delegate: 25 95% 53%;
-    --quadrant-delegate-soft: 25 95% 96%;
-    --quadrant-delegate-border: 25 80% 82%;
+    --quadrant-delegate: 34 82% 52%;
+    --quadrant-delegate-soft: 34 90% 95%;
+    --quadrant-delegate-border: 34 58% 80%;
 
-    --quadrant-hold: 220 10% 60%;
-    --quadrant-hold-soft: 220 10% 96%;
-    --quadrant-hold-border: 220 10% 88%;
+    --quadrant-hold: 223 12% 48%;
+    --quadrant-hold-soft: 223 16% 95%;
+    --quadrant-hold-border: 223 15% 83%;
 
     /* Sidebar */
-    --sidebar-background: 220 20% 8%;
-    --sidebar-foreground: 220 10% 75%;
+    --sidebar-background: 213 30% 14%;
+    --sidebar-foreground: 205 24% 86%;
     --sidebar-primary: 0 0% 100%;
-    --sidebar-primary-foreground: 220 20% 8%;
-    --sidebar-accent: 220 15% 14%;
-    --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 220 15% 16%;
-    --sidebar-ring: 220 20% 40%;
+    --sidebar-primary-foreground: 213 30% 14%;
+    --sidebar-accent: 213 24% 21%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 213 20% 24%;
+    --sidebar-ring: 197 65% 55%;
 
     /* Status */
-    --status-pending: 220 10% 60%;
-    --status-in-progress: 210 90% 55%;
-    --status-completed: 142 72% 42%;
-    --status-overdue: 0 72% 51%;
+    --status-pending: 223 12% 52%;
+    --status-in-progress: 197 72% 46%;
+    --status-completed: 156 58% 40%;
+    --status-overdue: 7 72% 52%;
 
     /* Font */
     --font-display: 'Space Grotesk', sans-serif;
@@ -75,34 +75,48 @@
   }
 
   .dark {
-    --background: 220 20% 6%;
-    --foreground: 40 10% 92%;
-    --card: 220 18% 10%;
-    --card-foreground: 40 10% 92%;
-    --popover: 220 18% 10%;
-    --popover-foreground: 40 10% 92%;
-    --primary: 40 20% 95%;
-    --primary-foreground: 220 20% 8%;
-    --secondary: 220 15% 15%;
-    --secondary-foreground: 40 10% 92%;
-    --muted: 220 15% 15%;
-    --muted-foreground: 220 10% 55%;
-    --accent: 220 15% 18%;
-    --accent-foreground: 40 10% 92%;
-    --destructive: 0 62% 30%;
+    --background: 214 30% 10%;
+    --foreground: 204 16% 90%;
+    --card: 214 24% 14%;
+    --card-foreground: 204 16% 90%;
+    --popover: 214 24% 14%;
+    --popover-foreground: 204 16% 90%;
+    --primary: 195 70% 66%;
+    --primary-foreground: 214 30% 10%;
+    --secondary: 214 20% 20%;
+    --secondary-foreground: 204 16% 90%;
+    --muted: 214 18% 18%;
+    --muted-foreground: 210 12% 63%;
+    --accent: 214 20% 22%;
+    --accent-foreground: 204 16% 92%;
+    --destructive: 6 64% 44%;
     --destructive-foreground: 0 0% 100%;
-    --border: 220 15% 18%;
-    --input: 220 15% 18%;
-    --ring: 40 10% 70%;
+    --border: 214 18% 24%;
+    --input: 214 18% 24%;
+    --ring: 195 65% 60%;
 
-    --quadrant-do-soft: 0 50% 15%;
-    --quadrant-do-border: 0 50% 25%;
-    --quadrant-schedule-soft: 43 50% 15%;
-    --quadrant-schedule-border: 43 50% 25%;
-    --quadrant-delegate-soft: 25 50% 15%;
-    --quadrant-delegate-border: 25 50% 25%;
-    --quadrant-hold-soft: 220 10% 14%;
-    --quadrant-hold-border: 220 10% 22%;
+    --sidebar-background: 215 32% 8%;
+    --sidebar-foreground: 205 16% 82%;
+    --sidebar-primary: 195 68% 70%;
+    --sidebar-primary-foreground: 215 32% 8%;
+    --sidebar-accent: 214 24% 18%;
+    --sidebar-accent-foreground: 205 16% 92%;
+    --sidebar-border: 214 20% 20%;
+    --sidebar-ring: 195 65% 60%;
+
+    --quadrant-do-soft: 197 48% 18%;
+    --quadrant-do-border: 197 44% 30%;
+    --quadrant-schedule-soft: 156 38% 18%;
+    --quadrant-schedule-border: 156 35% 29%;
+    --quadrant-delegate-soft: 34 46% 18%;
+    --quadrant-delegate-border: 34 46% 30%;
+    --quadrant-hold-soft: 223 16% 16%;
+    --quadrant-hold-border: 223 15% 28%;
+
+    --status-pending: 220 10% 66%;
+    --status-in-progress: 197 65% 60%;
+    --status-completed: 156 52% 53%;
+    --status-overdue: 7 70% 62%;
   }
 }
 
@@ -114,6 +128,10 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-body);
+    background-image:
+      radial-gradient(circle at 12% 8%, hsl(var(--accent) / 0.32), transparent 42%),
+      radial-gradient(circle at 92% 88%, hsl(var(--secondary) / 0.34), transparent 38%);
+    background-attachment: fixed;
   }
 
   h1, h2, h3, h4, h5, h6 {

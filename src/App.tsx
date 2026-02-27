@@ -23,6 +23,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { SpotifyPlayer } from "@/components/SpotifyPlayer";
 import { PomodoroProvider } from "@/context/PomodoroContext";
+import { SpotifyProvider } from "@/context/SpotifyContext";
 
 // Only include MonitoringPanel in dev — tree-shaken out of production builds
 import { MonitoringPanel } from "@/monitoring/MonitoringPanel";
@@ -74,17 +75,19 @@ const App = () => (
         <Sonner />
         <ErrorBoundary>
           <AuthProvider>
-            <PomodoroProvider>
-              <TaskProvider>
-                <Suspense fallback={<div className="flex h-screen w-screen items-center justify-center bg-background"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" /></div>}>
-                  <RouterProvider router={router} />
-                </Suspense>
-              </TaskProvider>
-            </PomodoroProvider>
+            <SpotifyProvider>
+              <PomodoroProvider>
+                <TaskProvider>
+                  <Suspense fallback={<div className="flex h-screen w-screen items-center justify-center bg-background"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" /></div>}>
+                    <RouterProvider router={router} />
+                  </Suspense>
+                </TaskProvider>
+              </PomodoroProvider>
+              <SpotifyPlayer />
+            </SpotifyProvider>
           </AuthProvider>
         </ErrorBoundary>
         {import.meta.env.DEV && <MonitoringPanel />}
-        <SpotifyPlayer />
       </TooltipProvider>
     </QueryClientProvider>
   </ThemeProvider>

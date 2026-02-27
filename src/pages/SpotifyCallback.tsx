@@ -1,77 +1,58 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router';
+import { useEffect, useState } from 'react';
+import { exchangeCode, saveTokens } from '@/lib/spotify-auth';
 
 export default function SpotifyCallback() {
-  const navigate = useNavigate();
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const code = params.get('code');
-    const error = params.get('error');
+    const authError = params.get('error');
 
-    if (error) {
-      console.error('Spotify auth error:', error);
+    if (authError) {
+      setError(`Spotify authorization was denied: ${authError}`);
+      setTimeout(() => { window.location.href = '/daily'; }, 3000);
+      return;
+    }
+
+    if (!code) {
       window.location.href = '/daily';
       return;
     }
 
-    const exchangeToken = async () => {
-      const codeVerifier = localStorage.getItem('spotify_code_verifier');
-      if (!code || !codeVerifier) {
-        window.location.href = '/daily';
-        return;
-      }
-
-      const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
-      const redirectUri = import.meta.env.VITE_SPOTIFY_REDIRECT_URI;
-
+    const handleExchange = async () => {
       try {
-        const body = new URLSearchParams({
-          client_id: clientId,
-          grant_type: 'authorization_code',
-          code: code,
-          redirect_uri: redirectUri,
-          code_verifier: codeVerifier,
-        });
-
-        const response = await fetch('https://accounts.spotify.com/api/token', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          body,
-        });
-
-        if (!response.ok) {
-          throw new Error('HTTP status ' + response.status);
-        }
-
-        const data = await response.json();
-        
-        if (data.access_token) {
-          localStorage.setItem('spotify_access_token', data.access_token);
-          // Optional: handle refresh_token here if needed
-        }
+        const tokenData = await exchangeCode(code);
+        saveTokens(tokenData);
+        // Hard reload so SpotifyProvider picks up the new token
+        window.location.href = '/daily';
       } catch (err) {
         console.error('Token exchange failed:', err);
-      } finally {
-        // Clean up
-        localStorage.removeItem('spotify_code_verifier');
-        window.location.href = '/daily';
+        setError(err instanceof Error ? err.message : 'Token exchange failed');
+        setTimeout(() => { window.location.href = '/daily'; }, 4000);
       }
     };
 
-    if (code) {
-      exchangeToken();
-    } else {
-      window.location.href = '/daily';
-    }
-    
-  }, [navigate]);
+    handleExchange();
+  }, []);
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center max-w-md px-6">
+          <div className="mb-4 text-4xl">❌</div>
+          <h2 className="text-xl font-semibold mb-2 text-destructive">Connection Failed</h2>
+          <p className="text-muted-foreground text-sm mb-4">{error}</p>
+          <p className="text-xs text-muted-foreground">Redirecting back...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen">
       <div className="text-center">
+        <div className="mb-4 text-4xl animate-spin-slow">🎵</div>
         <h2 className="text-xl font-semibold mb-2">Connecting to Spotify...</h2>
         <p className="text-muted-foreground">Please wait</p>
       </div>

@@ -11,10 +11,12 @@ export const formatTime = (seconds: number) => {
 
 export const AMBIENCE_SOUNDS = {
   none: { label: 'None', url: null },
-  rain: { label: '🌧️ Rain', url: '/sounds/rain.mp3' },
-  cafe: { label: '☕ Cafe', url: '/sounds/cafe.mp3' },
-  whitenoise: { label: '🌊 White Noise', url: '/sounds/whitenoise.mp3' },
-  forest: { label: '🌲 Forest', url: '/sounds/forest.mp3' },
+  forest: { label: '🌲 Forest', url: '/sounds/mixkit-forest-treasure-138.mp3' },
+  forestMist: { label: '🌫️ Forest Mist', url: '/sounds/mixkit-forest-mist-whispers-148.mp3' },
+  cafe: { label: '☕ Cafe', url: '/sounds/mixkit-sicilian-cafe-600.mp3' },
+  relaxation: { label: '🧘 Relaxation', url: '/sounds/mixkit-relaxation-05-749.mp3' },
+  meditation: { label: '🕯️ Meditation', url: '/sounds/mixkit-smooth-meditation-324.mp3' },
+  zanarkand: { label: '🌿 Zanarkand Forest', url: '/sounds/mixkit-zanarkand-forest-169.mp3' },
 } as const;
 
 export type AmbienceType = keyof typeof AMBIENCE_SOUNDS;
@@ -111,25 +113,24 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
     audio.loop = true;
     audio.volume = volume / 100;
 
-    // Play immediately when selected, independent of timer running state
-    audio.play()
-      .then(() => setIsPlaying(true))
-      .catch((err) => {
-        console.warn('Audio playback prevented:', err);
-        setIsPlaying(false);
-      });
+    // Play only when the timer is running
+    if (running) {
+      audio.play()
+        .then(() => setIsPlaying(true))
+        .catch((err) => {
+          console.warn('Audio playback prevented:', err);
+          setIsPlaying(false);
+        });
+    } else {
+      audio.pause();
+      setIsPlaying(false);
+    }
 
-    return () => {
-      // Don't pause on unmount of this effect unless ambience changes
-    };
-  }, [ambience, audio]); // Removed `running` dependency
-
-  // Stop audio when component completely unmounts
-  useEffect(() => {
     return () => {
       audio.pause();
+      setIsPlaying(false);
     };
-  }, [audio]);
+  }, [ambience, running, audio]);
 
   useEffect(() => {
     audio.volume = volume / 100;

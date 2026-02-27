@@ -100,7 +100,7 @@ export function TaskCard({ task, compact, onEdit }: TaskCardProps) {
 
       <div className="flex-1 min-w-0 cursor-pointer" onClick={() => onEdit?.(task)}>
         {/* Title row */}
-        <div className="flex items-start justify-between gap-2">
+        <div className="flex items-start justify-between gap-2 pr-6">
           <p className={cn(
             'text-sm font-medium leading-snug',
             task.status === 'completed' && 'line-through text-muted-foreground',
