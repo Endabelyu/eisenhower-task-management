@@ -9,7 +9,7 @@ All tests pass using the `endabelyuproject@gmail.com` authenticated session, con
 
 | Component | Test Area | Status | Execution Time | Description & Assertions |
 | :--- | :--- | :---: | :--- | :--- |
-| **Authentication** | Session Validation | 🟢 PASS | ~ 610ms | Verified `endabelyuproject@gmail.com` is able to pass auth using the anon key. |
+| **Authentication** | Session Validation | 🟢 PASS | ~ 610ms | Verified `emailtest@gmail.com` and `wilantama13@gmail.com` are able to pass auth using the anon key. |
 | **READ** | Initialize Store | 🟢 PASS | 89ms | `useTasks` successfully fetches records via `.from('tasks').select('*')`. |
 | **CREATE** | Insert New Row | 🟢 PASS | 79ms | Successfully inserts tasks into all 4 quadrants (Do, Schedule, Delegate, Hold) while correctly attaching the `auth.uid()` and automatically generating UUIDs. |
 | **UPDATE** | Edit Task Details | 🟢 PASS | 75ms | Successfully modifies `title`, `urgent`, and `important` properties of existing tasks, demonstrating RLS policies correctly permit updates. |
