@@ -102,23 +102,34 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    audio.src = sound.url;
+    // Only update src if it changed to avoid reloading the same audio
+    if (!audio.src.endsWith(sound.url)) {
+      audio.src = sound.url;
+      audio.load();
+    }
+    
     audio.loop = true;
     audio.volume = volume / 100;
 
-    if (running) {
-      audio.play()
-        .then(() => setIsPlaying(true))
-        .catch(() => setIsPlaying(false));
-    } else {
-      audio.pause();
-      setIsPlaying(false);
-    }
+    // Play immediately when selected, independent of timer running state
+    audio.play()
+      .then(() => setIsPlaying(true))
+      .catch((err) => {
+        console.warn('Audio playback prevented:', err);
+        setIsPlaying(false);
+      });
 
+    return () => {
+      // Don't pause on unmount of this effect unless ambience changes
+    };
+  }, [ambience, audio]); // Removed `running` dependency
+
+  // Stop audio when component completely unmounts
+  useEffect(() => {
     return () => {
       audio.pause();
     };
-  }, [ambience, running, audio]);
+  }, [audio]);
 
   useEffect(() => {
     audio.volume = volume / 100;
