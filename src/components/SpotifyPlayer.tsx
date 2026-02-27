@@ -91,14 +91,18 @@ export function SpotifyPlayer() {
 
   // Generate Spotify authorization URL
   const handleLogin = () => {
-    const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID || '';
-    const redirectUri = import.meta.env.VITE_SPOTIFY_REDIRECT_URI || 'http://localhost:5173/callback';
-    
-    const authUrl = new URL('https://accounts.spotify.com/authorize');
-    authUrl.searchParams.append('client_id', clientId);
-    authUrl.searchParams.append('response_type', 'code');
-    authUrl.searchParams.append('redirect_uri', redirectUri);
-    authUrl.searchParams.append('scope', SPOTIFY_SCOPES);
+    const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID 
+    const redirectUri = import.meta.env.VITE_SPOTIFY_REDIRECT_URI
+    console.log(clientId, 'client_id')
+
+    const scopes = 'user-read-playback-state user-modify-playback-state user-read-currently-playing';
+    const authUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=${scopes}`;
+
+// ');
+//     authUrl.searchParams.append('client_id', clientId);
+//     authUrl.searchParams.append('response_type', 'code');
+//     authUrl.searchParams.append('redirect_uri', redirectUri);
+//     authUrl.searchParams.append('scope', SPOTIFY_SCOPES);
     
     window.location.href = authUrl.toString();
   };
