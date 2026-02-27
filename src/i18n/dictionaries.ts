@@ -165,6 +165,12 @@ export const dictionaries = {
 
     // Settings
     'settings.title': 'Settings',
+    'settings.data.clear.title': 'Are you sure?',
+    'settings.data.clear.desc': 'This will permanently delete all your tasks. This action cannot be undone.',
+    'settings.data.clear.cancel': 'Cancel',
+    'settings.integrations': 'Integrations',
+    'settings.spotify.enable': 'Enable Spotify Player',
+    'settings.spotify.desc': 'Show Spotify music player. Requires a Spotify Premium account.',
     'settings.appearance': 'Appearance',
     'settings.theme': 'Theme',
     'settings.theme.light': 'Light',

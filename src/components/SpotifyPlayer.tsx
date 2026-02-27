@@ -41,7 +41,10 @@ function loadSpotifySDK(): Promise<void> {
  * Requires Spotify Premium.
  */
 export function SpotifyPlayer() {
-  const { accessToken, isAuthenticated, login, logout, getValidToken } = useSpotify();
+  const { accessToken, isAuthenticated, login, logout, getValidToken, isSpotifyEnabled } = useSpotify();
+  
+  // Conditionally hide the player entirely if disabled in settings
+  if (!isSpotifyEnabled) return null;
 
   const playerRef = useRef<Spotify.Player | null>(null);
   const deviceIdRef = useRef<string | null>(null);

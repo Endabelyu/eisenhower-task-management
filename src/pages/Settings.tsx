@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Palette, Settings as SettingsIcon, Globe } from 'lucide-react';
+import { Palette, Settings as SettingsIcon, Globe, Blocks } from 'lucide-react';
 import { DataManagement } from '@/components/DataManagement';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import {
   applyColorPalette,
   COLOR_PALETTES,
@@ -12,9 +14,11 @@ import {
 
 import { useLanguage } from '@/context/LanguageContext';
 import { type Language } from '@/i18n/dictionaries';
+import { useSpotify } from '@/context/SpotifyContext';
 
 export default function Settings() {
   const { language, setLanguage, t } = useLanguage();
+  const { isSpotifyEnabled, setSpotifyEnabled } = useSpotify();
   const [palette, setPalette] = useState<ColorPalette>('ocean');
 
   useEffect(() => {
@@ -88,6 +92,26 @@ export default function Settings() {
               <SelectItem value="en">{t('settings.language.en' as any)}</SelectItem>
             </SelectContent>
           </Select>
+        </div>
+      </section>
+
+      <section className="mb-6 rounded-xl border bg-card p-6 shadow-sm">
+        <div className="mb-4 flex items-center gap-2">
+          <Blocks className="h-4 w-4 text-primary" />
+          <h2 className="font-display text-lg font-semibold">{t('settings.integrations' as any)}</h2>
+        </div>
+        
+        <div className="flex items-center justify-between rounded-lg border p-4">
+          <div className="space-y-0.5">
+            <Label className="text-base">{t('settings.spotify.enable' as any)}</Label>
+            <p className="text-sm text-muted-foreground">
+              {t('settings.spotify.desc' as any)}
+            </p>
+          </div>
+          <Switch
+            checked={isSpotifyEnabled}
+            onCheckedChange={setSpotifyEnabled}
+          />
         </div>
       </section>
 

@@ -27,12 +27,19 @@ interface SpotifyContextType {
   logout: () => void;
   /** Get a guaranteed-valid token (may silently refresh) */
   getValidToken: () => Promise<string | null>;
+  /** Whether the Spotify player floating button is enabled */
+  isSpotifyEnabled: boolean;
+  /** Toggle the Spotify player feature completely */
+  setSpotifyEnabled: (enabled: boolean) => void;
 }
 
 const SpotifyContext = createContext<SpotifyContextType | undefined>(undefined);
 
 export function SpotifyProvider({ children }: { children: ReactNode }) {
   const [accessToken, setAccessToken] = useState<string | null>(() => getToken());
+  const [isSpotifyEnabled, setIsSpotifyEnabled] = useState<boolean>(() => {
+    return localStorage.getItem('spotify_integration_enabled') === 'true';
+  });
 
   // On mount, check if the stored token is still valid
   useEffect(() => {
@@ -92,6 +99,11 @@ export function SpotifyProvider({ children }: { children: ReactNode }) {
     return token;
   }, [accessToken]);
 
+  const setSpotifyEnabled = useCallback((enabled: boolean) => {
+    setIsSpotifyEnabled(enabled);
+    localStorage.setItem('spotify_integration_enabled', String(enabled));
+  }, []);
+
   return (
     <SpotifyContext.Provider
       value={{
@@ -100,6 +112,8 @@ export function SpotifyProvider({ children }: { children: ReactNode }) {
         login,
         logout,
         getValidToken,
+        isSpotifyEnabled,
+        setSpotifyEnabled,
       }}
     >
       {children}
