@@ -21,6 +21,7 @@ const SpotifyCallback = lazy(() => import("./pages/SpotifyCallback"));
 
 import { AuthProvider } from "@/context/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { SpotifyPlayer } from "@/components/SpotifyPlayer";
 
 // Only include MonitoringPanel in dev — tree-shaken out of production builds
 import { MonitoringPanel } from "@/monitoring/MonitoringPanel";
@@ -80,6 +81,7 @@ const App = () => (
           </AuthProvider>
         </ErrorBoundary>
         {import.meta.env.DEV && <MonitoringPanel />}
+        <SpotifyPlayer />
       </TooltipProvider>
     </QueryClientProvider>
   </ThemeProvider>

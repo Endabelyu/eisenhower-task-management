@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Music, Play, Pause, SkipForward, SkipBack, Volume2 } from 'lucide-react';
+import { Music, Play, Pause, SkipForward, SkipBack, Volume2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
-import { Card } from '@/components/ui/card';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 // Spotify API configuration
 const SPOTIFY_CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID || '';
@@ -146,45 +146,107 @@ export function SpotifyPlayer() {
   // Not connected state
   if (!accessToken) {
     return (
-      <Card className="p-5">
-        <div className="flex items-center gap-2 mb-3">
-          <Music className="h-5 w-5 text-green-500" />
-          <h3 className="font-display text-lg font-semibold">Spotify</h3>
-        </div>
-        <p className="text-sm text-muted-foreground mb-4">
-          Connect your Spotify account to control music playback while you work.
-        </p>
-        <Button onClick={handleLogin} className="w-full gap-2 bg-green-500 hover:bg-green-600">
-          <Music className="h-4 w-4" />
-          Connect Spotify
-        </Button>
-      </Card>
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button 
+            size="icon" 
+            className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg bg-green-500 hover:bg-green-600 transition-all hover:scale-105 z-50 text-white"
+          >
+            <Music className="h-6 w-6" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-80 p-5 mb-2 mr-6 border shadow-lg rounded-xl" side="top" align="end">
+          <div className="flex items-center gap-2 mb-3">
+            <Music className="h-5 w-5 text-green-500" />
+            <h3 className="font-display text-lg font-semibold">Spotify</h3>
+          </div>
+          <p className="text-sm text-muted-foreground mb-4">
+            Connect your Spotify account to control music playback while you work.
+          </p>
+          <Button onClick={handleLogin} className="w-full gap-2 bg-green-500 hover:bg-green-600">
+            <Music className="h-4 w-4" />
+            Connect Spotify
+          </Button>
+        </PopoverContent>
+      </Popover>
     );
   }
 
   // No active device state
   if (!playbackState) {
     return (
-      <Card className="p-5">
-        <div className="flex items-center gap-2 mb-3">
-          <Music className="h-5 w-5 text-green-500" />
-          <h3 className="font-display text-lg font-semibold">Spotify Connected</h3>
-        </div>
-        <p className="text-sm text-muted-foreground">
-          No active playback device. Open Spotify on your device and start playing.
-        </p>
-      </Card>
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button 
+            size="icon" 
+            className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg bg-green-500 hover:bg-green-600 transition-all hover:scale-105 z-50 text-white"
+          >
+            <Music className="h-6 w-6" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-80 p-5 mb-2 mr-6 border shadow-lg rounded-xl" side="top" align="end">
+          <div className="flex items-center gap-2 mb-3">
+            <Music className="h-5 w-5 text-green-500" />
+            <h3 className="font-display text-lg font-semibold">Spotify Connected</h3>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            No active playback device. Open Spotify on your device and start playing.
+          </p>
+        </PopoverContent>
+      </Popover>
     );
-  }
+  // No active device state
+  if (!playbackState) {
+    return (
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button 
+            size="icon" 
+            className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg bg-green-500 hover:bg-green-600 transition-all hover:scale-105 z-50 text-white"
+          >
+            <Music className="h-6 w-6" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-80 p-5 mb-2 mr-6 border shadow-lg rounded-xl" side="top" align="end">
+          <div className="flex items-center gap-2 mb-3">
+            <Music className="h-5 w-5 text-green-500" />
+            <h3 className="font-display text-lg font-semibold">Spotify Connected</h3>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            No active playback device. Open Spotify on your device and start playing.
+          </p>
+        </PopoverContent>
+        </PopoverContent>
+      </Popover>
+    );
 
   const { item: track, is_playing, device } = playbackState;
 
   return (
-    <Card className="p-5">
-      <div className="flex items-center gap-2 mb-4">
-        <Music className="h-5 w-5 text-green-500" />
-        <h3 className="font-display text-lg font-semibold">Now Playing</h3>
-      </div>
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button 
+          size="icon" 
+          className={`fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg transition-all hover:scale-105 z-50 overflow-hidden border-2 ${is_playing ? 'border-green-500 animate-pulse-subtle' : 'border-transparent bg-card text-foreground'}`}
+        >
+          {track?.album?.images?.[0]?.url ? (
+            <img 
+              src={track.album.images[0].url} 
+              alt="Album art" 
+              className={`h-full w-full object-cover ${is_playing ? 'animate-spin-slow' : ''}`}
+            />
+          ) : (
+            <Music className="h-6 w-6 text-green-500" />
+          )}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-80 p-5 mb-2 mr-6 border shadow-lg rounded-xl" side="top" align="end">
+        <div className="flex items-center gap-2 mb-4">
+          <Music className="h-5 w-5 text-green-500" />
+          <h3 className="font-display text-lg font-semibold truncate">
+            {is_playing ? 'Now Playing' : 'Paused'}
+          </h3>
+        </div>
 
       {track && (
         <div className="flex gap-4 mb-4">
@@ -249,6 +311,7 @@ export function SpotifyPlayer() {
           </span>
         </div>
       )}
-    </Card>
+      </PopoverContent>
+    </Popover>
   );
 }

@@ -4,7 +4,6 @@ import { useTaskContext } from '@/context/TaskContext';
 import { QUADRANT_CONFIG, TaskWithMetrics } from '@/types/task';
 import { EditTaskModal } from '@/components/EditTaskModal';
 import { PomodoroTimer } from '@/components/PomodoroTimer';
-import { SpotifyPlayer } from '@/components/SpotifyPlayer';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
@@ -71,10 +70,6 @@ export default function DailyFocus() {
 
       <div className="mb-6">
         <PomodoroTimer />
-      </div>
-
-      <div className="mb-6">
-        <SpotifyPlayer />
       </div>
 
       {focus.length === 0 ? (
