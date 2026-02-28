@@ -92,6 +92,7 @@ const App = () => {
                       </Suspense>
                     </TaskProvider>
                   </PomodoroProvider>
+                  <SpotifyPlayer />
                   <RadioPlayer />
                 </SpotifyProvider>
               </AuthProvider>

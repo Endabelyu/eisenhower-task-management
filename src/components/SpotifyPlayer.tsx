@@ -42,9 +42,6 @@ function loadSpotifySDK(): Promise<void> {
  */
 export function SpotifyPlayer() {
   const { accessToken, isAuthenticated, login, logout, getValidToken, isSpotifyEnabled } = useSpotify();
-  
-  // Conditionally hide the player entirely if disabled in settings
-  if (!isSpotifyEnabled) return null;
 
   const playerRef = useRef<Spotify.Player | null>(null);
   const deviceIdRef = useRef<string | null>(null);
@@ -173,6 +170,11 @@ export function SpotifyPlayer() {
     logout();
   }, [logout]);
 
+  // If disabled in settings, render nothing (but hooks have already fired)
+  if (!isSpotifyEnabled) {
+    return null;
+  }
+
   // ── Not authenticated ──────────────────────────────────────────────────────
   if (!isAuthenticated) {
     return (
@@ -180,7 +182,7 @@ export function SpotifyPlayer() {
         <PopoverTrigger asChild>
           <Button
             size="icon"
-            className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg bg-green-500 hover:bg-green-600 transition-all hover:scale-105 z-50 text-white"
+            className="fixed bottom-24 right-6 h-14 w-14 rounded-full shadow-lg bg-green-500 hover:bg-green-600 transition-all hover:scale-105 z-50 text-white"
             aria-label="Open Spotify"
           >
             <Music className="h-6 w-6" />
@@ -213,7 +215,7 @@ export function SpotifyPlayer() {
         <PopoverTrigger asChild>
           <Button
             size="icon"
-            className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg bg-red-500 hover:bg-red-600 transition-all z-50 text-white"
+            className="fixed bottom-24 right-6 h-14 w-14 rounded-full shadow-lg bg-red-500 hover:bg-red-600 transition-all z-50 text-white"
             aria-label="Spotify error"
           >
             <AlertCircle className="h-6 w-6" />
@@ -241,7 +243,7 @@ export function SpotifyPlayer() {
       <Button
         size="icon"
         disabled
-        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg bg-green-500/70 z-50 text-white cursor-wait"
+        className="fixed bottom-24 right-6 h-14 w-14 rounded-full shadow-lg bg-green-500/70 z-50 text-white cursor-wait"
         aria-label="Connecting to Spotify..."
       >
         <Music className="h-6 w-6 animate-pulse" />
@@ -258,7 +260,7 @@ export function SpotifyPlayer() {
       <PopoverTrigger asChild>
         <Button
           size="icon"
-          className={`fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg transition-all hover:scale-105 z-50 overflow-hidden border-2 ${!isPaused ? 'border-green-500' : 'border-transparent bg-card'}`}
+          className={`fixed bottom-24 right-6 h-14 w-14 rounded-full shadow-lg transition-all hover:scale-105 z-50 overflow-hidden border-2 ${!isPaused ? 'border-green-500' : 'border-transparent bg-card'}`}
           aria-label={track ? `Now playing: ${track.name}` : 'Spotify Player'}
         >
           {track?.album?.images?.[0]?.url ? (
