@@ -102,10 +102,13 @@ export default function Settings() {
         </div>
         
         <div className="flex items-center justify-between rounded-lg border p-4">
-          <div className="space-y-0.5">
+          <div className="space-y-1">
             <Label className="text-base">{t('settings.spotify.enable' as any)}</Label>
             <p className="text-sm text-muted-foreground">
               {t('settings.spotify.desc' as any)}
+            </p>
+            <p className="text-sm text-destructive font-medium flex gap-1">
+              <span>*</span><span>{t('settings.spotify.req' as any)}</span>
             </p>
           </div>
           <Switch

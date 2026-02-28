@@ -52,6 +52,7 @@ const renderWithProvider = () =>
 describe('SpotifyPlayer component', () => {
   beforeEach(() => {
     localStorage.clear();
+    localStorage.setItem('spotify_integration_enabled', 'true');
     vi.clearAllMocks();
   });
 
@@ -59,7 +60,7 @@ describe('SpotifyPlayer component', () => {
     renderWithProvider();
     const trigger = screen.getByRole('button', { name: /open spotify/i });
     expect(trigger).toBeInTheDocument();
-    expect(trigger.className).toContain('fixed bottom-6 right-6');
+    expect(trigger.className).toContain('shrink-0 rounded-full');
   });
 
   it('shows Connect Spotify button when not authenticated', async () => {

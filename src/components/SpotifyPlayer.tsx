@@ -182,7 +182,7 @@ export function SpotifyPlayer() {
         <PopoverTrigger asChild>
           <Button
             size="icon"
-            className="fixed bottom-24 right-6 h-14 w-14 rounded-full shadow-lg bg-green-500 hover:bg-green-600 transition-all hover:scale-105 z-50 text-white"
+            className="h-14 w-14 shrink-0 rounded-full shadow-lg bg-green-500 hover:bg-green-600 transition-all hover:scale-105 z-50 text-white"
             aria-label="Open Spotify"
           >
             <Music className="h-6 w-6" />
@@ -196,8 +196,8 @@ export function SpotifyPlayer() {
           <p className="text-sm text-muted-foreground mb-1">
             Connect Spotify to play music directly in your browser.
           </p>
-          <p className="text-xs text-muted-foreground mb-4">
-            ⚠️ Requires a Spotify Premium account.
+          <p className="text-xs text-destructive font-medium mb-4 flex items-start gap-1">
+            <span>*</span><span>Requires a Spotify Premium account.</span>
           </p>
           <Button onClick={login} className="w-full gap-2 bg-green-500 hover:bg-green-600">
             <Music className="h-4 w-4" />
@@ -215,7 +215,7 @@ export function SpotifyPlayer() {
         <PopoverTrigger asChild>
           <Button
             size="icon"
-            className="fixed bottom-24 right-6 h-14 w-14 rounded-full shadow-lg bg-red-500 hover:bg-red-600 transition-all z-50 text-white"
+            className="h-14 w-14 shrink-0 rounded-full shadow-lg bg-red-500 hover:bg-red-600 transition-all z-50 text-white"
             aria-label="Spotify error"
           >
             <AlertCircle className="h-6 w-6" />
@@ -243,7 +243,7 @@ export function SpotifyPlayer() {
       <Button
         size="icon"
         disabled
-        className="fixed bottom-24 right-6 h-14 w-14 rounded-full shadow-lg bg-green-500/70 z-50 text-white cursor-wait"
+        className="h-14 w-14 shrink-0 rounded-full shadow-lg bg-green-500/70 z-50 text-white cursor-wait"
         aria-label="Connecting to Spotify..."
       >
         <Music className="h-6 w-6 animate-pulse" />
@@ -260,7 +260,7 @@ export function SpotifyPlayer() {
       <PopoverTrigger asChild>
         <Button
           size="icon"
-          className={`fixed bottom-24 right-6 h-14 w-14 rounded-full shadow-lg transition-all hover:scale-105 z-50 overflow-hidden border-2 ${!isPaused ? 'border-green-500' : 'border-transparent bg-card'}`}
+          className={`h-14 w-14 shrink-0 rounded-full shadow-lg transition-all hover:scale-105 z-50 overflow-hidden border-2 ${!isPaused ? 'border-green-500' : 'border-transparent bg-card'}`}
           aria-label={track ? `Now playing: ${track.name}` : 'Spotify Player'}
         >
           {track?.album?.images?.[0]?.url ? (

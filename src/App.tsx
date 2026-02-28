@@ -22,8 +22,7 @@ const SpotifyCallback = lazy(() => import("./pages/SpotifyCallback"));
 
 import { AuthProvider } from "@/context/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { SpotifyPlayer } from "@/components/SpotifyPlayer";
-import { RadioPlayer } from "@/components/RadioPlayer";
+import { FloatingMediaMenu } from "@/components/FloatingMediaMenu";
 import { PomodoroProvider } from "@/context/PomodoroContext";
 import { SpotifyProvider } from "@/context/SpotifyContext";
 import { LanguageProvider } from "@/context/LanguageContext";
@@ -92,8 +91,7 @@ const App = () => {
                       </Suspense>
                     </TaskProvider>
                   </PomodoroProvider>
-                  <SpotifyPlayer />
-                  <RadioPlayer />
+                  <FloatingMediaMenu />
                 </SpotifyProvider>
               </AuthProvider>
             </ErrorBoundary>

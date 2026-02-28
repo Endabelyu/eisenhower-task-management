@@ -174,9 +174,9 @@ export function RadioPlayer() {
       <PopoverTrigger asChild>
         <Button
           size="icon"
-          className={`fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg transition-all hover:scale-105 z-50 text-white
+          className={`h-14 w-14 shrink-0 rounded-full shadow-lg transition-all hover:scale-105 z-50 text-white
             ${isPlaying
-              ? 'bg-green-500 hover:bg-green-600 ring-2 ring-green-400 ring-offset-2 animate-pulse-subtle'
+              ? 'bg-primary hover:bg-primary/90 ring-2 ring-primary/50 ring-offset-2 animate-pulse-subtle'
               : 'bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-600 dark:hover:bg-neutral-500'
             }
             ${isLoading ? 'opacity-70 cursor-wait' : ''}
@@ -185,9 +185,7 @@ export function RadioPlayer() {
         >
           {isLoading
             ? <Radio className="h-6 w-6 animate-pulse" />
-            : isPlaying
-              ? <Music className="h-6 w-6" />
-              : <Radio className="h-6 w-6" />
+            : <Radio className="h-6 w-6" />
           }
         </Button>
       </PopoverTrigger>
@@ -197,7 +195,7 @@ export function RadioPlayer() {
         <div className="px-4 py-3 border-b bg-muted/30">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Radio className="h-4 w-4 text-green-500" />
+              <Radio className="h-4 w-4 text-primary" />
               <span className="font-semibold text-sm">Lo-fi Radio</span>
               <span className="text-xs text-muted-foreground">• Free, no login</span>
             </div>
@@ -212,7 +210,7 @@ export function RadioPlayer() {
 
         {/* Now playing */}
         {activeStation && (
-          <div className={`px-4 py-2 text-sm flex items-center gap-2 border-b ${isLoading ? 'bg-muted/20' : 'bg-green-500/10'}`}>
+          <div className={`px-4 py-2 text-sm flex items-center gap-2 border-b ${isLoading ? 'bg-muted/20' : 'bg-primary/10'}`}>
             <span className="text-base">{activeStation.emoji}</span>
             <div className="flex-1 min-w-0">
               <p className="font-medium truncate text-xs">{activeStation.label}</p>
@@ -220,7 +218,7 @@ export function RadioPlayer() {
             </div>
             {isPlaying && <span className="flex gap-0.5">
               {[1,2,3].map(i => (
-                <span key={i} className="w-0.5 bg-green-500 rounded-full animate-bounce"
+                <span key={i} className="w-0.5 bg-primary rounded-full animate-bounce"
                   style={{ height: `${8 + i * 3}px`, animationDelay: `${i * 0.1}s` }} />
               ))}
             </span>}
@@ -238,12 +236,12 @@ export function RadioPlayer() {
               key={station.id}
               onClick={() => activeStation?.id === station.id && isPlaying ? stopStation() : startStation(station)}
               className={`w-full flex items-center gap-3 px-4 py-2 text-sm hover:bg-muted/50 transition-colors
-                ${activeStation?.id === station.id ? 'bg-green-500/10 text-green-600 dark:text-green-400' : ''}`}
+                ${activeStation?.id === station.id ? 'bg-primary/10 text-primary' : ''}`}
             >
               <span className="text-base">{station.emoji}</span>
               <span className="flex-1 text-left truncate">{station.label}</span>
               {activeStation?.id === station.id && isPlaying && (
-                <ChevronDown className="h-3 w-3 text-green-500" />
+                <ChevronDown className="h-3 w-3 text-primary" />
               )}
             </button>
           ))}
@@ -257,12 +255,12 @@ export function RadioPlayer() {
               key={station.id}
               onClick={() => activeStation?.id === station.id && isPlaying ? stopStation() : startStation(station)}
               className={`w-full flex items-center gap-3 px-4 py-2 text-sm hover:bg-muted/50 transition-colors
-                ${activeStation?.id === station.id ? 'bg-green-500/10 text-green-600 dark:text-green-400' : ''}`}
+                ${activeStation?.id === station.id ? 'bg-primary/10 text-primary' : ''}`}
             >
               <span className="text-base">{station.emoji}</span>
               <span className="flex-1 text-left truncate">{station.label}</span>
               {activeStation?.id === station.id && isPlaying && (
-                <ChevronDown className="h-3 w-3 text-green-500" />
+                <ChevronDown className="h-3 w-3 text-primary" />
               )}
             </button>
           ))}
