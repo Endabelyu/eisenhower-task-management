@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Headphones, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useSpotify } from '@/context/SpotifyContext';
@@ -8,6 +8,22 @@ import { SpotifyPlayer } from './SpotifyPlayer';
 export function FloatingMediaMenu() {
   const { isSpotifyEnabled } = useSpotify();
   const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
 
   // If Spotify is not enabled, return just the radio player wrapped in the fixed container it used to have.
   if (!isSpotifyEnabled) {
@@ -20,7 +36,7 @@ export function FloatingMediaMenu() {
 
   // If enabled, return the combined speed dial.
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col-reverse items-end gap-3">
+    <div ref={menuRef} className="fixed bottom-6 right-6 z-50 flex flex-col-reverse items-end gap-3">
       {/* Main Toggle Button */}
       <Button
         size="icon"
