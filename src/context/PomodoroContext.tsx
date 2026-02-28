@@ -130,7 +130,7 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
       audio.pause();
       setIsPlaying(false);
     };
-  }, [ambience, running, audio]);
+  }, [ambience, running, audio, volume]);
 
   useEffect(() => {
     audio.volume = volume / 100;

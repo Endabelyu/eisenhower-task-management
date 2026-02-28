@@ -1,0 +1,127 @@
+
+C:\Project\lovable\quadrant-calm\src\components\AppSidebar.tsx
+   31:72   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  109:64   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  109:119  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  109:155  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  155:55   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Project\lovable\quadrant-calm\src\components\PomodoroTimer.tsx
+  116:34  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Project\lovable\quadrant-calm\src\components\RadioPlayer.tsx
+  17:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Project\lovable\quadrant-calm\src\components\SpotifyPlayer.test.tsx
+   80:23  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   81:60  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  103:43  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Project\lovable\quadrant-calm\src\components\ui\badge.tsx
+  29:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Project\lovable\quadrant-calm\src\components\ui\button.tsx
+  47:18  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Project\lovable\quadrant-calm\src\components\ui\command.tsx
+  24:11  error  An interface declaring no members is equivalent to its supertype  @typescript-eslint/no-empty-object-type
+
+C:\Project\lovable\quadrant-calm\src\components\ui\form.tsx
+  129:10  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Project\lovable\quadrant-calm\src\components\ui\navigation-menu.tsx
+  111:3  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Project\lovable\quadrant-calm\src\components\ui\sidebar.tsx
+  636:3  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Project\lovable\quadrant-calm\src\components\ui\sonner.tsx
+  27:19  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Project\lovable\quadrant-calm\src\components\ui\textarea.tsx
+  5:18  error  An interface declaring no members is equivalent to its supertype  @typescript-eslint/no-empty-object-type
+
+C:\Project\lovable\quadrant-calm\src\components\ui\toggle.tsx
+  37:18  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Project\lovable\quadrant-calm\src\context\AuthContext.tsx
+  20:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Project\lovable\quadrant-calm\src\context\LanguageContext.tsx
+  48:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Project\lovable\quadrant-calm\src\context\PomodoroContext.tsx
+    6:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+   12:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+  133:6   warning  React Hook useEffect has a missing dependency: 'volume'. Either include it or remove the dependency array                       react-hooks/exhaustive-deps
+  187:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Project\lovable\quadrant-calm\src\context\SpotifyContext.tsx
+  124:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Project\lovable\quadrant-calm\src\context\TaskContext.tsx
+  20:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Project\lovable\quadrant-calm\src\hooks\use-tasks.ts
+   34:25  error    Unexpected any. Specify a different type                                                                                  @typescript-eslint/no-explicit-any
+   52:28  error    Unexpected any. Specify a different type                                                                                  @typescript-eslint/no-explicit-any
+  110:21  error    Unexpected any. Specify a different type                                                                                  @typescript-eslint/no-explicit-any
+  119:6   warning  React Hook useEffect has a missing dependency: 'handleLegacyMigration'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  126:38  error    Unexpected any. Specify a different type                                                                                  @typescript-eslint/no-explicit-any
+  147:19  error    Unexpected any. Specify a different type                                                                                  @typescript-eslint/no-explicit-any
+  187:12  error    Unexpected any. Specify a different type                                                                                  @typescript-eslint/no-explicit-any
+  199:19  error    Unexpected any. Specify a different type                                                                                  @typescript-eslint/no-explicit-any
+  221:20  error    Unexpected any. Specify a different type                                                                                  @typescript-eslint/no-explicit-any
+  245:19  error    Unexpected any. Specify a different type                                                                                  @typescript-eslint/no-explicit-any
+  264:19  error    Unexpected any. Specify a different type                                                                                  @typescript-eslint/no-explicit-any
+  290:19  error    Unexpected any. Specify a different type                                                                                  @typescript-eslint/no-explicit-any
+  315:19  error    Unexpected any. Specify a different type                                                                                  @typescript-eslint/no-explicit-any
+  359:19  error    Unexpected any. Specify a different type                                                                                  @typescript-eslint/no-explicit-any
+  383:19  error    Unexpected any. Specify a different type                                                                                  @typescript-eslint/no-explicit-any
+  411:19  error    Unexpected any. Specify a different type                                                                                  @typescript-eslint/no-explicit-any
+  493:19  error    Unexpected any. Specify a different type                                                                                  @typescript-eslint/no-explicit-any
+  508:19  error    Unexpected any. Specify a different type                                                                                  @typescript-eslint/no-explicit-any
+
+C:\Project\lovable\quadrant-calm\src\pages\DailyFocus.tsx
+  40:79   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  43:34   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  49:107  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  51:91   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  54:106  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  69:90   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Project\lovable\quadrant-calm\src\pages\Index.tsx
+  38:44   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  39:45   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  40:48   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  48:110  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  49:91   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  53:64   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Project\lovable\quadrant-calm\src\pages\Login.tsx
+  40:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  61:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  77:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Project\lovable\quadrant-calm\src\pages\Settings.tsx
+   42:82  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   44:82  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   50:90  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   53:34  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   79:88  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   91:67  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   92:67  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  101:92  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  106:74  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  108:45  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  111:64  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Project\lovable\quadrant-calm\src\pages\TaskList.tsx
+  60:79  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  71:46  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Project\lovable\quadrant-calm\tailwind.config.ts
+  108:13  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+
+✖ 74 problems (57 errors, 17 warnings)
+

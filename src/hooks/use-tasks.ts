@@ -31,31 +31,31 @@ export const computeMetrics = (task: Task): TaskWithMetrics => {
   return { ...task, daysUntilDue, urgencyScore, isOverdue };
 };
 
-const mapToTask = (row: any, subtasks: SubTask[] = []): Task => ({
-  id: row.id,
-  title: row.title,
-  description: row.description,
-  urgent: row.urgent,
-  important: row.important,
-  quadrant: row.quadrant,
-  dueDate: row.due_date,
-  estimatedDuration: row.estimated_duration,
-  status: row.status,
-  order: row.order,
-  tags: row.tags || [],
+const mapToTask = (row: Record<string, unknown>, subtasks: SubTask[] = []): Task => ({
+  id: String(row.id),
+  title: String(row.title),
+  description: row.description ? String(row.description) : undefined,
+  urgent: Boolean(row.urgent),
+  important: Boolean(row.important),
+  quadrant: String(row.quadrant) as Quadrant,
+  dueDate: row.due_date ? String(row.due_date) : undefined,
+  estimatedDuration: Number(row.estimated_duration),
+  status: String(row.status) as Task['status'],
+  order: Number(row.order),
+  tags: Array.isArray(row.tags) ? row.tags.map(String) : [],
   subtasks,
-  createdAt: row.created_at,
-  updatedAt: row.updated_at,
-  completedAt: row.completed_at,
+  createdAt: String(row.created_at),
+  updatedAt: String(row.updated_at),
+  completedAt: row.completed_at ? String(row.completed_at) : undefined,
 });
 
-const mapToSubTask = (row: any): SubTask => ({
-  id: row.id,
-  taskId: row.task_id,
-  title: row.title,
-  completed: row.completed,
-  order: row.order,
-  createdAt: row.created_at,
+const mapToSubTask = (row: Record<string, unknown>): SubTask => ({
+  id: String(row.id),
+  taskId: String(row.task_id),
+  title: String(row.title),
+  completed: Boolean(row.completed),
+  order: Number(row.order),
+  createdAt: String(row.created_at),
 });
 
 /**
@@ -65,6 +65,38 @@ export function useTasks() {
   const { user } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const handleLegacyMigration = useCallback(async (jsonData: string) => {
+    try {
+      if (!user) return;
+      const parsed = JSON.parse(jsonData) as Task[];
+      
+      const payload = parsed.map((t: Task) => ({
+        user_id: user.id,
+        title: t.title,
+        description: t.description || null,
+        urgent: t.urgent || false,
+        important: t.important || false,
+        quadrant: t.quadrant,
+        due_date: t.dueDate || null,
+        estimated_duration: t.estimatedDuration || 30,
+        status: t.status || 'pending',
+        order: t.order || 0,
+        tags: t.tags || [],
+      }));
+
+      const { data, error } = await supabase.from('tasks').insert(payload).select();
+      if (error) throw error;
+      
+      setTasks(prev => [...prev, ...data.map(row => mapToTask(row))]);
+      localStorage.removeItem(STORAGE_KEY);
+      toast.success('Successfully migrated legacy tasks to cloud');
+      monitoringStore.addLog('tasks:migrated-legacy', { count: data.length });
+    } catch (err: unknown) {
+      toast.error('Migration failed');
+      monitoringStore.addError('tasks:migration-error', String(err));
+    }
+  }, [user]);
 
   // Load from Supabase on mount/auth change
   useEffect(() => {
@@ -107,48 +139,13 @@ export function useTasks() {
             },
           });
         }
-      } catch (err: any) {
-        toast.error('Failed to load tasks from server');
-        monitoringStore.addError('tasks:fetch', err);
       } finally {
         setLoading(false);
       }
     };
     
     fetchTasks();
-  }, [user]);
-
-  const handleLegacyMigration = async (jsonData: string) => {
-    try {
-      if (!user) return;
-      const parsed = JSON.parse(jsonData) as Task[];
-      
-      const payload = parsed.map((t: any) => ({
-        user_id: user.id,
-        title: t.title,
-        description: t.description || null,
-        urgent: t.urgent || false,
-        important: t.important || false,
-        quadrant: t.quadrant,
-        due_date: t.dueDate || null,
-        estimated_duration: t.estimatedDuration || 30,
-        status: t.status || 'pending',
-        order: t.order || 0,
-        tags: t.tags || [],
-      }));
-
-      const { data, error } = await supabase.from('tasks').insert(payload).select();
-      if (error) throw error;
-      
-      setTasks(prev => [...prev, ...data.map(row => mapToTask(row))]);
-      localStorage.removeItem(STORAGE_KEY);
-      toast.success('Successfully migrated legacy tasks to cloud');
-      monitoringStore.addLog('tasks:migrated-legacy', { count: data.length });
-    } catch (err: any) {
-      toast.error('Migration failed');
-      monitoringStore.addError('tasks:migration-error', err);
-    }
-  };
+  }, [user, handleLegacyMigration]);
 
   const addTask = useCallback(async (data: {
     title: string;
@@ -183,8 +180,14 @@ export function useTasks() {
       // Optimistic update
       const tempId = crypto.randomUUID();
       const optimisticTask: Task = {
-        ...payload, id: tempId, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), dueDate: payload.due_date, estimatedDuration: payload.estimated_duration, subtasks: []
-      } as any;
+        ...payload,
+        id: tempId,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        dueDate: payload.due_date ?? undefined,
+        estimatedDuration: payload.estimated_duration ?? 30,
+        subtasks: []
+      } as unknown as Task;
       setTasks(prev => [...prev, optimisticTask]);
 
       const { data: dbData, error } = await supabase.from('tasks').insert(payload).select().single();
@@ -196,9 +199,9 @@ export function useTasks() {
       toast.success(`Task added to ${QUADRANT_CONFIG[quadrant].label}`);
       monitoringStore.addLog('task:add', { id: newTask.id, title: newTask.title, quadrant });
       return newTask;
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast.error('Failed to add task');
-      monitoringStore.addError('task:add-error', err);
+      monitoringStore.addError('task:add-error', String(err));
       // Revert optimistic if needed (simplified here)
       return null as unknown as Task;
     }
@@ -216,9 +219,9 @@ export function useTasks() {
       updatedLocal.completedAt = new Date().toISOString();
     }
 
-    setTasks(prev => prev.map(t => t.id === id ? updatedLocal : t));
+      setTasks(prev => prev.map(t => t.id === id ? updatedLocal : t));
 
-    const payload: any = {};
+    const payload: Record<string, unknown> = {};
     if ('title' in updates) payload.title = updates.title;
     if ('description' in updates) payload.description = updates.description;
     if ('urgent' in updates) payload.urgent = updates.urgent;
@@ -242,10 +245,10 @@ export function useTasks() {
       } else {
         monitoringStore.addLog('task:update', { id, fields: Object.keys(updates) });
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setTasks(prev => prev.map(t => t.id === id ? originalTask : t)); // revert
       toast.error('Updates failed to save');
-      monitoringStore.addError('task:update-error', err);
+      monitoringStore.addError('task:update-error', String(err));
     }
   }, [tasks]);
 
@@ -261,10 +264,10 @@ export function useTasks() {
       
       monitoringStore.addLog('task:delete', { id }, 'warn');
       toast('Task deleted');
-    } catch (err: any) {
+    } catch (err: unknown) {
       setTasks(prev => [...prev, deleted]); // revert
       toast.error('Failed to delete task');
-      monitoringStore.addError('task:delete-error', err);
+      monitoringStore.addError('task:delete-error', String(err));
     }
   }, [tasks]);
 
@@ -287,7 +290,7 @@ export function useTasks() {
       
       monitoringStore.addLog('task:move', { id, quadrant });
       toast(`Moved to ${QUADRANT_CONFIG[quadrant].label}`);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setTasks(prev => prev.map(t => t.id === id ? originalTask : t)); // revert
       toast.error('Failed to move task');
     }
@@ -312,9 +315,9 @@ export function useTasks() {
       await Promise.all(
         updates.map(upd => supabase.from('tasks').update({ order: upd.order }).eq('id', upd.id))
       );
-    } catch (err: any) {
+    } catch (err: unknown) {
       // In production you might refetch tasks to guarantee sync, but skipping revert for brevity in grid layout
-      monitoringStore.addError('task:reorder-error', err);
+      monitoringStore.addError('task:reorder-error', String(err));
     }
   }, []);
 
@@ -356,7 +359,7 @@ export function useTasks() {
           ? { ...t, subtasks: t.subtasks.map(st => st.id === tempId ? real : st) }
           : t
       ));
-    } catch (err: any) {
+    } catch (err: unknown) {
       // Revert optimistic
       setTasks(prev => prev.map(t =>
         t.id === taskId
@@ -364,7 +367,7 @@ export function useTasks() {
           : t
       ));
       toast.error('Failed to add sub-task');
-      monitoringStore.addError('subtask:add-error', err);
+      monitoringStore.addError('subtask:add-error', String(err));
     }
   }, [tasks, user]);
 
@@ -380,7 +383,7 @@ export function useTasks() {
     try {
       const { error } = await supabase.from('subtasks').update({ completed }).eq('id', subtaskId);
       if (error) throw error;
-    } catch (err: any) {
+    } catch (err: unknown) {
       // Revert
       setTasks(prev => prev.map(t => ({
         ...t,
@@ -389,7 +392,7 @@ export function useTasks() {
         ),
       })));
       toast.error('Failed to update sub-task');
-      monitoringStore.addError('subtask:toggle-error', err);
+      monitoringStore.addError('subtask:toggle-error', String(err));
     }
   }, []);
 
@@ -408,7 +411,7 @@ export function useTasks() {
     try {
       const { error } = await supabase.from('subtasks').delete().eq('id', subtaskId);
       if (error) throw error;
-    } catch (err: any) {
+    } catch (err: unknown) {
       // Revert
       if (deletedFrom) {
         const { taskId, subtask } = deletedFrom;
@@ -417,7 +420,7 @@ export function useTasks() {
         ));
       }
       toast.error('Failed to delete sub-task');
-      monitoringStore.addError('subtask:delete-error', err);
+      monitoringStore.addError('subtask:delete-error', String(err));
     }
   }, []);
 
@@ -490,7 +493,7 @@ export function useTasks() {
       setTasks(prev => [...prev, ...data.map(row => mapToTask(row))]);
       monitoringStore.addLog('task:import', { count: parsed.length });
       toast.success(`Imported ${parsed.length} tasks synced to cloud`);
-    } catch (err: any) {
+    } catch (err: unknown) {
       monitoringStore.addLog('task:import-failed', {}, 'error');
       toast.error('Invalid file format or network issue');
     }
@@ -505,8 +508,9 @@ export function useTasks() {
       monitoringStore.addLog('task:clear', { previous: tasks.length }, 'warn');
       setTasks([]);
       toast('All tasks cleared from cloud');
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast.error('Failed to clear database');
+      monitoringStore.addError('tasks:clear-error', String(err));
     }
   }, [tasks.length, user]);
 
