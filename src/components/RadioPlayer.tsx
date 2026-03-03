@@ -51,6 +51,8 @@ export const RADIO_STATIONS: RadioStation[] = [
   // Podcasts
   { id: 'endgame',          label: 'Endgame (Gita Wirjawan)',  videoId: 'PL-hh_bKgnJ6FqDJwTs5YB3xMvQrFCDSoJ', category: 'podcast', emoji: '🎧', type: 'playlist' },
   { id: 'sepulang-sekolah', label: 'Sepulang Sekolah',         videoId: 'PLfN58YcV819YaV1FzBEqbvkoe6vIra-aH', category: 'podcast', emoji: '📚', type: 'playlist' },
+  { id: 'learning-by-googling', label: 'Learning By Googling',   videoId: 'PLSJZ5LiRPqecWnEBeIVzlDpxBZyQK0aCr', category: 'podcast', emoji: '🔍', type: 'playlist' },
+  { id: 'learning-by-fasting', label: 'Learning By Fasting',    videoId: 'PLSJZ5LiRPqedzkMq17NvsAzysHL9l6pk1', category: 'podcast', emoji: '🌙', type: 'playlist' },
   { id: 'login-podcast',    label: 'Login (Habib Jafar)',      videoId: 'PLe_K9e2LM-ilpMuQv7vyrKds0FdjBznFp', category: 'podcast', emoji: '☪️', type: 'playlist' },
   { id: 'escape-podcast',   label: 'Podcast Escape',           videoId: 'PLSNt1tjjz_ArTDv1jVMjhHlaHM51euDq0', category: 'podcast', emoji: '🚪', type: 'playlist' },
   { id: 'suara-berkelas',   label: 'Suara Berkelas',           videoId: 'suara berkelas podcast motivasi', category: 'podcast', emoji: '⭐', type: 'search' },

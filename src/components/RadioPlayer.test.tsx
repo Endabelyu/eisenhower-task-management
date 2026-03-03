@@ -129,12 +129,12 @@ describe('RADIO_STATIONS registry', () => {
   describe('Podcast category', () => {
     const podcasts = RADIO_STATIONS.filter(s => s.category === 'podcast');
     const EXPECTED_PODCASTS = [
-      'endgame', 'sepulang-sekolah', 'login-podcast', 'escape-podcast',
-      'suara-berkelas', 'bagus-muljadi', 'raditya-dika', 'what-is-up-id',
-      'bocor-alus', 'sport77',
+      'endgame', 'sepulang-sekolah', 'learning-by-googling', 'learning-by-fasting',
+      'login-podcast', 'escape-podcast', 'suara-berkelas', 'bagus-muljadi',
+      'raditya-dika', 'what-is-up-id', 'bocor-alus', 'sport77',
     ];
 
-    it('has at least 10 podcast stations', () => expect(podcasts.length).toBeGreaterThanOrEqual(10));
+    it('has at least 12 podcast stations', () => expect(podcasts.length).toBeGreaterThanOrEqual(12));
 
     for (const podcastId of EXPECTED_PODCASTS) {
       it(`includes ${podcastId} podcast`, () => {
