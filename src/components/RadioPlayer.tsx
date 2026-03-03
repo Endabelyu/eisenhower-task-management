@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { Music, Radio, Square, Volume2, VolumeX, ChevronDown } from 'lucide-react';
+import { Music, Radio, Square, Volume2, VolumeX, ChevronDown, Play, Pause, SkipForward, SkipBack } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -38,6 +38,9 @@ interface YTPlayer {
   setVolume: (v: number) => void;
   getVolume: () => number;
   playVideo: () => void;
+  pauseVideo: () => void;
+  nextVideo: () => void;
+  previousVideo: () => void;
   stopVideo: () => void;
   destroy: () => void;
 }
@@ -79,6 +82,7 @@ export function RadioPlayer() {
   const [isOpen, setIsOpen] = useState(false);
   const [activeStation, setActiveStation] = useState<RadioStation | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const [volume, setVolume] = useState(70);
   const [isMuted, setIsMuted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -98,6 +102,7 @@ export function RadioPlayer() {
     destroyPlayer();
     setActiveStation(station);
     setIsPlaying(false);
+    setIsPaused(false);
 
     await loadYouTubeAPI();
 
@@ -124,15 +129,17 @@ export function RadioPlayer() {
         })
       },
       events: {
-        onReady: (e: { target: YTPlayer & { playVideo: () => void, setVolume: (v: number) => void } }) => {
+        onReady: (e: { target: YTPlayer }) => {
           e.target.setVolume(volume);
           e.target.playVideo();
           setIsPlaying(true);
+          setIsPaused(false);
           setIsLoading(false);
         },
         onError: () => {
           setIsLoading(false);
           setIsPlaying(false);
+          setIsPaused(false);
         },
       },
     };
@@ -153,7 +160,34 @@ export function RadioPlayer() {
     }
     setActiveStation(null);
     setIsPlaying(false);
+    setIsPaused(false);
   }, [destroyPlayer]);
+
+  // Playback Controls
+  const togglePlayPause = useCallback(() => {
+    if (!playerRef.current) return;
+    if (isPaused) {
+      playerRef.current.playVideo();
+      setIsPaused(false);
+    } else {
+      playerRef.current.pauseVideo();
+      setIsPaused(true);
+    }
+  }, [isPaused]);
+
+  const handleNext = useCallback(() => {
+    if (playerRef.current && activeStation?.type === 'playlist') {
+      playerRef.current.nextVideo();
+      setIsPaused(false);
+    }
+  }, [activeStation]);
+
+  const handlePrev = useCallback(() => {
+    if (playerRef.current && activeStation?.type === 'playlist') {
+      playerRef.current.previousVideo();
+      setIsPaused(false);
+    }
+  }, [activeStation]);
 
   // Volume change
   const handleVolumeChange = useCallback((vals: number[]) => {
@@ -227,20 +261,47 @@ export function RadioPlayer() {
 
         {/* Now playing */}
         {activeStation && (
-          <div className={`px-4 py-2 text-sm flex items-center gap-2 border-b ${isLoading ? 'bg-muted/20' : 'bg-primary/10'}`}>
-            <span className="text-base">{activeStation.emoji}</span>
-            <div className="flex-1 min-w-0">
-              <p className="font-medium truncate text-xs">{activeStation.label}</p>
-              <p className="text-xs text-muted-foreground">
-                {isLoading ? 'Connecting...' : (activeStation.isLive ? 'Live' : 'Playing')}
-              </p>
+          <div className={`px-4 py-3 flex flex-col gap-2 border-b ${isLoading ? 'bg-muted/20' : 'bg-primary/5'}`}>
+            <div className="flex items-center gap-2">
+              <span className="text-base">{activeStation.emoji}</span>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium truncate text-xs">{activeStation.label}</p>
+                <p className="text-xs text-muted-foreground">
+                  {isLoading ? 'Connecting...' : (activeStation.isLive ? 'Live' : (isPaused ? 'Paused' : 'Playing'))}
+                </p>
+              </div>
+              {isPlaying && !isPaused && <span className="flex gap-0.5 ml-2">
+                {[1,2,3].map(i => (
+                  <span key={i} className="w-0.5 bg-primary rounded-full animate-bounce"
+                    style={{ height: `${8 + i * 3}px`, animationDelay: `${i * 0.1}s` }} />
+                ))}
+              </span>}
             </div>
-            {isPlaying && <span className="flex gap-0.5">
-              {[1,2,3].map(i => (
-                <span key={i} className="w-0.5 bg-primary rounded-full animate-bounce"
-                  style={{ height: `${8 + i * 3}px`, animationDelay: `${i * 0.1}s` }} />
-              ))}
-            </span>}
+            
+            {/* Playback Controls Row */}
+            {isPlaying && !isLoading && (
+              <div className="flex items-center justify-center gap-4 mt-1">
+                {activeStation.type === 'playlist' && (
+                  <Button size="icon" variant="ghost" onClick={handlePrev} className="h-8 w-8 text-muted-foreground hover:text-foreground">
+                    <SkipBack className="h-4 w-4" fill="currentColor" />
+                  </Button>
+                )}
+                
+                <Button size="icon" variant="ghost" onClick={togglePlayPause} className="h-10 w-10 text-primary hover:text-primary hover:bg-primary/10 rounded-full">
+                  {isPaused ? (
+                    <Play className="h-5 w-5 ml-0.5" fill="currentColor" />
+                  ) : (
+                    <Pause className="h-5 w-5" fill="currentColor" />
+                  )}
+                </Button>
+
+                {activeStation.type === 'playlist' && (
+                  <Button size="icon" variant="ghost" onClick={handleNext} className="h-8 w-8 text-muted-foreground hover:text-foreground">
+                    <SkipForward className="h-4 w-4" fill="currentColor" />
+                  </Button>
+                )}
+              </div>
+            )}
           </div>
         )}
 
