@@ -9,6 +9,7 @@ import { KeyboardShortcutsDialog } from '@/components/KeyboardShortcutsDialog';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
 import { OPEN_QUICK_ADD_EVENT, useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
 import { AppWalkthrough } from '@/components/AppWalkthrough';
+import { FloatingMediaMenu } from '@/components/FloatingMediaMenu';
 
 /**
  * Layout component - Root layout route for the application.
@@ -68,6 +69,7 @@ export function Layout() {
           <QuickAddModal open={showQuickAdd} onOpenChange={setShowQuickAdd} />
           <KeyboardShortcutsDialog open={showShortcuts} onOpenChange={setShowShortcuts} />
           <AppWalkthrough />
+          <FloatingMediaMenu />
         </div>
       </div>
     </SidebarProvider>
