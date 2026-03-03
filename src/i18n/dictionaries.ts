@@ -59,7 +59,7 @@ export const dictionaries = {
     'focus.count.subtitle': 'Saat ini menampilkan {count} tugas',
     'focus.empty': 'Tidak ada tugas aktif saat ini. Tambahkan atau buka kembali tugas untuk membangun sesi fokus Anda berikutnya.',
 
-    // Pomodoro
+    // Pomodoro Timer
     'pomodoro.title': 'Waktu Pomodoro',
     'pomodoro.focus': 'Sesi Fokus',
     'pomodoro.break': 'Istirahat',
@@ -68,9 +68,20 @@ export const dictionaries = {
     'pomodoro.reset': 'Ulangi',
     'pomodoro.sound.label': 'Suara Latar',
     'pomodoro.sound.none': 'Tidak Ada',
+    'pomodoro.mode.focus': 'Fokus {n}m',
+    'pomodoro.mode.break': 'Istirahat {n}m',
 
     // Settings
     'settings.title': 'Pengaturan',
+    'settings.data.clear.title': 'Apakah Anda yakin?',
+    'settings.data.clear.desc': 'Ini akan menghapus semua tugas Anda secara permanen. Tindakan ini tidak dapat dibatalkan.',
+    'settings.data.clear.cancel': 'Batal',
+    'settings.data': 'Data',
+    'settings.data.subtitle': 'Ekspor / Impor',
+    'settings.integrations': 'Integrasi',
+    'settings.spotify.enable': 'Aktifkan Spotify Player',
+    'settings.spotify.desc': 'Tampilkan pemutar musik Spotify.',
+    'settings.spotify.req': 'Memerlukan akun Spotify Premium.',
     'settings.appearance': 'Penampilan',
     'settings.theme': 'Tema',
     'settings.theme.light': 'Terang',
@@ -79,14 +90,20 @@ export const dictionaries = {
     'settings.language': 'Bahasa',
     'settings.language.id': 'Bahasa Indonesia',
     'settings.language.en': 'English',
+    'settings.language.desc': 'Pilih bahasa pilihan Anda / Choose your preferred language.',
     'settings.pomodoro': 'Pengaturan Pomodoro',
+    'settings.pomodoro.desc': 'Sesuaikan durasi sesi fokus dan istirahat.',
     'settings.pomodoro.focus': 'Durasi Fokus (menit)',
     'settings.pomodoro.break': 'Durasi Istirahat (menit)',
+    'settings.pomodoro.focus.hint': 'Nilai antara 1 hingga 90 menit',
+    'settings.pomodoro.break.hint': 'Nilai antara 1 hingga 30 menit',
+    'settings.notifications.enable': 'Aktifkan Notifikasi Desktop',
+    'settings.notifications.desc': 'Tampilkan notifikasi saat sesi fokus atau istirahat selesai.',
     'settings.account': 'Akun',
     'settings.account.desc': 'Kelola pengaturan akun dan sesi Anda.',
     'settings.account.logout': 'Keluar',
 
-    // Context Menu
+    // Auth
     'auth.login': 'Masuk ke Kuadran',
     'auth.signup': 'Buat akun',
     'auth.email': 'Email',
@@ -154,7 +171,7 @@ export const dictionaries = {
     'focus.count.subtitle': 'Currently showing {count} tasks',
     'focus.empty': 'No active tasks right now. Add or reopen tasks to build your next focus session.',
 
-    // Pomodoro
+    // Pomodoro Timer
     'pomodoro.title': 'Pomodoro Timer',
     'pomodoro.focus': 'Focus Session',
     'pomodoro.break': 'Break',
@@ -163,12 +180,16 @@ export const dictionaries = {
     'pomodoro.reset': 'Reset',
     'pomodoro.sound.label': 'Background Sound',
     'pomodoro.sound.none': 'None',
+    'pomodoro.mode.focus': 'Focus {n}m',
+    'pomodoro.mode.break': 'Break {n}m',
 
     // Settings
     'settings.title': 'Settings',
     'settings.data.clear.title': 'Are you sure?',
     'settings.data.clear.desc': 'This will permanently delete all your tasks. This action cannot be undone.',
     'settings.data.clear.cancel': 'Cancel',
+    'settings.data': 'Data',
+    'settings.data.subtitle': 'Export / Import',
     'settings.integrations': 'Integrations',
     'settings.spotify.enable': 'Enable Spotify Player',
     'settings.spotify.desc': 'Show Spotify music player.',
@@ -181,14 +202,20 @@ export const dictionaries = {
     'settings.language': 'Language',
     'settings.language.id': 'Bahasa Indonesia',
     'settings.language.en': 'English',
+    'settings.language.desc': 'Choose your preferred language / Pilih bahasa pilihan Anda.',
     'settings.pomodoro': 'Pomodoro Settings',
+    'settings.pomodoro.desc': 'Customize your focus and break session durations.',
     'settings.pomodoro.focus': 'Focus Duration (minutes)',
     'settings.pomodoro.break': 'Break Duration (minutes)',
+    'settings.pomodoro.focus.hint': 'Value between 1 and 90 minutes',
+    'settings.pomodoro.break.hint': 'Value between 1 and 30 minutes',
+    'settings.notifications.enable': 'Enable Desktop Notifications',
+    'settings.notifications.desc': 'Show a notification when a focus or break session ends.',
     'settings.account': 'Account',
     'settings.account.desc': 'Manage your account settings and session.',
     'settings.account.logout': 'Sign out',
 
-    // Context Menu
+    // Auth
     'auth.login': 'Sign in to Quadrant',
     'auth.signup': 'Create an account',
     'auth.email': 'Email',
@@ -196,7 +223,7 @@ export const dictionaries = {
     'auth.submit.login': 'Sign In',
     'auth.submit.signup': 'Sign Up',
     'auth.toggle.login': 'Already have an account? Sign in',
-    'auth.toggle.signup': 'Don\'t have an account? Sign up'
+    'auth.toggle.signup': "Don't have an account? Sign up"
   }
 };
 

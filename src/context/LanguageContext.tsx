@@ -9,10 +9,24 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguageState] = useState<Language>('id');
+/** Detect the best-matching supported language from the browser locale string. */
+function detectBrowserLanguage(): Language {
+  const locale = navigator.language || '';
+  const primary = locale.split('-')[0].toLowerCase();
+  if (primary === 'id') return 'id';
+  return 'en';
+}
 
-  // Load saved language on mount
+export function LanguageProvider({ children }: { children: React.ReactNode }) {
+  const [language, setLanguageState] = useState<Language>(() => {
+    // 1. Check localStorage preference first
+    const saved = localStorage.getItem('app_language');
+    if (saved === 'en' || saved === 'id') return saved;
+    // 2. Fall back to browser language
+    return detectBrowserLanguage();
+  });
+
+  // Sync on mount in case localStorage was updated by another tab
   useEffect(() => {
     const saved = localStorage.getItem('app_language');
     if (saved === 'en' || saved === 'id') {
@@ -27,8 +41,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   const t = (key: TranslationKey, params?: Record<string, string | number>): string => {
     let text = dictionaries[language][key] || dictionaries['en'][key] || key;
-    
-    // Simple interpolation for params like {count}
+
     if (params) {
       Object.entries(params).forEach(([k, v]) => {
         text = text.replace(`{${k}}`, String(v));
