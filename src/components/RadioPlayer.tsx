@@ -5,26 +5,32 @@ import { Slider } from '@/components/ui/slider';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 // ── Station Registry ──────────────────────────────────────────────────────────
-// All IDs are 24/7 YouTube live streams. Views count for the creators.
+// Mix of 24/7 live streams and long-form recorded videos.
 export interface RadioStation {
   id: string;
   label: string;
-  videoId: string;
-  category: 'general' | 'islamic';
+  videoId: string; // Used for both videoId and playlistId depending on the 'type'
+  category: 'general' | 'islamic' | 'local';
   emoji: string;
+  isLive?: boolean;
+  type?: 'video' | 'playlist';
 }
 
 export const RADIO_STATIONS: RadioStation[] = [
   // General
-  { id: 'lofi-girl-study',  label: 'Lofi Girl — Study',  videoId: 'jfKfPfyJRdk', category: 'general', emoji: '📚' },
-  { id: 'lofi-girl-sleep',  label: 'Lofi Girl — Sleep',  videoId: '28KRPhVzCus', category: 'general', emoji: '🌙' },
-  { id: 'chillhop',         label: 'Chillhop Radio',     videoId: 'Mq-3Sjg41n4', category: 'general', emoji: '🎷' },
-  { id: 'lofi-cafe',        label: 'Lofi Cafe',          videoId: '7NOSDKb0HlU', category: 'general', emoji: '🍵' },
-  { id: 'coffee-shop',      label: 'Coffee Shop Radio',  videoId: 'kx3pDfBNwbM', category: 'general', emoji: '☕' },
+  { id: 'lofi-girl-study',  label: 'Lofi Girl — Study',  videoId: 'jfKfPfyJRdk', category: 'general', emoji: '📚', isLive: true },
+  { id: 'lofi-girl-sleep',  label: 'Lofi Girl — Sleep',  videoId: '28KRPhVzCus', category: 'general', emoji: '🌙', isLive: true },
+  { id: 'chillhop',         label: 'Chillhop Radio',     videoId: 'Mq-3Sjg41n4', category: 'general', emoji: '🎷', isLive: true },
+  { id: 'lofi-cafe',        label: 'Lofi Cafe',          videoId: '7NOSDKb0HlU', category: 'general', emoji: '🍵', isLive: true },
+  { id: 'coffee-shop',      label: 'Coffee Shop Radio',  videoId: '2JvP0K529Pg', category: 'general', emoji: '☕' },
   // Islamic
-  { id: 'lofi-quran',       label: 'Lofi Quran',         videoId: '6IseLQU-o8s', category: 'islamic', emoji: '📿' },
-  { id: 'lofi-quran-anime', label: 'Lofi Quran — Anime', videoId: '_sS26f_HIUk', category: 'islamic', emoji: '🕌' },
-  { id: 'quran-peaceful',   label: 'Quran Peaceful',     videoId: 'd3h9bAS71B0', category: 'islamic', emoji: '☮️' },
+  { id: 'lofi-quran',       label: 'Lofi Quran',         videoId: 'uZOx0O5TIZk', category: 'islamic', emoji: '📿' },
+  { id: 'lofi-quran-anime', label: 'Lofi Quran — Anime', videoId: 'kJKR0igjeSQ', category: 'islamic', emoji: '🕌' },
+  { id: 'quran-peaceful',   label: 'Quran Peaceful',     videoId: 'r4W3v8h04IM', category: 'islamic', emoji: '☮️' },
+  { id: 'mufti-menk',       label: 'Mufti Menk',         videoId: 'PL9821CA747E7E0674', category: 'islamic', emoji: '🎙️', type: 'playlist' },
+  { id: 'sirah-nabawiyah',  label: 'Sirah Nabawiyah',    videoId: 'PLUuYlj8dcEXahjDZko8Qh1JnWrfsmXAIR', category: 'islamic', emoji: '📖', type: 'playlist' },
+  // Local
+  { id: 'indie-id',         label: 'Indie Indonesia',    videoId: 'PLHTmKJXs4YndjNRWNgte15icqYQWNpD2r', category: 'local',   emoji: '🇮🇩', type: 'playlist' },
 ];
 
 // ── YouTube IFrame API types ──────────────────────────────────────────────────
@@ -102,8 +108,8 @@ export function RadioPlayer() {
     document.body.appendChild(div);
     containerRef.current = div;
 
-    playerRef.current = new window.YT.Player(div, {
-      videoId: station.videoId,
+    const isPlaylist = station.type === 'playlist';
+    const playerOpts: any = {
       playerVars: {
         autoplay: 1,
         controls: 0,
@@ -112,9 +118,13 @@ export function RadioPlayer() {
         iv_load_policy: 3,
         modestbranding: 1,
         rel: 0,
+        ...(isPlaylist && {
+          listType: 'playlist',
+          list: station.videoId,
+        })
       },
       events: {
-        onReady: (e) => {
+        onReady: (e: { target: YTPlayer & { playVideo: () => void, setVolume: (v: number) => void } }) => {
           e.target.setVolume(volume);
           e.target.playVideo();
           setIsPlaying(true);
@@ -125,7 +135,13 @@ export function RadioPlayer() {
           setIsPlaying(false);
         },
       },
-    });
+    };
+
+    if (!isPlaylist) {
+      playerOpts.videoId = station.videoId;
+    }
+
+    playerRef.current = new window.YT.Player(div, playerOpts);
   }, [destroyPlayer, volume]);
 
   // Stop station
@@ -168,6 +184,7 @@ export function RadioPlayer() {
 
   const generalStations = RADIO_STATIONS.filter(s => s.category === 'general');
   const islamicStations = RADIO_STATIONS.filter(s => s.category === 'islamic');
+  const localStations   = RADIO_STATIONS.filter(s => s.category === 'local');
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
@@ -214,7 +231,9 @@ export function RadioPlayer() {
             <span className="text-base">{activeStation.emoji}</span>
             <div className="flex-1 min-w-0">
               <p className="font-medium truncate text-xs">{activeStation.label}</p>
-              <p className="text-xs text-muted-foreground">{isLoading ? 'Connecting...' : 'Live'}</p>
+              <p className="text-xs text-muted-foreground">
+                {isLoading ? 'Connecting...' : (activeStation.isLive ? 'Live' : 'Playing')}
+              </p>
             </div>
             {isPlaying && <span className="flex gap-0.5">
               {[1,2,3].map(i => (
@@ -251,6 +270,25 @@ export function RadioPlayer() {
             Islamic
           </p>
           {islamicStations.map(station => (
+            <button
+              key={station.id}
+              onClick={() => activeStation?.id === station.id && isPlaying ? stopStation() : startStation(station)}
+              className={`w-full flex items-center gap-3 px-4 py-2 text-sm hover:bg-muted/50 transition-colors
+                ${activeStation?.id === station.id ? 'bg-primary/10 text-primary' : ''}`}
+            >
+              <span className="text-base">{station.emoji}</span>
+              <span className="flex-1 text-left truncate">{station.label}</span>
+              {activeStation?.id === station.id && isPlaying && (
+                <ChevronDown className="h-3 w-3 text-primary" />
+              )}
+            </button>
+          ))}
+
+          {/* Local */}
+          <p className="px-4 pt-3 pb-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            Local
+          </p>
+          {localStations.map(station => (
             <button
               key={station.id}
               onClick={() => activeStation?.id === station.id && isPlaying ? stopStation() : startStation(station)}
