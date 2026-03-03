@@ -48,7 +48,7 @@ export default function Dashboard() {
           <h1 className="font-display text-2xl font-bold tracking-tight truncate">{t('dashboard.overview' as any)}</h1>
           <p className="text-sm text-muted-foreground truncate">{t('dashboard.welcome' as any)}</p>
         </div>
-        <Button onClick={openQuickAdd} className="gap-2 shadow-sm shrink-0" id="tour-add-task">
+        <Button onClick={openQuickAdd} className="hidden md:flex gap-2 shadow-sm shrink-0" id="tour-add-task">
           <Plus className="h-4 w-4" />
           <span className="hidden sm:inline">{t('tasks.add' as any)}</span>
         </Button>
