@@ -28,7 +28,7 @@ export function FloatingMediaMenu() {
   // If Spotify is not enabled, return just the radio player wrapped in the fixed container it used to have.
   if (!isSpotifyEnabled) {
     return (
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className="fixed bottom-[100px] md:bottom-6 right-4 md:right-6 z-50">
         <RadioPlayer />
       </div>
     );
@@ -36,7 +36,7 @@ export function FloatingMediaMenu() {
 
   // If enabled, return the combined speed dial.
   return (
-    <div ref={menuRef} className="fixed bottom-6 right-6 z-50 flex flex-col-reverse items-end gap-3">
+    <div ref={menuRef} className="fixed bottom-[100px] md:bottom-6 right-4 md:right-6 z-50 flex flex-col-reverse items-end gap-3">
       {/* Main Toggle Button */}
       <Button
         size="icon"
