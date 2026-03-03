@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { Music, Radio, Square, Volume2, VolumeX, ChevronDown, Play, Pause, SkipForward, SkipBack } from 'lucide-react';
+import { Music, Radio, Square, Volume2, VolumeX, ChevronDown, ChevronRight, Play, Pause, SkipForward, SkipBack } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -10,10 +10,10 @@ export interface RadioStation {
   id: string;
   label: string;
   videoId: string; // Used for both videoId and playlistId depending on the 'type'
-  category: 'general' | 'islamic' | 'local';
+  category: 'general' | 'islamic' | 'local' | 'podcast';
   emoji: string;
   isLive?: boolean;
-  type?: 'video' | 'playlist';
+  type?: 'video' | 'playlist' | 'search';
 }
 
 export const RADIO_STATIONS: RadioStation[] = [
@@ -31,6 +31,16 @@ export const RADIO_STATIONS: RadioStation[] = [
   { id: 'sirah-nabawiyah',  label: 'Sirah Nabawiyah',    videoId: 'PLUuYlj8dcEXahjDZko8Qh1JnWrfsmXAIR', category: 'islamic', emoji: '📖', type: 'playlist' },
   // Local
   { id: 'indie-id',         label: 'Indie Indonesia',    videoId: 'PLHTmKJXs4YndjNRWNgte15icqYQWNpD2r', category: 'local',   emoji: '🇮🇩', type: 'playlist' },
+  // Podcasts
+  { id: 'endgame',          label: 'Endgame (Gita Wirjawan)',  videoId: 'PL-hh_bKgnJ6FqDJwTs5YB3xMvQrFCDSoJ', category: 'podcast', emoji: '🎧', type: 'playlist' },
+  { id: 'sepulang-sekolah', label: 'Sepulang Sekolah',         videoId: 'PLfN58YcV819YaV1FzBEqbvkoe6vIra-aH', category: 'podcast', emoji: '📚', type: 'playlist' },
+  { id: 'login-podcast',    label: 'Login (Habib Jafar)',      videoId: 'PLe_K9e2LM-ilpMuQv7vyrKds0FdjBznFp', category: 'podcast', emoji: '☪️', type: 'playlist' },
+  { id: 'suara-berkelas',   label: 'Suara Berkelas',           videoId: 'suara berkelas podcast motivasi', category: 'podcast', emoji: '⭐', type: 'search'    },
+  { id: 'bagus-muljadi',    label: 'Podcast Bagus Muljadi',    videoId: 'bagus muljadi podcast', category: 'podcast', emoji: '💡', type: 'search'    },
+  { id: 'raditya-dika',     label: 'Raditya Dika Podcast',     videoId: 'raditya dika podcast seminggu', category: 'podcast', emoji: '😂', type: 'search'    },
+  { id: 'what-is-up-id',    label: 'What is Up Indonesia',     videoId: 'what is up indonesia wiui', category: 'podcast', emoji: '🇮🇩', type: 'search'    },
+  { id: 'bocor-alus',       label: 'Bocor Alus Politik',       videoId: 'bocor alus politik tempo', category: 'podcast', emoji: '📰', type: 'search'    },
+  { id: 'putbal',           label: 'Podcast Main Bola',        videoId: 'podcast main bola indonesia', category: 'podcast', emoji: '⚽', type: 'search'    },
 ];
 
 // ── YouTube IFrame API types ──────────────────────────────────────────────────
@@ -41,6 +51,7 @@ interface YTPlayer {
   pauseVideo: () => void;
   nextVideo: () => void;
   previousVideo: () => void;
+  getVideoData: () => { video_id: string; title: string; author: string };
   stopVideo: () => void;
   destroy: () => void;
 }
@@ -50,11 +61,12 @@ declare global {
       Player: new (
         el: HTMLElement | string,
         opts: {
-          videoId: string;
+          videoId?: string;
           playerVars?: Record<string, number | string>;
           events?: {
             onReady?: (e: { target: YTPlayer }) => void;
             onError?: (e: { data: number }) => void;
+            onStateChange?: (e: { data: number; target: YTPlayer }) => void;
           };
         }
       ) => YTPlayer;
@@ -86,9 +98,11 @@ export function RadioPlayer() {
   const [volume, setVolume] = useState(70);
   const [isMuted, setIsMuted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [currentVideoTitle, setCurrentVideoTitle] = useState('');
 
   const playerRef = useRef<YTPlayer | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const lastFetchedVideoIdRef = useRef<string | null>(null);
 
   // Destroy existing player
   const destroyPlayer = useCallback(() => {
@@ -103,6 +117,8 @@ export function RadioPlayer() {
     setActiveStation(station);
     setIsPlaying(false);
     setIsPaused(false);
+    setCurrentVideoTitle('');
+    lastFetchedVideoIdRef.current = null;
 
     await loadYouTubeAPI();
 
@@ -114,6 +130,7 @@ export function RadioPlayer() {
     containerRef.current = div;
 
     const isPlaylist = station.type === 'playlist';
+    const isSearch = station.type === 'search';
     const playerOpts: any = {
       playerVars: {
         autoplay: 1,
@@ -126,6 +143,10 @@ export function RadioPlayer() {
         ...(isPlaylist && {
           listType: 'playlist',
           list: station.videoId,
+        }),
+        ...(isSearch && {
+          listType: 'search',
+          list: station.videoId,
         })
       },
       events: {
@@ -136,6 +157,25 @@ export function RadioPlayer() {
           setIsPaused(false);
           setIsLoading(false);
         },
+        onStateChange: (e: { data: number; target: YTPlayer }) => {
+          // YT.PlayerState.PLAYING = 1
+          if (e.data === 1) {
+            try {
+              const videoData = e.target.getVideoData();
+              if (videoData?.video_id && videoData.video_id !== lastFetchedVideoIdRef.current) {
+                lastFetchedVideoIdRef.current = videoData.video_id;
+                // Fetch title via noembed (no API key needed)
+                const url = `https://www.youtube.com/watch?v=${videoData.video_id}`;
+                fetch(`https://noembed.com/embed?url=${url}`)
+                  .then(r => r.json())
+                  .then(d => { if (d.title) setCurrentVideoTitle(d.title); })
+                  .catch(() => {});
+              }
+            } catch {
+              // getVideoData may fail on some stations; silently ignore
+            }
+          }
+        },
         onError: () => {
           setIsLoading(false);
           setIsPlaying(false);
@@ -144,7 +184,7 @@ export function RadioPlayer() {
       },
     };
 
-    if (!isPlaylist) {
+    if (!isPlaylist && !isSearch) {
       playerOpts.videoId = station.videoId;
     }
 
@@ -161,6 +201,8 @@ export function RadioPlayer() {
     setActiveStation(null);
     setIsPlaying(false);
     setIsPaused(false);
+    setCurrentVideoTitle('');
+    lastFetchedVideoIdRef.current = null;
   }, [destroyPlayer]);
 
   // Playback Controls
@@ -219,6 +261,45 @@ export function RadioPlayer() {
   const generalStations = RADIO_STATIONS.filter(s => s.category === 'general');
   const islamicStations = RADIO_STATIONS.filter(s => s.category === 'islamic');
   const localStations   = RADIO_STATIONS.filter(s => s.category === 'local');
+  const podcastStations = RADIO_STATIONS.filter(s => s.category === 'podcast');
+
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    general: true, islamic: true, local: true, podcast: false
+  });
+
+  const toggleSection = (key: string) =>
+    setOpenSections(prev => ({ ...prev, [key]: !prev[key] }));
+
+  const renderStation = (station: RadioStation) => (
+    <button
+      key={station.id}
+      onClick={() => activeStation?.id === station.id && isPlaying ? stopStation() : startStation(station)}
+      className={`w-full flex items-center gap-3 px-4 py-2 text-sm hover:bg-muted/50 transition-colors
+        ${activeStation?.id === station.id ? 'bg-primary/10 text-primary' : ''}`}
+    >
+      <span className="text-base">{station.emoji}</span>
+      <span className="flex-1 text-left truncate">{station.label}</span>
+      {activeStation?.id === station.id && isPlaying && (
+        <ChevronDown className="h-3 w-3 text-primary" />
+      )}
+    </button>
+  );
+
+  const renderCategory = (label: string, key: string, stations: RadioStation[]) => (
+    <>
+      <button
+        onClick={() => toggleSection(key)}
+        className="w-full flex items-center justify-between px-4 pt-3 pb-1 hover:bg-muted/30 transition-colors"
+      >
+        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{label}</span>
+        {openSections[key]
+          ? <ChevronDown className="h-3 w-3 text-muted-foreground" />
+          : <ChevronRight className="h-3 w-3 text-muted-foreground" />
+        }
+      </button>
+      {openSections[key] && stations.map(renderStation)}
+    </>
+  );
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
@@ -262,26 +343,33 @@ export function RadioPlayer() {
         {/* Now playing */}
         {activeStation && (
           <div className={`px-4 py-3 flex flex-col gap-2 border-b ${isLoading ? 'bg-muted/20' : 'bg-primary/5'}`}>
-            <div className="flex items-center gap-2">
-              <span className="text-base">{activeStation.emoji}</span>
+            <div className="flex items-start gap-3">
+              <span className="text-xl mt-0.5">{activeStation.emoji}</span>
               <div className="flex-1 min-w-0">
-                <p className="font-medium truncate text-xs">{activeStation.label}</p>
-                <p className="text-xs text-muted-foreground">
-                  {isLoading ? 'Connecting...' : (activeStation.isLive ? 'Live' : (isPaused ? 'Paused' : 'Playing'))}
-                </p>
+                <p className="font-semibold truncate text-sm text-foreground">{activeStation.label}</p>
+                {currentVideoTitle && !isLoading && (
+                  <p className="text-xs font-medium text-primary mt-0.5 line-clamp-2 leading-tight pr-2">
+                    {currentVideoTitle}
+                  </p>
+                )}
+                <div className="flex items-center gap-2 mt-1">
+                  <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-semibold">
+                    {isLoading ? 'Connecting...' : (activeStation.isLive ? 'Live' : (isPaused ? 'Paused' : 'Playing'))}
+                  </p>
+                  {isPlaying && !isPaused && <span className="flex gap-0.5 ml-1">
+                    {[1,2,3].map(i => (
+                      <span key={i} className="w-0.5 bg-primary rounded-full animate-bounce"
+                        style={{ height: `${8 + i * 3}px`, animationDelay: `${i * 0.1}s` }} />
+                    ))}
+                  </span>}
+                </div>
               </div>
-              {isPlaying && !isPaused && <span className="flex gap-0.5 ml-2">
-                {[1,2,3].map(i => (
-                  <span key={i} className="w-0.5 bg-primary rounded-full animate-bounce"
-                    style={{ height: `${8 + i * 3}px`, animationDelay: `${i * 0.1}s` }} />
-                ))}
-              </span>}
             </div>
             
             {/* Playback Controls Row */}
             {isPlaying && !isLoading && (
               <div className="flex items-center justify-center gap-4 mt-1">
-                {activeStation.type === 'playlist' && (
+                {(activeStation.type === 'playlist' || activeStation.type === 'search') && (
                   <Button size="icon" variant="ghost" onClick={handlePrev} className="h-8 w-8 text-muted-foreground hover:text-foreground">
                     <SkipBack className="h-4 w-4" fill="currentColor" />
                   </Button>
@@ -295,7 +383,7 @@ export function RadioPlayer() {
                   )}
                 </Button>
 
-                {activeStation.type === 'playlist' && (
+                {(activeStation.type === 'playlist' || activeStation.type === 'search') && (
                   <Button size="icon" variant="ghost" onClick={handleNext} className="h-8 w-8 text-muted-foreground hover:text-foreground">
                     <SkipForward className="h-4 w-4" fill="currentColor" />
                   </Button>
@@ -306,63 +394,11 @@ export function RadioPlayer() {
         )}
 
         {/* Stations */}
-        <div className="max-h-64 overflow-y-auto py-2">
-          {/* General */}
-          <p className="px-4 pt-1 pb-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            General
-          </p>
-          {generalStations.map(station => (
-            <button
-              key={station.id}
-              onClick={() => activeStation?.id === station.id && isPlaying ? stopStation() : startStation(station)}
-              className={`w-full flex items-center gap-3 px-4 py-2 text-sm hover:bg-muted/50 transition-colors
-                ${activeStation?.id === station.id ? 'bg-primary/10 text-primary' : ''}`}
-            >
-              <span className="text-base">{station.emoji}</span>
-              <span className="flex-1 text-left truncate">{station.label}</span>
-              {activeStation?.id === station.id && isPlaying && (
-                <ChevronDown className="h-3 w-3 text-primary" />
-              )}
-            </button>
-          ))}
-
-          {/* Islamic */}
-          <p className="px-4 pt-3 pb-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            Islamic
-          </p>
-          {islamicStations.map(station => (
-            <button
-              key={station.id}
-              onClick={() => activeStation?.id === station.id && isPlaying ? stopStation() : startStation(station)}
-              className={`w-full flex items-center gap-3 px-4 py-2 text-sm hover:bg-muted/50 transition-colors
-                ${activeStation?.id === station.id ? 'bg-primary/10 text-primary' : ''}`}
-            >
-              <span className="text-base">{station.emoji}</span>
-              <span className="flex-1 text-left truncate">{station.label}</span>
-              {activeStation?.id === station.id && isPlaying && (
-                <ChevronDown className="h-3 w-3 text-primary" />
-              )}
-            </button>
-          ))}
-
-          {/* Local */}
-          <p className="px-4 pt-3 pb-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            Local
-          </p>
-          {localStations.map(station => (
-            <button
-              key={station.id}
-              onClick={() => activeStation?.id === station.id && isPlaying ? stopStation() : startStation(station)}
-              className={`w-full flex items-center gap-3 px-4 py-2 text-sm hover:bg-muted/50 transition-colors
-                ${activeStation?.id === station.id ? 'bg-primary/10 text-primary' : ''}`}
-            >
-              <span className="text-base">{station.emoji}</span>
-              <span className="flex-1 text-left truncate">{station.label}</span>
-              {activeStation?.id === station.id && isPlaying && (
-                <ChevronDown className="h-3 w-3 text-primary" />
-              )}
-            </button>
-          ))}
+        <div className="max-h-80 overflow-y-auto py-2">
+          {renderCategory('General', 'general', generalStations)}
+          {renderCategory('Islamic', 'islamic', islamicStations)}
+          {renderCategory('Local', 'local', localStations)}
+          {renderCategory('Podcast 🎙️', 'podcast', podcastStations)}
         </div>
 
         {/* Volume */}
