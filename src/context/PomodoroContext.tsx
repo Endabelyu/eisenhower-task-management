@@ -1,7 +1,8 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { requestNotificationPermission, notify } from '@/lib/notifications';
 
-export const FOCUS_SECONDS = 25 * 60;
-export const BREAK_SECONDS = 5 * 60;
+export const DEFAULT_FOCUS_MINUTES = 25;
+export const DEFAULT_BREAK_MINUTES = 5;
 
 export const formatTime = (seconds: number) => {
   const minutes = String(Math.floor(seconds / 60)).padStart(2, '0');
@@ -28,24 +29,49 @@ interface PomodoroContextType {
   ambience: AmbienceType;
   volume: number;
   isPlaying: boolean;
+  focusMinutes: number;
+  breakMinutes: number;
+  notificationsEnabled: boolean;
   setSessionMode: (mode: 'focus' | 'break') => void;
   resetTimer: () => void;
   toggleTimer: () => Promise<void>;
   setAmbience: (ambience: AmbienceType) => void;
   setVolume: (volume: number) => void;
+  setFocusMinutes: (minutes: number) => void;
+  setBreakMinutes: (minutes: number) => void;
+  setNotificationsEnabled: (enabled: boolean) => void;
   totalSeconds: number;
 }
 
 const PomodoroContext = createContext<PomodoroContextType | undefined>(undefined);
 
+function loadNumber(key: string, defaultValue: number): number {
+  const raw = localStorage.getItem(key);
+  if (raw === null) return defaultValue;
+  const parsed = parseInt(raw, 10);
+  return isNaN(parsed) ? defaultValue : parsed;
+}
+
 export function PomodoroProvider({ children }: { children: ReactNode }) {
   const [mode, setMode] = useState<'focus' | 'break'>('focus');
-  const [secondsLeft, setSecondsLeft] = useState(FOCUS_SECONDS);
+  const [focusMinutes, setFocusMinutesState] = useState<number>(() =>
+    loadNumber('pomodoro_focus_minutes', DEFAULT_FOCUS_MINUTES)
+  );
+  const [breakMinutes, setBreakMinutesState] = useState<number>(() =>
+    loadNumber('pomodoro_break_minutes', DEFAULT_BREAK_MINUTES)
+  );
+  const [secondsLeft, setSecondsLeft] = useState(() => loadNumber('pomodoro_focus_minutes', DEFAULT_FOCUS_MINUTES) * 60);
   const [running, setRunning] = useState(false);
   const [ambience, setAmbience] = useState<AmbienceType>('none');
   const [volume, setVolume] = useState(30);
   const [audio] = useState(() => new window.Audio());
   const [isPlaying, setIsPlaying] = useState(false);
+  const [notificationsEnabled, setNotificationsEnabledState] = useState<boolean>(() => {
+    return localStorage.getItem('pomodoro_notifications_enabled') !== 'false';
+  });
+
+  const focusSeconds = focusMinutes * 60;
+  const breakSeconds = breakMinutes * 60;
 
   useEffect(() => {
     if (!running) {
@@ -64,28 +90,18 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
         }
 
         document.title = `✅ ${mode === 'focus' ? 'Focus' : 'Break'} Complete!`;
-        
-        if ('Notification' in window && Notification.permission === 'granted') {
-          const notificationTitle = mode === 'focus' ? 'Focus Session Complete!' : 'Break Complete!';
-          const notificationBody = mode === 'focus' 
-            ? "Time's up! Take a break." 
-            : "Break is over! Ready to focus?";
-            
-          const notification = new Notification(notificationTitle, {
-            body: notificationBody,
-            requireInteraction: true,
-          });
 
-          notification.onclick = () => {
-            window.focus();
-            notification.close();
-          };
+        if (notificationsEnabled) {
+          const notificationTitle = mode === 'focus' ? 'Focus Session Complete!' : 'Break Complete!';
+          const notificationBody =
+            mode === 'focus' ? "Time's up! Take a break." : 'Break is over! Ready to focus?';
+          notify(notificationTitle, notificationBody);
         }
 
         const nextMode = mode === 'focus' ? 'break' : 'focus';
         setMode(nextMode);
         setRunning(false);
-        return nextMode === 'focus' ? FOCUS_SECONDS : BREAK_SECONDS;
+        return nextMode === 'focus' ? focusSeconds : breakSeconds;
       });
     }, 1000);
 
@@ -93,27 +109,25 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
       window.clearInterval(timerId);
       document.title = 'Eisenhower Matrix';
     };
-  }, [mode, running]);
+  }, [mode, running, notificationsEnabled, focusSeconds, breakSeconds]);
 
   useEffect(() => {
     const sound = AMBIENCE_SOUNDS[ambience];
-    
+
     if (!sound.url) {
       audio.pause();
       setIsPlaying(false);
       return;
     }
 
-    // Only update src if it changed to avoid reloading the same audio
     if (!audio.src.endsWith(sound.url)) {
       audio.src = sound.url;
       audio.load();
     }
-    
+
     audio.loop = true;
     audio.volume = volume / 100;
 
-    // Play only when the timer is running
     if (running) {
       audio.play()
         .then(() => setIsPlaying(true))
@@ -136,31 +150,48 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
     audio.volume = volume / 100;
   }, [volume, audio]);
 
+  const setFocusMinutes = (minutes: number) => {
+    const clamped = Math.max(1, Math.min(90, minutes));
+    setFocusMinutesState(clamped);
+    localStorage.setItem('pomodoro_focus_minutes', String(clamped));
+    if (mode === 'focus' && !running) {
+      setSecondsLeft(clamped * 60);
+    }
+  };
+
+  const setBreakMinutes = (minutes: number) => {
+    const clamped = Math.max(1, Math.min(30, minutes));
+    setBreakMinutesState(clamped);
+    localStorage.setItem('pomodoro_break_minutes', String(clamped));
+    if (mode === 'break' && !running) {
+      setSecondsLeft(clamped * 60);
+    }
+  };
+
+  const setNotificationsEnabled = (enabled: boolean) => {
+    setNotificationsEnabledState(enabled);
+    localStorage.setItem('pomodoro_notifications_enabled', String(enabled));
+  };
+
   const setSessionMode = (nextMode: 'focus' | 'break') => {
     setMode(nextMode);
     setRunning(false);
-    setSecondsLeft(nextMode === 'focus' ? FOCUS_SECONDS : BREAK_SECONDS);
+    setSecondsLeft(nextMode === 'focus' ? focusSeconds : breakSeconds);
   };
 
   const resetTimer = () => {
     setRunning(false);
-    setSecondsLeft(mode === 'focus' ? FOCUS_SECONDS : BREAK_SECONDS);
-  };
-
-  const requestNotificationPermission = async () => {
-    if ('Notification' in window && Notification.permission === 'default') {
-      await Notification.requestPermission();
-    }
+    setSecondsLeft(mode === 'focus' ? focusSeconds : breakSeconds);
   };
 
   const toggleTimer = async () => {
-    if (!running) {
+    if (!running && notificationsEnabled) {
       await requestNotificationPermission();
     }
     setRunning((prev) => !prev);
   };
 
-  const totalSeconds = mode === 'focus' ? FOCUS_SECONDS : BREAK_SECONDS;
+  const totalSeconds = mode === 'focus' ? focusSeconds : breakSeconds;
 
   return (
     <PomodoroContext.Provider
@@ -171,11 +202,17 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
         ambience,
         volume,
         isPlaying,
+        focusMinutes,
+        breakMinutes,
+        notificationsEnabled,
         setSessionMode,
         resetTimer,
         toggleTimer,
         setAmbience,
         setVolume,
+        setFocusMinutes,
+        setBreakMinutes,
+        setNotificationsEnabled,
         totalSeconds,
       }}
     >
