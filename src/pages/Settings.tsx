@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Palette, Settings as SettingsIcon, Globe, Blocks } from 'lucide-react';
+import { Palette, Settings as SettingsIcon, Globe, Blocks, User, LogOut } from 'lucide-react';
 import { DataManagement } from '@/components/DataManagement';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
 import {
   applyColorPalette,
   COLOR_PALETTES,
@@ -15,11 +16,18 @@ import {
 import { useLanguage } from '@/context/LanguageContext';
 import { type Language } from '@/i18n/dictionaries';
 import { useSpotify } from '@/context/SpotifyContext';
+import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/lib/supabase';
 
 export default function Settings() {
   const { language, setLanguage, t } = useLanguage();
   const { isSpotifyEnabled, setSpotifyEnabled } = useSpotify();
+  const { user } = useAuth();
   const [palette, setPalette] = useState<ColorPalette>('ocean');
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+  };
 
   useEffect(() => {
     setPalette(getStoredColorPalette());
@@ -43,6 +51,29 @@ export default function Settings() {
         </div>
         <p className="text-sm text-muted-foreground">{t('settings.appearance' as any)}</p>
       </div>
+
+      <section className="mb-6 rounded-xl border bg-card p-6 shadow-sm">
+        <div className="mb-4 flex items-center gap-2">
+          <User className="h-4 w-4 text-primary" />
+          <h2 className="font-display text-lg font-semibold">{t('settings.account' as any)}</h2>
+        </div>
+        <p className="mb-4 text-sm text-muted-foreground">
+          {t('settings.account.desc' as any)}
+        </p>
+
+        <div className="flex items-center justify-between rounded-lg border p-4">
+          <div className="space-y-1">
+            <Label className="text-base">{user?.user_metadata?.full_name || 'My Account'}</Label>
+            <p className="text-sm text-muted-foreground">
+              {user?.email || "Unknown user"}
+            </p>
+          </div>
+          <Button variant="destructive" onClick={handleSignOut} className="gap-2">
+            <LogOut className="h-4 w-4" />
+            {t('settings.account.logout' as any)}
+          </Button>
+        </div>
+      </section>
 
       <section className="mb-6 rounded-xl border bg-card p-6 shadow-sm">
         <div className="mb-4 flex items-center gap-2">
