@@ -1,9 +1,11 @@
 import { useMemo } from 'react';
-import { Pause, Play, RotateCcw, Timer, Volume2, VolumeX } from 'lucide-react';
+import { Bell, BellOff, Pause, Play, RotateCcw, Timer, Volume2, VolumeX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { usePomodoro, AMBIENCE_SOUNDS, formatTime } from '@/context/PomodoroContext';
+import { useLanguage } from '@/context/LanguageContext';
+import { getNotificationPermission } from '@/lib/notifications';
 
 export function PomodoroTimer() {
   const {
@@ -13,6 +15,9 @@ export function PomodoroTimer() {
     ambience,
     volume,
     isPlaying,
+    focusMinutes,
+    breakMinutes,
+    notificationsEnabled,
     setSessionMode,
     resetTimer,
     toggleTimer,
@@ -21,16 +26,42 @@ export function PomodoroTimer() {
     totalSeconds
   } = usePomodoro();
 
+  const { t } = useLanguage();
+
   const modeLabel = useMemo(
-    () => (mode === 'focus' ? 'Focus Session (25 min)' : 'Break Session (5 min)'),
-    [mode],
+    () =>
+      mode === 'focus'
+        ? t('pomodoro.focus')
+        : t('pomodoro.break'),
+    [mode, t],
   );
+
+  const notifPermission = getNotificationPermission();
+  const notifActive = notificationsEnabled && notifPermission === 'granted';
 
   return (
     <div className="rounded-xl border bg-card p-5 shadow-sm">
       <div className="mb-4 flex items-center gap-2">
         <Timer className="h-5 w-5 text-status-in-progress" />
-        <h2 className="font-display text-lg font-semibold">Pomodoro Timer</h2>
+        <h2 className="font-display text-lg font-semibold">{t('pomodoro.title')}</h2>
+
+        {/* Notification status indicator */}
+        <span
+          className="ml-auto text-muted-foreground"
+          title={
+            notifPermission === 'unsupported'
+              ? 'Notifications not supported'
+              : notifActive
+              ? 'Desktop notifications enabled'
+              : 'Desktop notifications disabled or not permitted'
+          }
+        >
+          {notifActive ? (
+            <Bell className="h-4 w-4 text-primary" />
+          ) : (
+            <BellOff className="h-4 w-4" />
+          )}
+        </span>
       </div>
 
       <div className="mb-3 flex flex-wrap gap-2">
@@ -40,7 +71,7 @@ export function PomodoroTimer() {
           variant={mode === 'focus' ? 'default' : 'outline'}
           onClick={() => setSessionMode('focus')}
         >
-          Focus 25m
+          {t('pomodoro.mode.focus', { n: focusMinutes })}
         </Button>
         <Button
           type="button"
@@ -48,12 +79,12 @@ export function PomodoroTimer() {
           variant={mode === 'break' ? 'default' : 'outline'}
           onClick={() => setSessionMode('break')}
         >
-          Break 5m
+          {t('pomodoro.mode.break', { n: breakMinutes })}
         </Button>
       </div>
 
       <p className="text-sm text-muted-foreground">{modeLabel}</p>
-      
+
       {/* Circular Progress Indicator */}
       <div className="relative my-6 flex items-center justify-center">
         <svg className="h-48 w-48 -rotate-90 transform">
@@ -82,7 +113,7 @@ export function PomodoroTimer() {
             style={{ transition: 'stroke-dashoffset 1s linear' }}
           />
         </svg>
-        
+
         {/* Time display in center */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <p className="font-display text-5xl font-bold tabular-nums">{formatTime(secondsLeft)}</p>
@@ -95,11 +126,11 @@ export function PomodoroTimer() {
       <div className="mt-4 flex gap-2">
         <Button type="button" onClick={toggleTimer} className="gap-2">
           {running ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-          {running ? 'Pause' : 'Start'}
+          {running ? t('pomodoro.pause') : t('pomodoro.start')}
         </Button>
         <Button type="button" variant="outline" onClick={resetTimer} className="gap-2">
           <RotateCcw className="h-4 w-4" />
-          Reset
+          {t('pomodoro.reset')}
         </Button>
       </div>
 
@@ -107,16 +138,16 @@ export function PomodoroTimer() {
       <div className="mt-4 border-t pt-4">
         <div className="mb-3 flex items-center gap-2">
           {isPlaying ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
-          <span className="text-sm font-medium">Background Sound</span>
+          <span className="text-sm font-medium">{t('pomodoro.sound.label')}</span>
         </div>
-        
+
         <div className="space-y-3">
-          <Select 
-            value={ambience} 
+          <Select
+            value={ambience}
             onValueChange={(val: any) => setAmbience(val)}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Select ambience" />
+              <SelectValue placeholder={t('pomodoro.sound.none')} />
             </SelectTrigger>
             <SelectContent>
               {Object.entries(AMBIENCE_SOUNDS).map(([key, sound]) => (
