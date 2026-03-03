@@ -83,6 +83,7 @@ export const dictionaries = {
     'settings.pomodoro.focus': 'Durasi Fokus (menit)',
     'settings.pomodoro.break': 'Durasi Istirahat (menit)',
     'settings.account': 'Akun',
+    'settings.account.desc': 'Kelola pengaturan akun dan sesi Anda.',
     'settings.account.logout': 'Keluar',
 
     // Context Menu
@@ -184,6 +185,7 @@ export const dictionaries = {
     'settings.pomodoro.focus': 'Focus Duration (minutes)',
     'settings.pomodoro.break': 'Break Duration (minutes)',
     'settings.account': 'Account',
+    'settings.account.desc': 'Manage your account settings and session.',
     'settings.account.logout': 'Sign out',
 
     // Context Menu
