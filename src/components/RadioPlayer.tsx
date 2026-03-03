@@ -29,19 +29,38 @@ export const RADIO_STATIONS: RadioStation[] = [
   { id: 'quran-peaceful',   label: 'Quran Peaceful',     videoId: 'r4W3v8h04IM', category: 'islamic', emoji: '☮️' },
   { id: 'mufti-menk',       label: 'Mufti Menk',         videoId: 'PL9821CA747E7E0674', category: 'islamic', emoji: '🎙️', type: 'playlist' },
   { id: 'sirah-nabawiyah',  label: 'Sirah Nabawiyah',    videoId: 'PLUuYlj8dcEXahjDZko8Qh1JnWrfsmXAIR', category: 'islamic', emoji: '📖', type: 'playlist' },
-  // Local
-  { id: 'indie-id',         label: 'Indie Indonesia',    videoId: 'PLHTmKJXs4YndjNRWNgte15icqYQWNpD2r', category: 'local',   emoji: '🇮🇩', type: 'playlist' },
+  // Local — Individual Indonesian Indie Artists using YouTube Radio Mix for skip/prev support
+  { id: 'hindia',          label: 'Hindia',          videoId: 'RDwnAKxtEi78c',    category: 'local', emoji: '🌿', type: 'playlist' },
+  { id: 'feast',           label: '.Feast',           videoId: 'RDeulYTPXOaio',    category: 'local', emoji: '🎸', type: 'playlist' },
+  { id: 'sal-priadi',      label: 'Sal Priadi',       videoId: 'RDtCE9U4D995s',    category: 'local', emoji: '🎵', type: 'playlist' },
+  { id: 'nadin-amizah',    label: 'Nadin Amizah',     videoId: 'PLZ_fgmvvpb2yZZOuaJMPDEdM0-UR7akh3', category: 'local', emoji: '🌸', type: 'playlist' },
+  { id: 'tulus',           label: 'Tulus',            videoId: 'PLzgVPDDV8B8dWJbuhdUcxgW0yLYTJ9-IQ', category: 'local', emoji: '🎤', type: 'playlist' },
+  { id: 'ardhito',         label: 'Ardhito Pramono',  videoId: 'RDXhALz1B2u1w',    category: 'local', emoji: '🎹', type: 'playlist' },
+  { id: 'danilla',         label: 'Danilla',          videoId: 'RDyjw8lL9QSoM',    category: 'local', emoji: '🎻', type: 'playlist' },
+  { id: 'sheila-on7',      label: 'Sheila On 7',      videoId: 'RDOdDwIwoiZwU',    category: 'local', emoji: '🎸', type: 'playlist' },
+  { id: 'jason-ranti',     label: 'Jason Ranti',      videoId: 'RDKP2Ap8gH0f4',    category: 'local', emoji: '🎭', type: 'playlist' },
+  { id: 'iksan-skuter',    label: 'Iksan Skuter',     videoId: 'RDW3fkCzdTfEQ',    category: 'local', emoji: '🛵', type: 'playlist' },
+  { id: 'fourtwnty',       label: 'Fourtwnty',        videoId: 'RDBm5KVJsU09c',    category: 'local', emoji: '🌱', type: 'playlist' },
+  { id: 'ari-lesmana',     label: 'Ari Lesmana',      videoId: 'RDNskf70DMR60',    category: 'local', emoji: '🎸', type: 'playlist' },
+  { id: 'slank',           label: 'Slank',            videoId: 'RDWIDJB9_4XRM',    category: 'local', emoji: '✊', type: 'playlist' },
+  { id: 'raim-laode',      label: 'Raim Laode',       videoId: 'RDvl_3mZx88zw',    category: 'local', emoji: '🎵', type: 'playlist' },
+  { id: 'opick',           label: 'Opick',            videoId: 'RDul6ZiwZ7heQ',    category: 'local', emoji: '🕌', type: 'playlist' },
+  { id: 'bilal-indrajaya', label: 'Bilal Indrajaya',  videoId: 'PLGDwMEKws2fan42kCftmWNc0OCAax4BGE', category: 'local', emoji: '🎵', type: 'playlist' },
+  { id: 'hadad-alwi',      label: 'Haddad Alwi',      videoId: 'RDl50dEZ0qS-U',    category: 'local', emoji: '🌙', type: 'playlist' },
+
   // Podcasts
   { id: 'endgame',          label: 'Endgame (Gita Wirjawan)',  videoId: 'PL-hh_bKgnJ6FqDJwTs5YB3xMvQrFCDSoJ', category: 'podcast', emoji: '🎧', type: 'playlist' },
   { id: 'sepulang-sekolah', label: 'Sepulang Sekolah',         videoId: 'PLfN58YcV819YaV1FzBEqbvkoe6vIra-aH', category: 'podcast', emoji: '📚', type: 'playlist' },
   { id: 'login-podcast',    label: 'Login (Habib Jafar)',      videoId: 'PLe_K9e2LM-ilpMuQv7vyrKds0FdjBznFp', category: 'podcast', emoji: '☪️', type: 'playlist' },
-  { id: 'suara-berkelas',   label: 'Suara Berkelas',           videoId: 'suara berkelas podcast motivasi', category: 'podcast', emoji: '⭐', type: 'search'    },
-  { id: 'bagus-muljadi',    label: 'Podcast Bagus Muljadi',    videoId: 'bagus muljadi podcast', category: 'podcast', emoji: '💡', type: 'search'    },
-  { id: 'raditya-dika',     label: 'Raditya Dika Podcast',     videoId: 'raditya dika podcast seminggu', category: 'podcast', emoji: '😂', type: 'search'    },
-  { id: 'what-is-up-id',    label: 'What is Up Indonesia',     videoId: 'what is up indonesia wiui', category: 'podcast', emoji: '🇮🇩', type: 'search'    },
-  { id: 'bocor-alus',       label: 'Bocor Alus Politik',       videoId: 'bocor alus politik tempo', category: 'podcast', emoji: '📰', type: 'search'    },
-  { id: 'putbal',           label: 'Podcast Main Bola',        videoId: 'podcast main bola indonesia', category: 'podcast', emoji: '⚽', type: 'search'    },
+  { id: 'escape-podcast',   label: 'Podcast Escape',           videoId: 'PLSNt1tjjz_ArTDv1jVMjhHlaHM51euDq0', category: 'podcast', emoji: '🚪', type: 'playlist' },
+  { id: 'suara-berkelas',   label: 'Suara Berkelas',           videoId: 'suara berkelas podcast motivasi', category: 'podcast', emoji: '⭐', type: 'search' },
+  { id: 'bagus-muljadi',    label: 'Podcast Bagus Muljadi',    videoId: 'bagus muljadi podcast', category: 'podcast', emoji: '💡', type: 'search' },
+  { id: 'raditya-dika',     label: 'Raditya Dika Podcast',     videoId: 'raditya dika podcast seminggu', category: 'podcast', emoji: '😂', type: 'search' },
+  { id: 'what-is-up-id',    label: 'What is Up Indonesia',     videoId: 'what is up indonesia wiui', category: 'podcast', emoji: '🗺️', type: 'search' },
+  { id: 'bocor-alus',       label: 'Bocor Alus Politik',       videoId: 'bocor alus politik tempo', category: 'podcast', emoji: '📰', type: 'search' },
+  { id: 'sport77',          label: 'Sportcast 77',             videoId: 'sport 77 sportcast podcast', category: 'podcast', emoji: '⚽', type: 'search' },
 ];
+
 
 // ── YouTube IFrame API types ──────────────────────────────────────────────────
 interface YTPlayer {
