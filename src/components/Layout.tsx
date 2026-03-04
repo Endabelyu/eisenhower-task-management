@@ -46,9 +46,9 @@ export function Layout() {
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full overflow-x-hidden">
+      <div className="flex min-h-screen w-full max-w-[100vw] overflow-x-hidden">
         <AppSidebar />
-        <div className="flex flex-1 flex-col">
+        <div className="flex flex-1 flex-col min-w-0 max-w-[100vw]">
           <header className="hidden md:flex h-14 items-center justify-between border-b px-4">
             <SidebarTrigger />
             <Button

@@ -92,14 +92,14 @@ export default function Settings() {
           {t('settings.account.desc')}
         </p>
 
-        <div className="flex items-center justify-between rounded-lg border p-4">
-          <div className="space-y-1">
-            <Label className="text-base">{user?.user_metadata?.full_name || 'My Account'}</Label>
-            <p className="text-sm text-muted-foreground">
+        <div className="flex items-center justify-between gap-3 rounded-lg border p-4">
+          <div className="space-y-1 min-w-0">
+            <Label className="text-base truncate block">{user?.user_metadata?.full_name || 'My Account'}</Label>
+            <p className="text-sm text-muted-foreground truncate">
               {user?.email || 'Unknown user'}
             </p>
           </div>
-          <Button variant="destructive" onClick={handleSignOut} className="gap-2">
+          <Button variant="destructive" onClick={handleSignOut} className="gap-2 shrink-0">
             <LogOut className="h-4 w-4" />
             {t('settings.account.logout')}
           </Button>
