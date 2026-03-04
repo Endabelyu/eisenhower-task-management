@@ -2,12 +2,15 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { PomodoroTimer } from '@/components/PomodoroTimer';
 import { PomodoroProvider } from '@/context/PomodoroContext';
+import { LanguageProvider } from '@/context/LanguageContext';
 
 const renderWithProvider = () => {
   return render(
-    <PomodoroProvider>
-      <PomodoroTimer />
-    </PomodoroProvider>
+    <LanguageProvider>
+      <PomodoroProvider>
+        <PomodoroTimer />
+      </PomodoroProvider>
+    </LanguageProvider>
   );
 };
 
@@ -31,7 +34,7 @@ describe('PomodoroTimer', () => {
   it('renders in focus mode initially with 25:00', () => {
     renderWithProvider();
     expect(screen.getByText('25:00')).toBeInTheDocument();
-    expect(screen.getByText('Focus Session (25 min)')).toBeInTheDocument();
+    expect(screen.getByText('Focus Session')).toBeInTheDocument();
   });
 
   it('starts countdown when Start is clicked', async () => {
@@ -89,7 +92,7 @@ describe('PomodoroTimer', () => {
     renderWithProvider();
     fireEvent.click(screen.getByText('Break 5m'));
     expect(screen.getByText('05:00')).toBeInTheDocument();
-    expect(screen.getByText('Break Session (5 min)')).toBeInTheDocument();
+    expect(screen.getByText('Break')).toBeInTheDocument();
   });
 
   it('switches back to focus mode and shows 25:00', () => {
