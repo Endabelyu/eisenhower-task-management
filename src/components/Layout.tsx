@@ -62,7 +62,7 @@ export function Layout() {
               Shortcuts
             </Button>
           </header>
-          <main className="flex-1 p-6 pb-28 md:pb-6">
+          <main className="flex-1 p-4 pb-48 md:p-6 md:pb-6">
             <Outlet />
           </main>
           <MobileBottomNav />
