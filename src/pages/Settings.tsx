@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Bell, Blocks, Globe, Palette, Settings as SettingsIcon, Timer, User, LogOut } from 'lucide-react';
+import { Bell, Blocks, Globe, Palette, Settings as SettingsIcon, Timer, User, LogOut, MessageSquare } from 'lucide-react';
 import { DataManagement } from '@/components/DataManagement';
+import { FeedbackForm } from '@/components/FeedbackForm';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -242,6 +243,18 @@ export default function Settings() {
             onCheckedChange={setSpotifyEnabled}
           />
         </div>
+      </section>
+
+      {/* Feedback Section */}
+      <section className="mb-6 rounded-xl border bg-card p-6 shadow-sm">
+        <div className="mb-4 flex items-center gap-2">
+          <MessageSquare className="h-4 w-4 text-primary" />
+          <h2 className="font-display text-lg font-semibold">{t('settings.feedback.title')}</h2>
+        </div>
+        <p className="mb-6 text-sm text-muted-foreground">
+          {t('settings.feedback.desc')}
+        </p>
+        <FeedbackForm />
       </section>
 
       {/* Data Section */}
