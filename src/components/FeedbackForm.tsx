@@ -75,6 +75,7 @@ export function FeedbackForm() {
           placeholder={t('settings.feedback.email.placeholder')}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          required
         />
       </div>
 

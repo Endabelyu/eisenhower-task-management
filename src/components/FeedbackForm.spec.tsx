@@ -46,6 +46,10 @@ describe('FeedbackForm Component', () => {
 
     renderComponent();
     
+    // Type in the email field
+    const emailInput = screen.getByLabelText(/Email/i);
+    fireEvent.change(emailInput, { target: { value: 'test1@example.com' } });
+
     // Type in the message field
     const textarea = screen.getByRole('textbox', { name: /Message|Pesan/i });
     fireEvent.change(textarea, { target: { value: 'This is great!' } });
@@ -56,7 +60,7 @@ describe('FeedbackForm Component', () => {
 
     await waitFor(() => {
       expect(supabase.functions.invoke).toHaveBeenCalledWith('send-feedback', {
-        body: { type: 'feedback', message: 'This is great!', email: '' },
+        body: { type: 'feedback', message: 'This is great!', email: 'test1@example.com' },
       });
       // A toast should implicitly appear (mocked inside components or tested by the toaster logic)
     });
