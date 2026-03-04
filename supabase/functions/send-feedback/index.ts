@@ -2,8 +2,7 @@
 // @ts-ignore
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-// @ts-ignore
-const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+// We will try taking the RESEND_API_KEY from the frontend payload or the edge env
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -16,11 +15,13 @@ serve(async (req: Request) => {
   }
 
   try {
-    if (!RESEND_API_KEY) {
-      throw new Error("Missing RESEND_API_KEY environment variable");
-    }
+    const { type, message, email, resendApiKey, personalEmail } = await req.json();
 
-    const { type, message, email } = await req.json();
+    // @ts-ignore
+    const finalApiKey = resendApiKey || Deno.env.get("RESEND_API_KEY");
+    if (!finalApiKey) {
+      throw new Error("Missing RESEND_API_KEY environment variable. Add VITE_RESEND_API_KEY in your .env or Supabase Secrets");
+    }
 
     if (!type || !message) {
       return new Response(JSON.stringify({ error: "Missing type or message" }), {
@@ -35,7 +36,7 @@ serve(async (req: Request) => {
     const emailPayload: Record<string, unknown> = {
       from: "Acme <onboarding@resend.dev>", // replace with your verified domain in production
       // @ts-ignore
-      to: [Deno.env.get("PERSONAL_EMAIL") || "delivered@resend.dev"], // set your personal email here
+      to: [personalEmail || Deno.env.get("PERSONAL_EMAIL") || "delivered@resend.dev"], // set your personal email here
       subject: `New ${type.toUpperCase()} from Quadrant App`,
       html: `
         <h1>New ${type}</h1>
@@ -55,7 +56,7 @@ serve(async (req: Request) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${RESEND_API_KEY}`,
+        Authorization: `Bearer ${finalApiKey}`,
       },
       body: JSON.stringify(emailPayload),
     });

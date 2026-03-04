@@ -60,7 +60,13 @@ describe('FeedbackForm Component', () => {
 
     await waitFor(() => {
       expect(supabase.functions.invoke).toHaveBeenCalledWith('send-feedback', {
-        body: { type: 'feedback', message: 'This is great!', email: 'test1@example.com' },
+        body: { 
+          type: 'feedback', 
+          message: 'This is great!', 
+          email: 'test1@example.com',
+          resendApiKey: undefined,
+          personalEmail: undefined
+        },
       });
       // A toast should implicitly appear (mocked inside components or tested by the toaster logic)
     });

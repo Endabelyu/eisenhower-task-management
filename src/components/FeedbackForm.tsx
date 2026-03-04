@@ -26,7 +26,13 @@ export function FeedbackForm() {
     try {
       // We will try to invoke a Supabase Edge Function to send the email via Resend
       const { error } = await supabase.functions.invoke('send-feedback', {
-        body: { type: feedbackType, message, email },
+        body: { 
+          type: feedbackType, 
+          message, 
+          email,
+          resendApiKey: import.meta.env.VITE_RESEND_API_KEY,
+          personalEmail: import.meta.env.VITE_PERSONAL_EMAIL
+        },
       });
 
       if (error) {
