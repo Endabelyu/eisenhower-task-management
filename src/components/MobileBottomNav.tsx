@@ -20,18 +20,19 @@ export function MobileBottomNav() {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 flex h-[72px] w-full items-center justify-around border-t bg-background px-2 pb-safe md:hidden shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 grid grid-cols-5 h-[72px] w-full items-center justify-items-center border-t bg-background pb-safe md:hidden shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
       {navItems.map((item) => {
         if (item.action === 'add') {
           return (
-            <button
-              key="add-btn"
-              onClick={handleQuickAdd}
-              type="button"
-              className="group -mt-8 flex h-16 w-16 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform active:scale-95"
-            >
-              <item.icon className="h-7 w-7 transition-transform group-hover:rotate-90" />
-            </button>
+            <div key="add-btn" className="flex h-full w-full items-center justify-center">
+              <button
+                onClick={handleQuickAdd}
+                type="button"
+                className="group -mt-8 flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform active:scale-95"
+              >
+                <item.icon className="h-7 w-7 transition-transform group-hover:rotate-90" />
+              </button>
+            </div>
           );
         }
 
@@ -43,7 +44,7 @@ export function MobileBottomNav() {
             to={item.url || '/'}
             end={item.url === '/'}
             className={cn(
-              "flex flex-col items-center justify-center gap-1.5 w-16 h-full transition-colors",
+              "flex flex-col items-center justify-center gap-1.5 w-full h-full transition-colors",
               isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
             )}
           >
