@@ -103,6 +103,23 @@ export const dictionaries = {
     'settings.account.desc': 'Kelola pengaturan akun dan sesi Anda.',
     'settings.account.logout': 'Keluar',
 
+    // Feedback
+    'settings.feedback.title': 'Bantuan & Masukan',
+    'settings.feedback.desc': 'Kirim masukan, saran, atau laporan bug secara langsung kepada kami.',
+    'settings.feedback.type': 'Jenis Pesan',
+    'settings.feedback.type.feedback': 'Masukan Umum',
+    'settings.feedback.type.suggestion': 'Saran Fitur',
+    'settings.feedback.type.bug': 'Laporan Bug',
+    'settings.feedback.email': 'Email (Opsional)',
+    'settings.feedback.email.placeholder': 'email@anda.com',
+    'settings.feedback.message': 'Pesan',
+    'settings.feedback.message.placeholder': 'Beritahu kami apa yang Anda pikirkan...',
+    'settings.feedback.submit': 'Kirim Masukan',
+    'settings.feedback.success': 'Pesan terkirim!',
+    'settings.feedback.success.desc': 'Terima kasih atas masukan Anda.',
+    'settings.feedback.error': 'Gagal mengirim',
+    'settings.feedback.error.desc': 'Terjadi kesalahan. Silakan coba lagi nanti.',
+
     // Auth
     'auth.login': 'Masuk ke Kuadran',
     'auth.signup': 'Buat akun',
@@ -214,6 +231,23 @@ export const dictionaries = {
     'settings.account': 'Account',
     'settings.account.desc': 'Manage your account settings and session.',
     'settings.account.logout': 'Sign out',
+
+    // Feedback
+    'settings.feedback.title': 'Help & Feedback',
+    'settings.feedback.desc': 'Send us your feedback, suggestions, or bug reports directly.',
+    'settings.feedback.type': 'Message Type',
+    'settings.feedback.type.feedback': 'General Feedback',
+    'settings.feedback.type.suggestion': 'Feature Suggestion',
+    'settings.feedback.type.bug': 'Bug Report',
+    'settings.feedback.email': 'Email (Optional)',
+    'settings.feedback.email.placeholder': 'your@email.com',
+    'settings.feedback.message': 'Message',
+    'settings.feedback.message.placeholder': 'Tell us what you think...',
+    'settings.feedback.submit': 'Send Feedback',
+    'settings.feedback.success': 'Message sent!',
+    'settings.feedback.success.desc': 'Thank you for your feedback.',
+    'settings.feedback.error': 'Failed to send',
+    'settings.feedback.error.desc': 'An error occurred. Please try again later.',
 
     // Auth
     'auth.login': 'Sign in to Quadrant',
