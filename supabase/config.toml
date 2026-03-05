@@ -1,0 +1,7 @@
+project_id = "ulqrltvemnlbgikkvthl"
+
+[functions.send-feedback]
+verify_jwt = false
+
+[functions.healthz]
+verify_jwt = false

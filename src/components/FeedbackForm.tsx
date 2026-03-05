@@ -33,6 +33,9 @@ export function FeedbackForm() {
           resendApiKey: import.meta.env.VITE_RESEND_API_KEY,
           personalEmail: import.meta.env.VITE_PERSONAL_EMAIL
         },
+        headers: {
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
+        }
       });
 
       if (error) {
