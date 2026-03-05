@@ -14,7 +14,8 @@ const TOUR_STEPS: Record<string, DriveStep[]> = {
     { element: '#tour-quadrant-schedule', popover: { title: 'Drag & Drop Reprioritization', description: 'This is the "Schedule" quadrant (Important, Not Urgent). You can drag and drop tasks freely between any of the four quadrants as their priorities shift.', side: 'left', align: 'start' } },
     { element: '#tour-focus-mode', popover: { title: 'Eliminate Distractions', description: 'Click "Focus Mode" to hide the bottom two quadrants (Delegate & Hold). This keeps your screen completely focused on what truly matters right now.', side: 'bottom', align: 'center' } },
     { element: '#tour-views', popover: { title: 'Change Your Perspective', description: 'Not in a Matrix mood? Switch to the List view for a traditional checklist, or the Today panel to see your upcoming schedule.', side: 'bottom', align: 'start' } },
-    { element: '#tour-stats', popover: { title: 'Track Your Progress', description: 'Watch your completion rate rise! This summary strip gives you a real-time glance at your productivity and highlights any overdue tasks.', side: 'top', align: 'center' } }
+    { element: '#tour-stats', popover: { title: 'Track Your Progress', description: 'Watch your completion rate rise! This summary strip gives you a real-time glance at your productivity and highlights any overdue tasks.', side: 'top', align: 'center' } },
+    { element: '#tour-media', popover: { title: 'Background Ambiance', description: 'Need to focus? Use the floating media menu down here to access Lofi Radio stations or optionally link your Spotify account in Settings.', side: 'top', align: 'end' } }
   ],
   daily: [
     { element: '#tour-daily-budget', popover: { title: 'Time Budget', description: 'This calculates the total estimated minutes of your top tasks so you know exactly how much work is ahead.', side: 'bottom', align: 'start' } },
