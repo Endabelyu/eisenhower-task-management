@@ -12,3 +12,9 @@ $ vite
   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m8080[22m/[39m
   [32m➜[39m  [1mNetwork[22m: [36mhttp://100.66.195.14:[1m8080[22m/[39m
   [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.12:[1m8080[22m/[39m
+Browserslist: browsers data (caniuse-lite) is 9 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+[2m06.54.44[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/components/MobileBottomNav.tsx[22m
+[2m06.57.05[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m06.58.42[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/Layout.tsx, /src/index.css[22m
