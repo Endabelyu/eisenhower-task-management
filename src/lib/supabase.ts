@@ -23,7 +23,13 @@ export const supabase = createClient(
       fetch: async (url, options) => {
         const response = await fetch(url, options);
         // Intercept 401 responses, but exclude auth endpoints to avoid loops if refresh fails
-        if (response.status === 401 && typeof url === 'string' && !url.includes('/auth/v1/')) {
+        // We also exclude the feedback function because we don't want to globally log out a user if they submit feedback with an expired token.
+        if (
+          response.status === 401 && 
+          typeof url === 'string' && 
+          !url.includes('/auth/v1/') &&
+          !url.includes('/functions/v1/send-feedback')
+        ) {
           console.warn('Caught 401 Unauthorized response globally. Forcing sign out.');
           
           // Dispatch a custom event so the React tree (AuthContext) can show a toast
