@@ -83,7 +83,7 @@ export default function Settings() {
       </div>
 
       {/* Account Section */}
-      <section className="mb-6 rounded-xl border bg-card p-6 shadow-sm">
+      <section id="tour-settings-account" className="mb-6 rounded-xl border bg-card p-6 shadow-sm">
         <div className="mb-4 flex items-center gap-2">
           <User className="h-4 w-4 text-primary" />
           <h2 className="font-display text-lg font-semibold">{t('settings.account')}</h2>
@@ -107,7 +107,7 @@ export default function Settings() {
       </section>
 
       {/* Appearance Section */}
-      <section className="mb-6 rounded-xl border bg-card p-6 shadow-sm">
+      <section id="tour-settings-appearance" className="mb-6 rounded-xl border bg-card p-6 shadow-sm">
         <div className="mb-4 flex items-center gap-2">
           <Palette className="h-4 w-4 text-primary" />
           <h2 className="font-display text-lg font-semibold">{t('settings.appearance')}</h2>
@@ -160,7 +160,7 @@ export default function Settings() {
       </section>
 
       {/* Pomodoro Settings Section */}
-      <section className="mb-6 rounded-xl border bg-card p-6 shadow-sm">
+      <section id="tour-settings-pomodoro" className="mb-6 rounded-xl border bg-card p-6 shadow-sm">
         <div className="mb-4 flex items-center gap-2">
           <Timer className="h-4 w-4 text-primary" />
           <h2 className="font-display text-lg font-semibold">{t('settings.pomodoro')}</h2>
@@ -246,7 +246,7 @@ export default function Settings() {
       </section>
 
       {/* Feedback Section */}
-      <section className="mb-6 rounded-xl border bg-card p-6 shadow-sm">
+      <section id="tour-settings-feedback" className="mb-6 rounded-xl border bg-card p-6 shadow-sm">
         <div className="mb-4 flex items-center gap-2">
           <MessageSquare className="h-4 w-4 text-primary" />
           <h2 className="font-display text-lg font-semibold">{t('settings.feedback.title')}</h2>

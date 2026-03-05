@@ -45,12 +45,12 @@ export default function DailyFocus() {
       </div>
 
       <div className="mb-6 grid gap-3 sm:grid-cols-2">
-        <div className="rounded-xl border bg-card p-4 shadow-sm">
+        <div id="tour-daily-budget" className="rounded-xl border bg-card p-4 shadow-sm">
           <p className="text-xs uppercase tracking-wide text-muted-foreground">{t('focus.budget.title' as any)}</p>
           <p className="mt-2 font-display text-3xl font-bold tabular-nums">{totalMinutes}m</p>
           <p className="mt-1 text-sm text-muted-foreground">{t('focus.budget.subtitle' as any)}</p>
         </div>
-        <div className="rounded-xl border bg-card p-4 shadow-sm">
+        <div id="tour-daily-count" className="rounded-xl border bg-card p-4 shadow-sm">
           <p className="text-xs uppercase tracking-wide text-muted-foreground">{t('focus.count.title' as any)}</p>
           <div className="mt-2">
             <Select value={focusCount} onValueChange={setFocusCount}>
@@ -70,7 +70,7 @@ export default function DailyFocus() {
         </div>
       </div>
 
-      <div className="mb-6">
+      <div id="tour-daily-pomodoro" className="mb-6">
         <PomodoroTimer />
       </div>
 
@@ -83,7 +83,7 @@ export default function DailyFocus() {
           </p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div id="tour-daily-tasks" className="space-y-3">
           {focus.map((task, i) => (
             <div
               key={task.id}
