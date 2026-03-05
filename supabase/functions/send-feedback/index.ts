@@ -18,7 +18,7 @@ serve(async (req: Request) => {
     const { type, message, email, resendApiKey, personalEmail } = await req.json();
 
     // @ts-ignore
-    const finalApiKey = resendApiKey || Deno.env.get("RESEND_API_KEY");
+    const finalApiKey = resendApiKey || Deno.env.get("RESEND_API_KEY") || Deno.env.get("VITE_RESEND_API_KEY");
     if (!finalApiKey) {
       throw new Error("Missing RESEND_API_KEY environment variable. Add VITE_RESEND_API_KEY in your .env or Supabase Secrets");
     }
@@ -36,7 +36,7 @@ serve(async (req: Request) => {
     const emailPayload: Record<string, unknown> = {
       from: "Acme <onboarding@resend.dev>", // replace with your verified domain in production
       // @ts-ignore
-      to: [personalEmail || Deno.env.get("PERSONAL_EMAIL") || "delivered@resend.dev"], // set your personal email here
+      to: [personalEmail || Deno.env.get("PERSONAL_EMAIL") || Deno.env.get("VITE_PERSONAL_EMAIL") || "delivered@resend.dev"], // set your personal email here
       subject: `New ${type.toUpperCase()} from Quadrant App`,
       html: `
         <h1>New ${type}</h1>
