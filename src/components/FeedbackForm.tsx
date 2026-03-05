@@ -6,13 +6,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Send, Loader2 } from 'lucide-react';
+import { Send, Loader2, CheckCircle2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
 
 export function FeedbackForm() {
   const { t } = useLanguage();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const [feedbackType, setFeedbackType] = useState('feedback');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
@@ -48,6 +50,8 @@ export function FeedbackForm() {
       });
       setMessage('');
       setEmail('');
+      setIsSuccess(true);
+      setTimeout(() => setIsSuccess(false), 3000);
     } catch (error) {
       console.error('Error sending feedback:', error);
       toast({
@@ -100,9 +104,22 @@ export function FeedbackForm() {
         />
       </div>
 
-      <Button type="submit" disabled={isSubmitting || !message.trim()} className="w-full gap-2">
-        {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-        {t('settings.feedback.submit')}
+      <Button 
+        type="submit" 
+        disabled={isSubmitting || (!message.trim() && !isSuccess)} 
+        className={cn(
+          "w-full gap-2 transition-all duration-300", 
+          isSuccess && "bg-status-completed hover:bg-status-completed text-white"
+        )}
+      >
+        {isSubmitting ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : isSuccess ? (
+          <CheckCircle2 className="h-4 w-4" />
+        ) : (
+          <Send className="h-4 w-4" />
+        )}
+        {isSuccess ? t('settings.feedback.success') : t('settings.feedback.submit')}
       </Button>
     </form>
   );
