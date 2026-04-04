@@ -11,13 +11,12 @@ interface SubTaskListProps {
   subtasks: SubTask[];
 }
 
-/**
- * SubTaskList — inline checklist rendered inside EditTaskModal.
- * Supports adding, toggling, and deleting sub-tasks.
- */
-export function SubTaskList({ taskId, subtasks }: SubTaskListProps) {
-  const { addSubTask, toggleSubTask, deleteSubTask } = useTaskContext();
+export function SubTaskList({ taskId, subtasks: initialSubtasks }: SubTaskListProps) {
+  const { tasks, addSubTask, toggleSubTask, deleteSubTask } = useTaskContext();
   const [newTitle, setNewTitle] = useState('');
+
+  const liveTask = tasks.find(t => t.id === taskId);
+  const subtasks = liveTask ? liveTask.subtasks : initialSubtasks;
 
   const completed = subtasks.filter(st => st.completed).length;
   const total = subtasks.length;
