@@ -44,7 +44,7 @@ const tagColorMap = Object.fromEntries(PRESET_TAGS.map((tag) => [tag.name, tag.c
  * Supports drag-and-drop (sortable), editing, and status toggling.
  */
 export function TaskCard({ task, compact, onEdit }: TaskCardProps) {
-  const { updateTask, deleteTask } = useTaskContext();
+  const { updateTask, deleteTask, toggleSubTask, deleteSubTask } = useTaskContext();
   const {
     attributes,
     listeners,
@@ -190,7 +190,7 @@ export function TaskCard({ task, compact, onEdit }: TaskCardProps) {
           const total = task.subtasks.length;
           const pct = Math.round((done / total) * 100);
           return (
-            <div className="mt-2 space-y-1">
+            <div className="mt-2 space-y-1.5 w-full">
               <div className="flex items-center gap-1.5">
                 <ListChecks className="h-3 w-3 text-muted-foreground/60" />
                 <span className="text-[10px] font-medium text-muted-foreground">
@@ -203,6 +203,50 @@ export function TaskCard({ task, compact, onEdit }: TaskCardProps) {
                   style={{ width: `${pct}%` }}
                 />
               </div>
+
+              {/* Inline Sub-Tasks List */}
+              <ul className="mt-1.5 space-y-0.5">
+                {task.subtasks
+                  .slice()
+                  .sort((a, b) => a.order - b.order)
+                  .map(st => (
+                    <li key={st.id} className="group/st flex items-start gap-1.5 rounded-sm px-1 py-0.5 hover:bg-muted/40 transition-colors">
+                      <button
+                        type="button"
+                        aria-label={st.completed ? 'Mark sub-task incomplete' : 'Mark sub-task complete'}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleSubTask(st.id, !st.completed);
+                        }}
+                        className={cn(
+                          'flex h-3 w-3 shrink-0 items-center justify-center rounded-[3px] border transition-all mt-0.5',
+                          st.completed
+                            ? 'border-emerald-500 bg-emerald-500 text-white'
+                            : 'border-muted-foreground/40 hover:border-muted-foreground/70 bg-background',
+                        )}
+                      >
+                        {st.completed && <Check className="h-2 w-2" />}
+                      </button>
+                      <span className={cn(
+                        'flex-1 text-[11px] leading-tight break-words',
+                        st.completed && 'line-through text-muted-foreground/70'
+                      )}>
+                        {st.title}
+                      </span>
+                      <button
+                        type="button"
+                        aria-label="Delete sub-task"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteSubTask(st.id);
+                        }}
+                        className="opacity-0 group-hover/st:opacity-100 transition-opacity text-muted-foreground/40 hover:text-destructive shrink-0 mt-0.5"
+                      >
+                        <Trash2 className="h-2.5 w-2.5" />
+                      </button>
+                    </li>
+                  ))}
+              </ul>
             </div>
           );
         })()}
