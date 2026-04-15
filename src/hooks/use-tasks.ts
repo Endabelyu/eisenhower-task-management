@@ -211,6 +211,16 @@ export function useTasks() {
     const originalTask = tasks.find(t => t.id === id);
     if (!originalTask) return;
 
+    // Guard: prevent completing a parent task when it has unfinished subtasks
+    if (updates.status === 'completed' && originalTask.subtasks.length > 0) {
+      const allDone = originalTask.subtasks.every(st => st.completed);
+      if (!allDone) {
+        const pending = originalTask.subtasks.filter(st => !st.completed).length;
+        toast.error(`Cannot complete task — ${pending} sub-task${pending > 1 ? 's' : ''} still pending`);
+        return;
+      }
+    }
+
     const updatedLocal = { ...originalTask, ...updates, updatedAt: new Date().toISOString() };
     if (updates.urgent !== undefined || updates.important !== undefined) {
       updatedLocal.quadrant = getQuadrant(updatedLocal.urgent, updatedLocal.important);

@@ -16,6 +16,7 @@ import { useTaskContext } from '@/context/TaskContext';
 import { TaskWithMetrics, getQuadrant, QUADRANT_CONFIG, TaskStatus, PRESET_TAGS } from '@/types/task';
 import { SubTaskList } from '@/components/SubTaskList';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 interface EditTaskModalProps {
   task: TaskWithMetrics | null;
@@ -28,7 +29,7 @@ interface EditTaskModalProps {
  * Syncs with TaskContext.updateTask to persist changes.
  */
 export function EditTaskModal({ task, open, onOpenChange }: EditTaskModalProps) {
-  const { updateTask } = useTaskContext();
+  const { updateTask, tasks } = useTaskContext();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [urgent, setUrgent] = useState(false);
@@ -65,6 +66,17 @@ export function EditTaskModal({ task, open, onOpenChange }: EditTaskModalProps) 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!task || !title.trim()) return;
+
+    // Guard: prevent completing when subtasks are pending
+    if (status === 'completed' && task.subtasks.length > 0) {
+      const liveTask = tasks.find(t => t.id === task.id);
+      const subtasks = liveTask ? liveTask.subtasks : task.subtasks;
+      const pendingCount = subtasks.filter(st => !st.completed).length;
+      if (pendingCount > 0) {
+        toast.error(`Cannot complete task — ${pendingCount} sub-task${pendingCount > 1 ? 's' : ''} still pending`);
+        return;
+      }
+    }
 
     updateTask(task.id, {
       title: title.trim(),
