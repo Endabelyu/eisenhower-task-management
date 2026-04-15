@@ -424,6 +424,34 @@ export function useTasks() {
     }
   }, []);
 
+  const updateSubTask = useCallback(async (subtaskId: string, updates: Partial<Pick<SubTask, 'title'>>) => {
+    // Optimistic update
+    setTasks(prev => prev.map(t => ({
+      ...t,
+      subtasks: t.subtasks.map(st =>
+        st.id === subtaskId ? { ...st, ...updates } : st
+      ),
+    })));
+
+    try {
+      const payload: Record<string, unknown> = {};
+      if (updates.title !== undefined) payload.title = updates.title;
+
+      const { error } = await supabase.from('subtasks').update(payload).eq('id', subtaskId);
+      if (error) throw error;
+    } catch (err: unknown) {
+      // Revert
+      setTasks(prev => prev.map(t => ({
+        ...t,
+        subtasks: t.subtasks.map(st =>
+          st.id === subtaskId ? { ...st, title: st.title } : st
+        ),
+      })));
+      toast.error('Failed to update sub-task');
+      monitoringStore.addError('subtask:update-error', String(err));
+    }
+  }, []);
+
   const tasksWithMetrics = useMemo(() => tasks.map(computeMetrics), [tasks]);
 
   const getQuadrantTasks = useCallback((quadrant: Quadrant) => {
@@ -531,5 +559,6 @@ export function useTasks() {
     addSubTask,
     toggleSubTask,
     deleteSubTask,
-  }), [tasksWithMetrics, loading, addTask, updateTask, deleteTask, moveToQuadrant, reorderInQuadrant, getQuadrantTasks, getDailyFocus, getStats, exportTasks, importTasks, clearAllTasks, addSubTask, toggleSubTask, deleteSubTask]);
+    updateSubTask,
+  }), [tasksWithMetrics, loading, addTask, updateTask, deleteTask, moveToQuadrant, reorderInQuadrant, getQuadrantTasks, getDailyFocus, getStats, exportTasks, importTasks, clearAllTasks, addSubTask, toggleSubTask, deleteSubTask, updateSubTask]);
 }
