@@ -25,6 +25,25 @@ export interface SubTask {
 }
 
 /**
+ * Recurrence options for repeating tasks (Habits).
+ */
+export type RecurrenceType = 'daily' | 'weekly' | 'monthly' | 'none';
+
+/**
+ * Helper to extract recurrence type from tags array.
+ */
+export const getRecurrenceFromTags = (tags: string[]): RecurrenceType => {
+  const recurrenceTag = tags.find(tag => tag.startsWith('recurring:'));
+  if (recurrenceTag) {
+    const type = recurrenceTag.split(':')[1];
+    if (['daily', 'weekly', 'monthly'].includes(type)) {
+      return type as RecurrenceType;
+    }
+  }
+  return 'none';
+};
+
+/**
  * Core Task interface representing a user task.
  */
 export interface Task {
@@ -61,6 +80,7 @@ export interface TaskWithMetrics extends Task {
   daysUntilDue: number | null;
   urgencyScore: number;
   isOverdue: boolean;
+  recurrence: RecurrenceType;
 }
 
 /**

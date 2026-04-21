@@ -5,7 +5,7 @@ import { EditTaskModal } from '@/components/EditTaskModal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Check, Trash2, Clock, AlertTriangle, Search, ListTodo, RotateCcw, Copy } from 'lucide-react';
+import { Check, Trash2, Clock, AlertTriangle, Search, ListTodo, RotateCcw, Copy, Repeat } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -132,6 +132,12 @@ export default function TaskList() {
                     <span className={cn('flex items-center gap-1', task.isOverdue && 'text-status-overdue')}>
                       {task.isOverdue ? <AlertTriangle className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
                       {new Date(task.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </span>
+                  )}
+                  {task.recurrence && task.recurrence !== 'none' && (
+                    <span className="flex items-center gap-1 text-indigo-600 dark:text-indigo-400 capitalize" title={`Recurs ${task.recurrence}`}>
+                      <Repeat className="h-3 w-3" />
+                      {task.recurrence}
                     </span>
                   )}
                   <span>{task.estimatedDuration}m</span>

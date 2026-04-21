@@ -13,7 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTaskContext } from '@/context/TaskContext';
-import { TaskWithMetrics, getQuadrant, QUADRANT_CONFIG, TaskStatus, PRESET_TAGS } from '@/types/task';
+import { TaskWithMetrics, getQuadrant, QUADRANT_CONFIG, TaskStatus, PRESET_TAGS, RecurrenceType } from '@/types/task';
 import { SubTaskList } from '@/components/SubTaskList';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -38,6 +38,7 @@ export function EditTaskModal({ task, open, onOpenChange }: EditTaskModalProps) 
   const [duration, setDuration] = useState('30');
   const [status, setStatus] = useState<TaskStatus>('pending');
   const [tags, setTags] = useState<string[]>([]);
+  const [recurrence, setRecurrence] = useState<RecurrenceType>('none');
 
   useEffect(() => {
     if (task) {
@@ -49,6 +50,7 @@ export function EditTaskModal({ task, open, onOpenChange }: EditTaskModalProps) 
       setDuration(String(task.estimatedDuration));
       setStatus(task.status);
       setTags(task.tags || []);
+      setRecurrence(task.recurrence || 'none');
     }
   }, [task]);
 
@@ -78,6 +80,12 @@ export function EditTaskModal({ task, open, onOpenChange }: EditTaskModalProps) 
       }
     }
 
+    // Handle recurrence tag
+    const finalTags = tags.filter(t => !t.startsWith('recurring:'));
+    if (recurrence !== 'none') {
+      finalTags.push(`recurring:${recurrence}`);
+    }
+
     updateTask(task.id, {
       title: title.trim(),
       description: description.trim() || undefined,
@@ -86,7 +94,7 @@ export function EditTaskModal({ task, open, onOpenChange }: EditTaskModalProps) 
       dueDate: dueDate || undefined,
       estimatedDuration: parseInt(duration, 10) || 30,
       status,
-      tags,
+      tags: finalTags,
     });
 
     onOpenChange(false);
@@ -176,6 +184,21 @@ export function EditTaskModal({ task, open, onOpenChange }: EditTaskModalProps) 
                 step="5"
               />
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Recurrence</Label>
+            <Select value={recurrence} onValueChange={(val) => setRecurrence(val as RecurrenceType)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Does this repeat?" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Does not repeat</SelectItem>
+                <SelectItem value="daily">Daily</SelectItem>
+                <SelectItem value="weekly">Weekly</SelectItem>
+                <SelectItem value="monthly">Monthly</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">

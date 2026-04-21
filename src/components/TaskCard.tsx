@@ -1,6 +1,6 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, Clock, Check, Trash2, AlertTriangle, Timer, CircleDot, ListChecks, Bell, Copy } from 'lucide-react';
+import { GripVertical, Clock, Check, Trash2, AlertTriangle, Timer, CircleDot, ListChecks, Bell, Copy, Repeat } from 'lucide-react';
 import { TaskWithMetrics, QUADRANT_CONFIG, Quadrant, PRESET_TAGS } from '@/types/task';
 import { useTaskContext } from '@/context/TaskContext';
 import { Button } from '@/components/ui/button';
@@ -162,6 +162,14 @@ export function TaskCard({ task, compact, onEdit }: TaskCardProps) {
             <CircleDot className="h-2.5 w-2.5" />
             {statusCfg.label}
           </span>
+
+          {/* Recurrence */}
+          {task.recurrence && task.recurrence !== 'none' && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-indigo-500/10 px-2 py-0.5 text-[10px] font-medium text-indigo-600 dark:text-indigo-400 capitalize" title={`Recurs ${task.recurrence}`}>
+              <Repeat className="h-2.5 w-2.5" />
+              {task.recurrence}
+            </span>
+          )}
 
           {/* Due date */}
           {task.dueDate && (

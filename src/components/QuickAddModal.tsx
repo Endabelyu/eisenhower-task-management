@@ -11,8 +11,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTaskContext } from '@/context/TaskContext';
-import { getQuadrant, QUADRANT_CONFIG, PRESET_TAGS } from '@/types/task';
+import { getQuadrant, QUADRANT_CONFIG, PRESET_TAGS, RecurrenceType } from '@/types/task';
 import { cn } from '@/lib/utils';
 
 interface QuickAddModalProps {
@@ -33,6 +34,7 @@ export function QuickAddModal({ open, onOpenChange }: QuickAddModalProps) {
   const [dueDate, setDueDate] = useState('');
   const [duration, setDuration] = useState('30');
   const [tags, setTags] = useState<string[]>([]);
+  const [recurrence, setRecurrence] = useState<RecurrenceType>('none');
 
   const quadrant = getQuadrant(urgent, important);
   const config = QUADRANT_CONFIG[quadrant];
@@ -49,6 +51,11 @@ export function QuickAddModal({ open, onOpenChange }: QuickAddModalProps) {
     e.preventDefault();
     if (!title.trim()) return;
 
+    const finalTags = [...tags];
+    if (recurrence !== 'none') {
+      finalTags.push(`recurring:${recurrence}`);
+    }
+
     addTask({
       title: title.trim(),
       description: description.trim() || undefined,
@@ -56,7 +63,7 @@ export function QuickAddModal({ open, onOpenChange }: QuickAddModalProps) {
       important,
       dueDate: dueDate || undefined,
       estimatedDuration: parseInt(duration, 10) || 30,
-      tags,
+      tags: finalTags,
     });
 
     setTitle('');
@@ -66,6 +73,7 @@ export function QuickAddModal({ open, onOpenChange }: QuickAddModalProps) {
     setDueDate('');
     setDuration('30');
     setTags([]);
+    setRecurrence('none');
     onOpenChange(false);
   };
 
@@ -136,6 +144,21 @@ export function QuickAddModal({ open, onOpenChange }: QuickAddModalProps) {
                 step="5"
               />
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Recurrence</Label>
+            <Select value={recurrence} onValueChange={(val) => setRecurrence(val as RecurrenceType)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Does this repeat?" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Does not repeat</SelectItem>
+                <SelectItem value="daily">Daily</SelectItem>
+                <SelectItem value="weekly">Weekly</SelectItem>
+                <SelectItem value="monthly">Monthly</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">

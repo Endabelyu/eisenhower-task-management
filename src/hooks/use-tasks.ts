@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { toast } from 'sonner';
-import { Task, SubTask, Quadrant, getQuadrant, getQuadrantFlags, TaskWithMetrics, QUADRANT_CONFIG } from '@/types/task';
+import { Task, SubTask, Quadrant, getQuadrant, getQuadrantFlags, TaskWithMetrics, QUADRANT_CONFIG, getRecurrenceFromTags } from '@/types/task';
 import { monitoringStore } from '@/monitoring/monitoring-store';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
@@ -28,7 +28,9 @@ export const computeMetrics = (task: Task): TaskWithMetrics => {
   const duePenalty = daysUntilDue !== null ? Math.max(0, 10 - daysUntilDue) : 0;
   const urgencyScore = quadrantWeight[task.quadrant] * 10 + duePenalty;
 
-  return { ...task, daysUntilDue, urgencyScore, isOverdue };
+  const recurrence = getRecurrenceFromTags(task.tags);
+
+  return { ...task, daysUntilDue, urgencyScore, isOverdue, recurrence };
 };
 
 const mapToTask = (row: Record<string, unknown>, subtasks: SubTask[] = []): Task => ({
@@ -236,76 +238,7 @@ export function useTasks() {
     }
   }, [tasks]);
 
-  const updateTask = useCallback(async (id: string, updates: Partial<Omit<Task, 'id' | 'createdAt'>>) => {
-    const originalTask = tasks.find(t => t.id === id);
-    if (!originalTask) return;
 
-    // Guard: prevent completing a parent task when it has unfinished subtasks
-    if (updates.status === 'completed' && originalTask.subtasks.length > 0) {
-      const allDone = originalTask.subtasks.every(st => st.completed);
-      if (!allDone) {
-        const pending = originalTask.subtasks.filter(st => !st.completed).length;
-        toast.error(`Cannot complete task — ${pending} sub-task${pending > 1 ? 's' : ''} still pending`);
-        return;
-      }
-    }
-
-    const updatedLocal = { ...originalTask, ...updates, updatedAt: new Date().toISOString() };
-    if (updates.urgent !== undefined || updates.important !== undefined) {
-      updatedLocal.quadrant = getQuadrant(updatedLocal.urgent, updatedLocal.important);
-    }
-    if (updates.status === 'completed') {
-      updatedLocal.completedAt = new Date().toISOString();
-    } else if (updates.status !== undefined) {
-      updatedLocal.completedAt = undefined;
-    }
-
-      setTasks(prev => prev.map(t => t.id === id ? updatedLocal : t));
-
-    const payload: Record<string, unknown> = {};
-    if ('title' in updates) payload.title = updates.title;
-    if ('description' in updates) payload.description = updates.description;
-    if ('urgent' in updates) payload.urgent = updates.urgent;
-    if ('important' in updates) payload.important = updates.important;
-    if ('quadrant' in updatedLocal) payload.quadrant = updatedLocal.quadrant;
-    if ('dueDate' in updates) payload.due_date = updates.dueDate;
-    if ('estimatedDuration' in updates) payload.estimated_duration = updates.estimatedDuration;
-    if ('status' in updates) payload.status = updates.status;
-    if ('order' in updates) payload.order = updates.order;
-    if ('tags' in updates) payload.tags = updates.tags;
-    if ('status' in updates) {
-      if (updates.status === 'completed') {
-        payload.completed_at = new Date().toISOString();
-      } else {
-        payload.completed_at = null;
-      }
-    }
-    payload.updated_at = new Date().toISOString();
-
-    try {
-      const { error } = await supabase.from('tasks').update(payload).eq('id', id);
-      if (error) throw error;
-
-      if (updates.status === 'completed') {
-        const prevStatus = originalTask.status;
-        toast.success('Task completed! 🎉', {
-          duration: 6000,
-          action: {
-            label: 'Undo',
-            onClick: () => restoreTask(id, prevStatus),
-          },
-        });
-        monitoringStore.addLog('task:complete', { id });
-      } else {
-        monitoringStore.addLog('task:update', { id, fields: Object.keys(updates) });
-      }
-    } catch (err: unknown) {
-      setTasks(prev => prev.map(t => t.id === id ? originalTask : t)); // revert
-      toast.error('Updates failed to save');
-      monitoringStore.addError('task:update-error', String(err));
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tasks, restoreTask]);
 
 
   const deleteTask = useCallback(async (id: string) => {
@@ -507,6 +440,122 @@ export function useTasks() {
       monitoringStore.addError('subtask:update-error', String(err));
     }
   }, []);
+
+  const updateTask = useCallback(async (id: string, updates: Partial<Omit<Task, 'id' | 'createdAt'>>) => {
+    const originalTask = tasks.find(t => t.id === id);
+    if (!originalTask) return;
+
+    // Guard: prevent completing a parent task when it has unfinished subtasks
+    if (updates.status === 'completed' && originalTask.subtasks.length > 0) {
+      const allDone = originalTask.subtasks.every(st => st.completed);
+      if (!allDone) {
+        const pending = originalTask.subtasks.filter(st => !st.completed).length;
+        toast.error(`Cannot complete task — ${pending} sub-task${pending > 1 ? 's' : ''} still pending`);
+        return;
+      }
+    }
+
+    const updatedLocal = { ...originalTask, ...updates, updatedAt: new Date().toISOString() };
+    if (updates.urgent !== undefined || updates.important !== undefined) {
+      updatedLocal.quadrant = getQuadrant(updatedLocal.urgent, updatedLocal.important);
+    }
+    
+    let isSpawningRecurrence = false;
+    let nextDueDateStr: string | undefined;
+
+    if (updates.status === 'completed') {
+      updatedLocal.completedAt = new Date().toISOString();
+      const recurrence = getRecurrenceFromTags(originalTask.tags);
+      if (recurrence !== 'none') {
+        isSpawningRecurrence = true;
+        
+        const nextDueDate = originalTask.dueDate ? new Date(originalTask.dueDate) : new Date();
+        if (recurrence === 'daily') nextDueDate.setDate(nextDueDate.getDate() + 1);
+        else if (recurrence === 'weekly') nextDueDate.setDate(nextDueDate.getDate() + 7);
+        else if (recurrence === 'monthly') nextDueDate.setMonth(nextDueDate.getMonth() + 1);
+        
+        // Provide the localized ISO string without time
+        nextDueDateStr = new Date(nextDueDate.getTime() - (nextDueDate.getTimezoneOffset() * 60000)).toISOString().slice(0, 10);
+        
+        // Remove the recurrence tag from CURRENT task
+        const nonRecurringTags = originalTask.tags.filter(t => !t.startsWith('recurring:'));
+        updatedLocal.tags = nonRecurringTags;
+      }
+    } else if (updates.status !== undefined) {
+      updatedLocal.completedAt = undefined;
+    }
+
+    setTasks(prev => prev.map(t => t.id === id ? updatedLocal : t));
+
+    const payload: Record<string, unknown> = {};
+    if ('title' in updates) payload.title = updates.title;
+    if ('description' in updates) payload.description = updates.description;
+    if ('urgent' in updates) payload.urgent = updates.urgent;
+    if ('important' in updates) payload.important = updates.important;
+    if ('quadrant' in updatedLocal) payload.quadrant = updatedLocal.quadrant;
+    if ('dueDate' in updates) payload.due_date = updates.dueDate;
+    if ('estimatedDuration' in updates) payload.estimated_duration = updates.estimatedDuration;
+    if ('status' in updates) payload.status = updates.status;
+    if ('order' in updates) payload.order = updates.order;
+    if ('tags' in updates) payload.tags = updates.tags;
+    
+    if (isSpawningRecurrence) {
+      payload.tags = updatedLocal.tags;
+    }
+
+    if ('status' in updates) {
+      if (updates.status === 'completed') {
+        payload.completed_at = new Date().toISOString();
+      } else {
+        payload.completed_at = null;
+      }
+    }
+    payload.updated_at = new Date().toISOString();
+
+    try {
+      const { error } = await supabase.from('tasks').update(payload).eq('id', id);
+      if (error) throw error;
+
+      if (isSpawningRecurrence && nextDueDateStr) {
+        toast('Habit Completed', { description: 'Scheduled next occurrence' });
+        
+        const spawnData = {
+           title: originalTask.title,
+           description: originalTask.description,
+           urgent: originalTask.urgent,
+           important: originalTask.important,
+           dueDate: nextDueDateStr,
+           estimatedDuration: originalTask.estimatedDuration,
+           tags: originalTask.tags // the original tags array keeps the recurrence!
+        };
+        const newTask = await addTask(spawnData);
+        if (newTask && originalTask.subtasks.length > 0) {
+           for (const st of originalTask.subtasks) {
+              await addSubTask(newTask.id, st.title);
+           }
+        }
+      }
+
+      if (updates.status === 'completed') {
+        const prevStatus = originalTask.status;
+        toast.success('Task completed! 🎉', {
+          duration: 6000,
+          action: {
+            label: 'Undo',
+            onClick: () => restoreTask(id, prevStatus),
+          },
+        });
+        monitoringStore.addLog('task:complete', { id });
+      } else {
+        monitoringStore.addLog('task:update', { id, fields: Object.keys(updates) });
+      }
+    } catch (err: unknown) {
+      setTasks(prev => prev.map(t => t.id === id ? originalTask : t)); // revert
+      toast.error('Updates failed to save');
+      monitoringStore.addError('task:update-error', String(err));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tasks, restoreTask, addTask, addSubTask]);
 
   const tasksWithMetrics = useMemo(() => tasks.map(computeMetrics), [tasks]);
 
