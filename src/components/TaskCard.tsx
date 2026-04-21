@@ -44,7 +44,7 @@ const tagColorMap = Object.fromEntries(PRESET_TAGS.map((tag) => [tag.name, tag.c
  * Supports drag-and-drop (sortable), editing, and status toggling.
  */
 export function TaskCard({ task, compact, onEdit }: TaskCardProps) {
-  const { updateTask, deleteTask, toggleSubTask, deleteSubTask } = useTaskContext();
+  const { updateTask, deleteTask, toggleSubTask, deleteSubTask, restoreTask } = useTaskContext();
   const {
     attributes,
     listeners,
@@ -86,8 +86,15 @@ export function TaskCard({ task, compact, onEdit }: TaskCardProps) {
 
       {/* Completion checkbox circle */}
       <button
-        aria-label={task.status === 'completed' ? 'Mark as pending' : 'Mark as completed'}
-        onClick={() => updateTask(task.id, { status: task.status === 'completed' ? 'pending' : 'completed' })}
+        aria-label={task.status === 'completed' ? 'Restore task' : 'Mark as completed'}
+        onClick={(e) => {
+          e.stopPropagation();
+          if (task.status === 'completed') {
+            restoreTask(task.id);
+          } else {
+            updateTask(task.id, { status: 'completed' });
+          }
+        }}
         className={cn(
           'mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-all',
           task.status === 'completed'

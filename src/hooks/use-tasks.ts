@@ -207,6 +207,35 @@ export function useTasks() {
     }
   }, [tasks, user]);
 
+  const restoreTask = useCallback(async (id: string, previousStatus: Task['status'] = 'pending') => {
+    const targetTask = tasks.find(t => t.id === id);
+    if (!targetTask || targetTask.status !== 'completed') return;
+
+    // Optimistic update
+    setTasks(prev => prev.map(t =>
+      t.id === id
+        ? { ...t, status: previousStatus, completedAt: undefined, updatedAt: new Date().toISOString() }
+        : t
+    ));
+
+    try {
+      const { error } = await supabase.from('tasks').update({
+        status: previousStatus,
+        completed_at: null,
+        updated_at: new Date().toISOString(),
+      }).eq('id', id);
+      if (error) throw error;
+
+      toast.success('Task restored ↩');
+      monitoringStore.addLog('task:restore', { id, previousStatus });
+    } catch (err: unknown) {
+      // Revert optimistic
+      setTasks(prev => prev.map(t => t.id === id ? targetTask : t));
+      toast.error('Failed to restore task');
+      monitoringStore.addError('task:restore-error', String(err));
+    }
+  }, [tasks]);
+
   const updateTask = useCallback(async (id: string, updates: Partial<Omit<Task, 'id' | 'createdAt'>>) => {
     const originalTask = tasks.find(t => t.id === id);
     if (!originalTask) return;
@@ -227,6 +256,8 @@ export function useTasks() {
     }
     if (updates.status === 'completed') {
       updatedLocal.completedAt = new Date().toISOString();
+    } else if (updates.status !== undefined) {
+      updatedLocal.completedAt = undefined;
     }
 
       setTasks(prev => prev.map(t => t.id === id ? updatedLocal : t));
@@ -242,7 +273,13 @@ export function useTasks() {
     if ('status' in updates) payload.status = updates.status;
     if ('order' in updates) payload.order = updates.order;
     if ('tags' in updates) payload.tags = updates.tags;
-    if ('status' in updates && updates.status === 'completed') payload.completed_at = new Date().toISOString();
+    if ('status' in updates) {
+      if (updates.status === 'completed') {
+        payload.completed_at = new Date().toISOString();
+      } else {
+        payload.completed_at = null;
+      }
+    }
     payload.updated_at = new Date().toISOString();
 
     try {
@@ -250,7 +287,14 @@ export function useTasks() {
       if (error) throw error;
 
       if (updates.status === 'completed') {
-        toast.success('Task completed! 🎉');
+        const prevStatus = originalTask.status;
+        toast.success('Task completed! 🎉', {
+          duration: 6000,
+          action: {
+            label: 'Undo',
+            onClick: () => restoreTask(id, prevStatus),
+          },
+        });
         monitoringStore.addLog('task:complete', { id });
       } else {
         monitoringStore.addLog('task:update', { id, fields: Object.keys(updates) });
@@ -260,7 +304,9 @@ export function useTasks() {
       toast.error('Updates failed to save');
       monitoringStore.addError('task:update-error', String(err));
     }
-  }, [tasks]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tasks, restoreTask]);
+
 
   const deleteTask = useCallback(async (id: string) => {
     const deleted = tasks.find(t => t.id === id);
@@ -558,6 +604,7 @@ export function useTasks() {
     addTask,
     updateTask,
     deleteTask,
+    restoreTask,
     moveToQuadrant,
     reorderInQuadrant,
     getQuadrantTasks,
@@ -570,5 +617,5 @@ export function useTasks() {
     toggleSubTask,
     deleteSubTask,
     updateSubTask,
-  }), [tasksWithMetrics, loading, addTask, updateTask, deleteTask, moveToQuadrant, reorderInQuadrant, getQuadrantTasks, getDailyFocus, getStats, exportTasks, importTasks, clearAllTasks, addSubTask, toggleSubTask, deleteSubTask, updateSubTask]);
+  }), [tasksWithMetrics, loading, addTask, updateTask, deleteTask, restoreTask, moveToQuadrant, reorderInQuadrant, getQuadrantTasks, getDailyFocus, getStats, exportTasks, importTasks, clearAllTasks, addSubTask, toggleSubTask, deleteSubTask, updateSubTask]);
 }

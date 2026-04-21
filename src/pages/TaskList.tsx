@@ -5,7 +5,7 @@ import { EditTaskModal } from '@/components/EditTaskModal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Check, Trash2, Clock, AlertTriangle, Search, ListTodo } from 'lucide-react';
+import { Check, Trash2, Clock, AlertTriangle, Search, ListTodo, RotateCcw } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,7 +38,7 @@ type FilterValue = typeof FILTERS[number]['value'];
  */
 export default function TaskList() {
   const { t } = useLanguage();
-  const { tasks, updateTask, deleteTask } = useTaskContext();
+  const { tasks, updateTask, deleteTask, restoreTask } = useTaskContext();
   const [filter, setFilter] = useState<FilterValue>('all');
   const [tagFilter, setTagFilter] = useState('all');
   const [search, setSearch] = useState('');
@@ -138,9 +138,13 @@ export default function TaskList() {
                 </div>
               </div>
               <div className="flex gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
-                {task.status !== 'completed' && (
+                {task.status !== 'completed' ? (
                   <Button size="icon" variant="ghost" aria-label="Complete task" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); updateTask(task.id, { status: 'completed' }); }}>
                     <Check className="h-4 w-4" />
+                  </Button>
+                ) : (
+                  <Button size="icon" variant="ghost" aria-label="Restore task" className="h-8 w-8 text-muted-foreground hover:text-primary" onClick={(e) => { e.stopPropagation(); restoreTask(task.id); }}>
+                    <RotateCcw className="h-4 w-4" />
                   </Button>
                 )}
                 <AlertDialog>
