@@ -5,7 +5,7 @@ import { EditTaskModal } from '@/components/EditTaskModal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Check, Trash2, Clock, AlertTriangle, Search, ListTodo, RotateCcw } from 'lucide-react';
+import { Check, Trash2, Clock, AlertTriangle, Search, ListTodo, RotateCcw, Copy } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,7 +38,7 @@ type FilterValue = typeof FILTERS[number]['value'];
  */
 export default function TaskList() {
   const { t } = useLanguage();
-  const { tasks, updateTask, deleteTask, restoreTask } = useTaskContext();
+  const { tasks, updateTask, deleteTask, restoreTask, copyTask } = useTaskContext();
   const [filter, setFilter] = useState<FilterValue>('all');
   const [tagFilter, setTagFilter] = useState('all');
   const [search, setSearch] = useState('');
@@ -147,6 +147,9 @@ export default function TaskList() {
                     <RotateCcw className="h-4 w-4" />
                   </Button>
                 )}
+                <Button size="icon" variant="ghost" aria-label="Copy task" className="h-8 w-8 text-muted-foreground hover:text-primary" onClick={(e) => { e.stopPropagation(); copyTask(task.id); }}>
+                  <Copy className="h-4 w-4" />
+                </Button>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button size="icon" variant="ghost" aria-label="Delete task" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={(e) => e.stopPropagation()}>

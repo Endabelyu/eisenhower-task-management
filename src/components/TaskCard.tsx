@@ -1,6 +1,6 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, Clock, Check, Trash2, AlertTriangle, Timer, CircleDot, ListChecks, Bell } from 'lucide-react';
+import { GripVertical, Clock, Check, Trash2, AlertTriangle, Timer, CircleDot, ListChecks, Bell, Copy } from 'lucide-react';
 import { TaskWithMetrics, QUADRANT_CONFIG, Quadrant, PRESET_TAGS } from '@/types/task';
 import { useTaskContext } from '@/context/TaskContext';
 import { Button } from '@/components/ui/button';
@@ -44,7 +44,7 @@ const tagColorMap = Object.fromEntries(PRESET_TAGS.map((tag) => [tag.name, tag.c
  * Supports drag-and-drop (sortable), editing, and status toggling.
  */
 export function TaskCard({ task, compact, onEdit }: TaskCardProps) {
-  const { updateTask, deleteTask, toggleSubTask, deleteSubTask, restoreTask } = useTaskContext();
+  const { updateTask, deleteTask, toggleSubTask, deleteSubTask, restoreTask, copyTask } = useTaskContext();
   const {
     attributes,
     listeners,
@@ -259,8 +259,20 @@ export function TaskCard({ task, compact, onEdit }: TaskCardProps) {
         })()}
       </div>
 
-      {/* Delete on hover */}
-      <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
+      {/* Actions on hover */}
+      <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity flex flex-col gap-1 rounded-md bg-card/80 backdrop-blur-[2px] shadow-sm p-0.5">
+        <Button
+          size="icon"
+          variant="ghost"
+          aria-label="Copy task"
+          onClick={(e) => {
+            e.stopPropagation();
+            copyTask(task.id);
+          }}
+          className="h-6 w-6 text-muted-foreground/40 hover:text-primary"
+        >
+          <Copy className="h-3 w-3" />
+        </Button>
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button

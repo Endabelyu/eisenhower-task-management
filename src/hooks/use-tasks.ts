@@ -598,6 +598,35 @@ export function useTasks() {
     }
   }, [tasks.length, user]);
 
+  const copyTask = useCallback(async (id: string) => {
+    if (!user) return;
+    const taskToCopy = tasks.find(t => t.id === id);
+    if (!taskToCopy) return;
+
+    try {
+      const newTask = await addTask({
+        title: `${taskToCopy.title} (Copy)`,
+        description: taskToCopy.description,
+        urgent: taskToCopy.urgent,
+        important: taskToCopy.important,
+        dueDate: taskToCopy.dueDate,
+        estimatedDuration: taskToCopy.estimatedDuration,
+        tags: [...taskToCopy.tags],
+      });
+
+      if (newTask && taskToCopy.subtasks.length > 0) {
+        for (const st of taskToCopy.subtasks) {
+          await addSubTask(newTask.id, st.title);
+        }
+      }
+      
+      monitoringStore.addLog('task:copy', { originalId: id, newId: newTask?.id });
+    } catch (err: unknown) {
+      toast.error('Failed to copy task');
+      monitoringStore.addError('task:copy-error', String(err));
+    }
+  }, [tasks, user, addTask, addSubTask]);
+
   return useMemo(() => ({
     tasks: tasksWithMetrics,
     loading,
@@ -613,9 +642,10 @@ export function useTasks() {
     exportTasks,
     importTasks,
     clearAllTasks,
+    copyTask,
     addSubTask,
     toggleSubTask,
     deleteSubTask,
     updateSubTask,
-  }), [tasksWithMetrics, loading, addTask, updateTask, deleteTask, restoreTask, moveToQuadrant, reorderInQuadrant, getQuadrantTasks, getDailyFocus, getStats, exportTasks, importTasks, clearAllTasks, addSubTask, toggleSubTask, deleteSubTask, updateSubTask]);
+  }), [tasksWithMetrics, loading, addTask, updateTask, deleteTask, restoreTask, moveToQuadrant, reorderInQuadrant, getQuadrantTasks, getDailyFocus, getStats, exportTasks, importTasks, clearAllTasks, copyTask, addSubTask, toggleSubTask, deleteSubTask, updateSubTask]);
 }
