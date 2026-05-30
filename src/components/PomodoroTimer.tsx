@@ -146,60 +146,62 @@ export function PomodoroTimer() {
         </Select>
         {selectedTask && (
           <p className="mt-1 truncate text-xs text-muted-foreground">
-            Fokus: {selectedTask.title}
+            {t('pomodoro.task.focusing')} {selectedTask.title}
           </p>
         )}
       </div>
 
-      {/* Mode Buttons with always-visible inline inputs */}
+      {/* Mode Buttons with sibling inline inputs */}
       <div className="mb-2 flex flex-wrap gap-2">
-        <Button
-          type="button"
-          size="sm"
-          variant={mode === 'focus' ? 'default' : 'outline'}
-          onClick={() => setSessionMode('focus')}
-          data-testid="mode-focus"
-          className="gap-1"
-        >
-          Focus
+        {/* Focus row */}
+        <div className="flex items-center gap-1">
+          <Button
+            type="button"
+            size="sm"
+            variant={mode === 'focus' ? 'default' : 'outline'}
+            onClick={() => setSessionMode('focus')}
+            data-testid="mode-focus"
+          >
+            {t('pomodoro.mode.focus.label')}
+          </Button>
           <input
+            aria-label="Focus duration in minutes"
             data-testid="focus-minutes-input"
             type="number"
             min={1}
             max={90}
             value={focusMinutes}
             disabled={running}
-            className="w-10 rounded border-0 bg-transparent px-0.5 text-center text-sm tabular-nums focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed"
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFocusChange(e.target.value)}
-            onClick={(e: React.MouseEvent<HTMLInputElement>) => e.stopPropagation()}
-            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => e.stopPropagation()}
+            className="w-12 rounded border border-input bg-background px-1 py-0.5 text-center text-sm tabular-nums focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+            onChange={(e) => handleFocusChange(e.target.value)}
           />
-          m
-        </Button>
+          <span className="text-sm text-muted-foreground">m</span>
+        </div>
 
-        <Button
-          type="button"
-          size="sm"
-          variant={mode === 'break' ? 'default' : 'outline'}
-          onClick={() => setSessionMode('break')}
-          data-testid="mode-break"
-          className="gap-1"
-        >
-          Break
+        {/* Break row */}
+        <div className="flex items-center gap-1">
+          <Button
+            type="button"
+            size="sm"
+            variant={mode === 'break' ? 'default' : 'outline'}
+            onClick={() => setSessionMode('break')}
+            data-testid="mode-break"
+          >
+            {t('pomodoro.mode.break.label')}
+          </Button>
           <input
+            aria-label="Break duration in minutes"
             data-testid="break-minutes-input"
             type="number"
             min={1}
             max={30}
             value={breakMinutes}
             disabled={running}
-            className="w-10 rounded border-0 bg-transparent px-0.5 text-center text-sm tabular-nums focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed"
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleBreakChange(e.target.value)}
-            onClick={(e: React.MouseEvent<HTMLInputElement>) => e.stopPropagation()}
-            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => e.stopPropagation()}
+            className="w-12 rounded border border-input bg-background px-1 py-0.5 text-center text-sm tabular-nums focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+            onChange={(e) => handleBreakChange(e.target.value)}
           />
-          m
-        </Button>
+          <span className="text-sm text-muted-foreground">m</span>
+        </div>
       </div>
 
       {/* Preset Chips */}

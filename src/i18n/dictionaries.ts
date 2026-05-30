@@ -77,6 +77,9 @@ export const dictionaries = {
     'pomodoro.notify.focus_done_body': 'Ambil istirahat sejenak.',
     'pomodoro.notify.break_done': 'Istirahat selesai! Siap fokus?',
     'pomodoro.notify.break_done_body': 'Klik untuk kembali ke aplikasi.',
+    'pomodoro.mode.focus.label': 'Fokus',
+    'pomodoro.mode.break.label': 'Istirahat',
+    'pomodoro.task.focusing': 'Fokus:',
 
     // Settings
     'settings.title': 'Pengaturan',
@@ -213,6 +216,9 @@ export const dictionaries = {
     'pomodoro.notify.focus_done_body': 'Take a short break.',
     'pomodoro.notify.break_done': 'Break over! Ready to focus?',
     'pomodoro.notify.break_done_body': 'Click to return to the app.',
+    'pomodoro.mode.focus.label': 'Focus',
+    'pomodoro.mode.break.label': 'Break',
+    'pomodoro.task.focusing': 'Focusing:',
 
     // Settings
     'settings.title': 'Settings',
