@@ -151,6 +151,7 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
         if (!resetRequestedRef.current) {
           targetEndRef.current = Date.now() + breakSecs * 1000;
         }
+        modeRef.current = 'break';
         setMode('break');
         setSecondsLeft(breakSecs);
         // running stays true — interval keeps going
@@ -164,6 +165,7 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
       } else {
         // Break done — stop, wait for user
         const focusSecs = focusSecondsRef.current;
+        modeRef.current = 'focus';
         setRunning(false);
         setMode('focus');
         setSecondsLeft(focusSecs);

@@ -33,11 +33,17 @@ export function notify(
 ): void {
   if (!('Notification' in window) || Notification.permission !== 'granted') return;
 
-  const notification = new Notification(title, {
-    body,
-    requireInteraction: true,
-    ...options,
-  });
+  let notification: Notification;
+  try {
+    notification = new Notification(title, {
+      body,
+      requireInteraction: true,
+      ...options,
+    });
+  } catch {
+    // Notification constructor not available (e.g. JSDOM in tests) — silently skip
+    return;
+  }
 
   notification.onclick = () => {
     window.focus();
