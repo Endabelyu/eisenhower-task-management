@@ -155,7 +155,7 @@ describe('PomodoroTimer', () => {
       fireEvent.click(screen.getByText('Start'));
     });
     act(() => { vi.advanceTimersByTime(61000); }); // 1 min + 1s
-    expect(screen.getAllByText('Break').length).toBeGreaterThan(0);
+    expect(screen.getByText('Break', { selector: 'p' })).toBeInTheDocument();
   });
 
   it('stops after break ends and shows Start button', async () => {
