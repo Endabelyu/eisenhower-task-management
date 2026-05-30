@@ -3,7 +3,7 @@ import { useTasks } from '@/hooks/use-tasks';
 
 type TaskContextType = ReturnType<typeof useTasks>;
 
-const TaskContext = createContext<TaskContextType | null>(null);
+export const TaskContext = createContext<TaskContextType | null>(null);
 
 /**
  * Context Provider that makes task management functions available throughout the app.

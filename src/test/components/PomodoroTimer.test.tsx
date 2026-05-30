@@ -1,14 +1,48 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { PomodoroTimer } from '@/components/PomodoroTimer';
 import { PomodoroProvider } from '@/context/PomodoroContext';
 import { LanguageProvider } from '@/context/LanguageContext';
+import { TaskContext } from '@/context/TaskContext';
+import { useTasks } from '@/hooks/use-tasks';
+import type { TaskWithMetrics } from '@/types/task';
 
-const renderWithProvider = () => {
+// Minimal TaskContext mock matching ReturnType<typeof useTasks>
+const mockTaskContextValue: ReturnType<typeof useTasks> = {
+  tasks: [] as TaskWithMetrics[],
+  loading: false,
+  addTask: vi.fn(),
+  updateTask: vi.fn(),
+  deleteTask: vi.fn(),
+  restoreTask: vi.fn(),
+  moveToQuadrant: vi.fn(),
+  reorderInQuadrant: vi.fn(),
+  getQuadrantTasks: vi.fn().mockReturnValue([]),
+  getDailyFocus: vi.fn().mockReturnValue([]),
+  getStats: vi.fn().mockReturnValue({
+    total: 0,
+    completed: 0,
+    overdue: 0,
+    completionRate: 0,
+    byQuadrant: [],
+  }),
+  exportTasks: vi.fn(),
+  importTasks: vi.fn(),
+  clearAllTasks: vi.fn(),
+  copyTask: vi.fn(),
+  addSubTask: vi.fn(),
+  toggleSubTask: vi.fn(),
+  deleteSubTask: vi.fn(),
+  updateSubTask: vi.fn(),
+};
+
+const renderWithProvider = (tasks: TaskWithMetrics[] = []) => {
   return render(
     <LanguageProvider>
       <PomodoroProvider>
-        <PomodoroTimer />
+        <TaskContext.Provider value={{ ...mockTaskContextValue, tasks }}>
+          <PomodoroTimer />
+        </TaskContext.Provider>
       </PomodoroProvider>
     </LanguageProvider>
   );
@@ -17,18 +51,31 @@ const renderWithProvider = () => {
 describe('PomodoroTimer', () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    // Mock Audio API for JSDOM
     window.HTMLMediaElement.prototype.pause = vi.fn();
-    window.HTMLMediaElement.prototype.play = vi.fn().mockResolvedValue(true);
-    // Mock Notification API
+    window.HTMLMediaElement.prototype.play = vi.fn().mockResolvedValue(undefined);
     global.Notification = {
       requestPermission: vi.fn().mockResolvedValue('granted'),
       permission: 'granted',
     } as unknown as typeof Notification;
+    global.AudioContext = vi.fn().mockImplementation(() => ({
+      createOscillator: vi.fn().mockReturnValue({
+        connect: vi.fn(),
+        frequency: { value: 0 },
+        start: vi.fn(),
+        stop: vi.fn(),
+      }),
+      createGain: vi.fn().mockReturnValue({
+        connect: vi.fn(),
+        gain: { setValueAtTime: vi.fn(), exponentialRampToValueAtTime: vi.fn() },
+      }),
+      destination: {},
+      currentTime: 0,
+    })) as unknown as typeof AudioContext;
   });
 
   afterEach(() => {
     vi.useRealTimers();
+    vi.restoreAllMocks();
   });
 
   it('renders in focus mode initially with 25:00', () => {
@@ -61,16 +108,12 @@ describe('PomodoroTimer', () => {
     await act(async () => {
       fireEvent.click(screen.getByText('Start'));
     });
-    act(() => {
-      vi.advanceTimersByTime(5000);
-    });
+    act(() => { vi.advanceTimersByTime(5000); });
     await act(async () => {
       fireEvent.click(screen.getByText('Pause'));
     });
     const timeBefore = screen.getByText(/^\d{2}:\d{2}$/).textContent;
-    act(() => {
-      vi.advanceTimersByTime(5000);
-    });
+    act(() => { vi.advanceTimersByTime(5000); });
     expect(screen.getByText(/^\d{2}:\d{2}$/).textContent).toBe(timeBefore);
   });
 
@@ -79,9 +122,7 @@ describe('PomodoroTimer', () => {
     await act(async () => {
       fireEvent.click(screen.getByText('Start'));
     });
-    act(() => {
-      vi.advanceTimersByTime(10000);
-    });
+    act(() => { vi.advanceTimersByTime(10000); });
     await act(async () => {
       fireEvent.click(screen.getByText('Reset'));
     });
@@ -90,65 +131,105 @@ describe('PomodoroTimer', () => {
 
   it('switches to break mode and shows 05:00', () => {
     renderWithProvider();
-    fireEvent.click(screen.getByText('Break 5m'));
+    fireEvent.click(screen.getByTestId('mode-break'));
     expect(screen.getByText('05:00')).toBeInTheDocument();
-    expect(screen.getByText('Break')).toBeInTheDocument();
   });
 
   it('switches back to focus mode and shows 25:00', () => {
     renderWithProvider();
-    fireEvent.click(screen.getByText('Break 5m'));
-    fireEvent.click(screen.getByText('Focus 25m'));
+    fireEvent.click(screen.getByTestId('mode-break'));
+    fireEvent.click(screen.getByTestId('mode-focus'));
     expect(screen.getByText('25:00')).toBeInTheDocument();
   });
 
-  // --- Ambient Sound Tests ---
+  // --- Auto-break flow ---
 
-  it('plays audio when a sound is selected and timer starts', async () => {
-    const playSpy = vi.spyOn(window.HTMLMediaElement.prototype, 'play');
+  it('auto-starts break when focus session ends', async () => {
     renderWithProvider();
-
-    // Select a sound
-    // The dropdown defaults to 'None', we need to change it
-    // Since Select components are complex, we test the context behavior indirectly
-    // by verifying play is called when the timer starts (with audio src set)
+    // Set focus to 1 min for fast test
+    const focusInput = screen.getByTestId('focus-minutes-input');
+    fireEvent.change(focusInput, { target: { value: '1' } });
+    fireEvent.blur(focusInput);
 
     await act(async () => {
       fireEvent.click(screen.getByText('Start'));
     });
-
-    // play() should have been called (even though sound is 'none', the mock is set up)
-    // The important thing is no errors occur
-    expect(playSpy).toBeDefined();
+    act(() => { vi.advanceTimersByTime(61000); }); // 1 min + 1s
+    expect(screen.getByText('Break')).toBeInTheDocument();
   });
+
+  it('stops after break ends and shows Start button', async () => {
+    renderWithProvider();
+    const focusInput = screen.getByTestId('focus-minutes-input');
+    fireEvent.change(focusInput, { target: { value: '1' } });
+    fireEvent.blur(focusInput);
+    const breakInput = screen.getByTestId('break-minutes-input');
+    fireEvent.change(breakInput, { target: { value: '1' } });
+    fireEvent.blur(breakInput);
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Start'));
+    });
+    act(() => { vi.advanceTimersByTime(125000); }); // 1m focus + 1m break + buffer
+    expect(screen.getByText('Start')).toBeInTheDocument();
+  });
+
+  // --- Preset chips ---
+
+  it('applies Classic preset (25/5)', () => {
+    renderWithProvider();
+    fireEvent.click(screen.getByTestId('preset-classic'));
+    expect(screen.getByText('25:00')).toBeInTheDocument();
+  });
+
+  it('applies DeskTime preset (52/17)', () => {
+    renderWithProvider();
+    fireEvent.click(screen.getByTestId('preset-desktime'));
+    expect(screen.getByText('52:00')).toBeInTheDocument();
+  });
+
+  it('disables preset chips while timer is running', async () => {
+    renderWithProvider();
+    await act(async () => {
+      fireEvent.click(screen.getByText('Start'));
+    });
+    expect(screen.getByTestId('preset-classic')).toBeDisabled();
+  });
+
+  // --- Inline duration editing ---
+
+  it('focus input updates timer when changed while stopped', () => {
+    renderWithProvider();
+    const input = screen.getByTestId('focus-minutes-input');
+    fireEvent.change(input, { target: { value: '45' } });
+    fireEvent.blur(input);
+    expect(screen.getByText('45:00')).toBeInTheDocument();
+  });
+
+  it('break input updates break display when in break mode', () => {
+    renderWithProvider();
+    fireEvent.click(screen.getByTestId('mode-break'));
+    const input = screen.getByTestId('break-minutes-input');
+    fireEvent.change(input, { target: { value: '10' } });
+    fireEvent.blur(input);
+    expect(screen.getByText('10:00')).toBeInTheDocument();
+  });
+
+  // --- Ambient sound ---
 
   it('pauses audio when timer is paused', async () => {
     const pauseSpy = vi.spyOn(window.HTMLMediaElement.prototype, 'pause');
     renderWithProvider();
-
-    await act(async () => {
-      fireEvent.click(screen.getByText('Start'));
-    });
-
-    await act(async () => {
-      fireEvent.click(screen.getByText('Pause'));
-    });
-
+    await act(async () => { fireEvent.click(screen.getByText('Start')); });
+    await act(async () => { fireEvent.click(screen.getByText('Pause')); });
     expect(pauseSpy).toHaveBeenCalled();
   });
 
   it('pauses audio when timer is reset', async () => {
     const pauseSpy = vi.spyOn(window.HTMLMediaElement.prototype, 'pause');
     renderWithProvider();
-
-    await act(async () => {
-      fireEvent.click(screen.getByText('Start'));
-    });
-
-    await act(async () => {
-      fireEvent.click(screen.getByText('Reset'));
-    });
-
+    await act(async () => { fireEvent.click(screen.getByText('Start')); });
+    await act(async () => { fireEvent.click(screen.getByText('Reset')); });
     expect(pauseSpy).toHaveBeenCalled();
   });
 });

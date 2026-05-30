@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, ReactNode } from 'react';
 import { requestNotificationPermission, notify } from '@/lib/notifications';
 
 export const DEFAULT_FOCUS_MINUTES = 25;
@@ -21,6 +21,33 @@ export const AMBIENCE_SOUNDS = {
 } as const;
 
 export type AmbienceType = keyof typeof AMBIENCE_SOUNDS;
+
+export function suggestBreak(focusMinutes: number): number {
+  return Math.min(30, Math.max(1, Math.round(focusMinutes / 5)));
+}
+
+export const PRESETS = [
+  { label: 'Classic', focus: 25, break: 5 },
+  { label: 'DeskTime', focus: 52, break: 17 },
+  { label: 'Ultradian', focus: 90, break: 20 },
+] as const;
+
+function playChime() {
+  try {
+    const ctx = new AudioContext();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.value = 880;
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.8);
+  } catch {
+    // AudioContext not available (e.g. JSDOM in tests) — silently skip
+  }
+}
 
 interface PomodoroContextType {
   mode: 'focus' | 'break';
@@ -60,7 +87,9 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
   const [breakMinutes, setBreakMinutesState] = useState<number>(() =>
     loadNumber('pomodoro_break_minutes', DEFAULT_BREAK_MINUTES)
   );
-  const [secondsLeft, setSecondsLeft] = useState(() => loadNumber('pomodoro_focus_minutes', DEFAULT_FOCUS_MINUTES) * 60);
+  const [secondsLeft, setSecondsLeft] = useState(() =>
+    loadNumber('pomodoro_focus_minutes', DEFAULT_FOCUS_MINUTES) * 60
+  );
   const [running, setRunning] = useState(false);
   const [ambience, setAmbience] = useState<AmbienceType>('none');
   const [volume, setVolume] = useState(30);
@@ -70,9 +99,23 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
     return localStorage.getItem('pomodoro_notifications_enabled') !== 'false';
   });
 
+  // Refs used inside interval to avoid stale closure
+  const targetEndRef = useRef<number | null>(null);
+  const modeRef = useRef<'focus' | 'break'>('focus');
+  const focusSecondsRef = useRef<number>(focusMinutes * 60);
+  const breakSecondsRef = useRef<number>(breakMinutes * 60);
+  const notificationsEnabledRef = useRef<boolean>(notificationsEnabled);
+
+  // Keep refs in sync with state
+  useEffect(() => { modeRef.current = mode; }, [mode]);
+  useEffect(() => { focusSecondsRef.current = focusMinutes * 60; }, [focusMinutes]);
+  useEffect(() => { breakSecondsRef.current = breakMinutes * 60; }, [breakMinutes]);
+  useEffect(() => { notificationsEnabledRef.current = notificationsEnabled; }, [notificationsEnabled]);
+
   const focusSeconds = focusMinutes * 60;
   const breakSeconds = breakMinutes * 60;
 
+  // Timestamp-based tick loop — only depends on `running`
   useEffect(() => {
     if (!running) {
       document.title = 'Eisenhower Matrix';
@@ -80,37 +123,62 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
     }
 
     const timerId = window.setInterval(() => {
-      setSecondsLeft((current) => {
-        if (current > 1) {
-          const timeStr = formatTime(current - 1);
-          const emoji = mode === 'focus' ? '⏱️' : '☕';
-          const modeText = mode === 'focus' ? 'Focus' : 'Break';
-          document.title = `${emoji} ${timeStr} - ${modeText}`;
-          return current - 1;
+      if (targetEndRef.current === null) return;
+
+      const remaining = Math.ceil((targetEndRef.current - Date.now()) / 1000);
+
+      if (remaining > 0) {
+        setSecondsLeft(remaining);
+        const currentMode = modeRef.current;
+        const emoji = currentMode === 'focus' ? '⏱️' : '☕';
+        const label = currentMode === 'focus' ? 'Focus' : 'Break';
+        document.title = `${emoji} ${formatTime(remaining)} - ${label}`;
+        return;
+      }
+
+      // Session complete
+      targetEndRef.current = null;
+      playChime();
+
+      const currentMode = modeRef.current;
+
+      if (currentMode === 'focus') {
+        // Auto-start break
+        const breakSecs = breakSecondsRef.current;
+        targetEndRef.current = Date.now() + breakSecs * 1000;
+        setMode('break');
+        setSecondsLeft(breakSecs);
+        // running stays true — interval keeps going
+
+        if (notificationsEnabledRef.current) {
+          notify('Focus complete! Break starting...', 'Take a short break.', {
+            requireInteraction: false,
+          });
         }
-
-        document.title = `✅ ${mode === 'focus' ? 'Focus' : 'Break'} Complete!`;
-
-        if (notificationsEnabled) {
-          const notificationTitle = mode === 'focus' ? 'Focus Session Complete!' : 'Break Complete!';
-          const notificationBody =
-            mode === 'focus' ? "Time's up! Take a break." : 'Break is over! Ready to focus?';
-          notify(notificationTitle, notificationBody);
-        }
-
-        const nextMode = mode === 'focus' ? 'break' : 'focus';
-        setMode(nextMode);
+        document.title = `☕ ${formatTime(breakSecs)} - Break`;
+      } else {
+        // Break done — stop, wait for user
+        const focusSecs = focusSecondsRef.current;
         setRunning(false);
-        return nextMode === 'focus' ? focusSeconds : breakSeconds;
-      });
+        setMode('focus');
+        setSecondsLeft(focusSecs);
+        document.title = '✅ Break Done! Click Start to resume';
+
+        if (notificationsEnabledRef.current) {
+          notify('Break over! Ready to focus?', 'Click to return to the app.');
+        }
+
+        try { window.focus(); } catch { /* best-effort */ }
+      }
     }, 1000);
 
     return () => {
       window.clearInterval(timerId);
       document.title = 'Eisenhower Matrix';
     };
-  }, [mode, running, notificationsEnabled, focusSeconds, breakSeconds]);
+  }, [running]);
 
+  // Ambience audio
   useEffect(() => {
     const sound = AMBIENCE_SOUNDS[ambience];
 
@@ -131,10 +199,7 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
     if (running) {
       audio.play()
         .then(() => setIsPlaying(true))
-        .catch((err) => {
-          console.warn('Audio playback prevented:', err);
-          setIsPlaying(false);
-        });
+        .catch(() => setIsPlaying(false));
     } else {
       audio.pause();
       setIsPlaying(false);
@@ -174,21 +239,27 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
   };
 
   const setSessionMode = (nextMode: 'focus' | 'break') => {
-    setMode(nextMode);
+    targetEndRef.current = null;
     setRunning(false);
+    setMode(nextMode);
     setSecondsLeft(nextMode === 'focus' ? focusSeconds : breakSeconds);
   };
 
   const resetTimer = () => {
+    targetEndRef.current = null;
     setRunning(false);
     setSecondsLeft(mode === 'focus' ? focusSeconds : breakSeconds);
   };
 
   const toggleTimer = async () => {
-    if (!running && notificationsEnabled) {
-      await requestNotificationPermission();
+    if (!running) {
+      if (notificationsEnabled) await requestNotificationPermission();
+      targetEndRef.current = Date.now() + secondsLeft * 1000;
+      setRunning(true);
+    } else {
+      targetEndRef.current = null;
+      setRunning(false);
     }
-    setRunning((prev) => !prev);
   };
 
   const totalSeconds = mode === 'focus' ? focusSeconds : breakSeconds;
