@@ -5,7 +5,7 @@ import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { usePomodoro, AMBIENCE_SOUNDS, AmbienceType, formatTime, PRESETS, suggestBreak } from '@/context/PomodoroContext';
 import { useLanguage } from '@/context/LanguageContext';
-import { getNotificationPermission } from '@/lib/notifications';
+import { getNotificationPermission, requestNotificationPermission } from '@/lib/notifications';
 import { useTaskContext } from '@/context/TaskContext';
 
 export function PomodoroTimer() {
@@ -103,22 +103,30 @@ export function PomodoroTimer() {
       <div className="mb-4 flex items-center gap-2">
         <Timer className="h-5 w-5 text-status-in-progress" />
         <h2 className="font-display text-lg font-semibold">{t('pomodoro.title')}</h2>
-        <span
-          className="ml-auto text-muted-foreground"
+        <button
+          type="button"
+          className="ml-auto text-muted-foreground transition-colors hover:text-foreground disabled:cursor-not-allowed"
+          disabled={notifPermission === 'unsupported' || notifPermission === 'denied'}
           title={
             notifPermission === 'unsupported'
-              ? 'Notifications not supported'
+              ? 'Notifications not supported in this browser'
+              : notifPermission === 'denied'
+              ? 'Notifications blocked — enable in browser site settings'
               : notifActive
               ? 'Desktop notifications enabled'
-              : 'Desktop notifications disabled or not permitted'
+              : 'Click to enable desktop notifications'
           }
+          onClick={async () => {
+            if (notifPermission === 'unsupported' || notifPermission === 'denied') return;
+            await requestNotificationPermission();
+          }}
         >
           {notifActive ? (
             <Bell className="h-4 w-4 text-primary" />
           ) : (
             <BellOff className="h-4 w-4" />
           )}
-        </span>
+        </button>
       </div>
 
       {/* Task Selector */}
