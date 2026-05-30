@@ -44,6 +44,7 @@ function playChime() {
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
     osc.start(ctx.currentTime);
     osc.stop(ctx.currentTime + 0.8);
+    osc.addEventListener('ended', () => { ctx.close(); });
   } catch {
     // AudioContext not available (e.g. JSDOM in tests) — silently skip
   }
@@ -101,6 +102,7 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
 
   // Refs used inside interval to avoid stale closure
   const targetEndRef = useRef<number | null>(null);
+  const resetRequestedRef = useRef(false);
   const modeRef = useRef<'focus' | 'break'>('focus');
   const focusSecondsRef = useRef<number>(focusMinutes * 60);
   const breakSecondsRef = useRef<number>(breakMinutes * 60);
@@ -123,6 +125,7 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
     }
 
     const timerId = window.setInterval(() => {
+      resetRequestedRef.current = false;
       if (targetEndRef.current === null) return;
 
       const remaining = Math.ceil((targetEndRef.current - Date.now()) / 1000);
@@ -145,7 +148,9 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
       if (currentMode === 'focus') {
         // Auto-start break
         const breakSecs = breakSecondsRef.current;
-        targetEndRef.current = Date.now() + breakSecs * 1000;
+        if (!resetRequestedRef.current) {
+          targetEndRef.current = Date.now() + breakSecs * 1000;
+        }
         setMode('break');
         setSecondsLeft(breakSecs);
         // running stays true — interval keeps going
@@ -239,6 +244,7 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
   };
 
   const setSessionMode = (nextMode: 'focus' | 'break') => {
+    resetRequestedRef.current = true;
     targetEndRef.current = null;
     setRunning(false);
     setMode(nextMode);
@@ -246,6 +252,7 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
   };
 
   const resetTimer = () => {
+    resetRequestedRef.current = true;
     targetEndRef.current = null;
     setRunning(false);
     setSecondsLeft(mode === 'focus' ? focusSeconds : breakSeconds);
