@@ -42,7 +42,7 @@ export function ListPanel({ onEditTask }: ListPanelProps) {
   const filtered = tasks.filter(t => {
     if (search && !t.title.toLowerCase().includes(search.toLowerCase())) return false;
     if (tagFilter !== 'all' && !t.tags.includes(tagFilter)) return false;
-    if (filter === 'all') return true;
+    if (filter === 'all') return t.status !== 'completed';
     if (filter === 'completed') return t.status === 'completed';
     return t.quadrant === filter && t.status !== 'completed';
   }).sort((a, b) => b.urgencyScore - a.urgencyScore);
